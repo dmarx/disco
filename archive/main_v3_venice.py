@@ -1,9 +1,7 @@
 settings = {
     # 'prompt': "A scenic view of an Alpine landscape in summer, matte painting trending on artstation",
     #'prompt': "A traveller at lightspeed in hyperspace, matte painting trending on Artstation", #by Asher Brown Durand
-# all_title = "The ancient dome of Kublai Khan in the green hills and tropical forests surrounding Xanadu"
-    # 'prompt': "A scenic view of Venice, by Canaletto, matte painting trending on artstation", #by Asher Brown Durand
-    'prompt': "A scenic view of Palmyra gardens, matte painting trending on artstation", #by Asher Brown Durand
+    'prompt': "A scenic view of Venice, by Canaletto, matte painting trending on artstation", #by Asher Brown Durand
     #
     'clip_guidance_scale':5000,
     'steps':250,
@@ -14,15 +12,15 @@ settings = {
     'path':'/home/twmmason/dev/disco/content',
     'ViTB32': True,
     'ViTB16': True,
-    'ViTL14': False,
-    'RN101': False,
+    'ViTL14': True,
+    'RN101': True,
     'RN50': True,
     'RN50x4': True,
     'RN50x16': True,
     'RN50x64': False,
     'use_secondary_model':False,
     'skip_augs':True,
-      'wh':[1280, 768],
+    'wh':[1280, 768],
      #'wh':[512, 512],
     # 'wh':[640, 376],
 

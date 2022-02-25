@@ -11,7 +11,8 @@ beautiful landscape full of grass and flowers by Noah Bradley, matte painting, T
     'prompt': "A scenic view of a beautiful landscape full of grass and flowers by Noah Bradley, blue sky, mountains, matte painting trending on Artstation",
 
   'prompt': "A traveller at lightspeed in hyperspace, matte painting trending on Artstation", #by Asher Brown Durand
-  
+    'prompt': "Garden hall at Petra, matte painting trending on artstation", #by Asher Brown Durand
+
 pip install piq
 pip install ftfy
 pip install ipywidgets

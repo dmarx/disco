@@ -1,9 +1,7 @@
 settings = {
     # 'prompt': "A scenic view of an Alpine landscape in summer, matte painting trending on artstation",
-    #'prompt': "A traveller at lightspeed in hyperspace, matte painting trending on Artstation", #by Asher Brown Durand
-# all_title = "The ancient dome of Kublai Khan in the green hills and tropical forests surrounding Xanadu"
+    'prompt': "Garden hall at Petra, matte painting trending on artstation", #by Asher Brown Durand
     # 'prompt': "A scenic view of Venice, by Canaletto, matte painting trending on artstation", #by Asher Brown Durand
-    'prompt': "A scenic view of Palmyra gardens, matte painting trending on artstation", #by Asher Brown Durand
     #
     'clip_guidance_scale':5000,
     'steps':250,
@@ -12,20 +10,10 @@ settings = {
     'cutn_batches':4,
     'diffusion_steps':1000,
     'path':'/home/twmmason/dev/disco/content',
-    'ViTB32': True,
-    'ViTB16': True,
-    'ViTL14': False,
-    'RN101': False,
     'RN50': True,
     'RN50x4': True,
     'RN50x16': True,
-    'RN50x64': False,
-    'use_secondary_model':False,
-    'skip_augs':True,
-      'wh':[1280, 768],
-     #'wh':[512, 512],
-    # 'wh':[640, 376],
-
+    'wh':[1280, 768]
 } 
 # 
 # # Setting | Description | Default
@@ -1560,19 +1548,19 @@ def do_superres(img, filepath):
 
 #@markdown ####**Models Settings:**
 diffusion_model = "512x512_diffusion_uncond_finetune_008100" #@param ["256x256_diffusion_uncond", "512x512_diffusion_uncond_finetune_008100"]
-use_secondary_model = settings['use_secondary_model'] #@param {type: 'boolean'}
+use_secondary_model = False #@param {type: 'boolean'}
 
 timestep_respacing = '50' # param ['25','50','100','150','250','500','1000','ddim25','ddim50', 'ddim75', 'ddim100','ddim150','ddim250','ddim500','ddim1000']  
 diffusion_steps = 1000 # param {type: 'number'}
 use_checkpoint = True #@param {type: 'boolean'}
-ViTB32 = settings['ViTB32'] #@param{type:"boolean"}
-ViTB16 = settings['ViTB16'] #@param{type:"boolean"}
-ViTL14 = settings['ViTL14'] #@param{type:"boolean"}
-RN101 = settings['RN101'] #@param{type:"boolean"}
-RN50 = settings['RN50'] #@param{type:"boolean"}
-RN50x4 = settings['RN50x4'] #@param{type:"boolean"}
-RN50x16 = settings['RN50x16'] #@param{type:"boolean"}
-RN50x64 = settings['RN50x64'] #@param{type:"boolean"}
+ViTB32 = True #@param{type:"boolean"}
+ViTB16 = True #@param{type:"boolean"}
+ViTL14 = True #@param{type:"boolean"}
+RN101 = False #@param{type:"boolean"}
+RN50 = True #@param{type:"boolean"}
+RN50x4 = True #@param{type:"boolean"}
+RN50x16 = True #@param{type:"boolean"}
+RN50x64 = False #@param{type:"boolean"}
 SLIPB16 = False # param{type:"boolean"}
 SLIPL16 = False # param{type:"boolean"}
 
@@ -1744,13 +1732,13 @@ lpips_model = lpips.LPIPS(net='vgg').to(device)
 #@markdown ####**Basic Settings:**
 batch_name = 'TimeToDisco' #@param{type: 'string'}
 steps = settings['steps'] #@param [25,50,100,150,250,500,1000]{type: 'raw', allow-input: true}
-width_height = settings['wh']#@param{type: 'raw'}
+width_height = [1280, 768]#@param{type: 'raw'}
 clip_guidance_scale = settings['clip_guidance_scale'] #@param{type: 'number'}
 tv_scale =  0#@param{type: 'number'}
 range_scale =   150#@param{type: 'number'}
 sat_scale =   0#@param{type: 'number'}
 cutn_batches = 4  #@param{type: 'number'}
-skip_augs = settings['skip_augs'] #@param{type: 'boolean'}
+skip_augs = True#@param{type: 'boolean'}
 
 #@markdown ---
 
