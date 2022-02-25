@@ -1,0 +1,29 @@
+python3 main.py
+filepath /home/twmmason/dev/disco/content/init_images exists.
+filepath /home/twmmason/dev/disco/content/images_out exists.
+filepath /home/twmmason/dev/disco/content/models exists.
+filepath /home/twmmason/dev/disco/content/init_images exists.
+filepath /home/twmmason/dev/disco/content/images_out exists.
+filepath /home/twmmason/dev/disco/content/models exists.
+Using device: cuda:0
+Using downloaded and verified file: /home/twmmason/dev/disco/content/models/superres/project.yaml/?dl=1
+Using downloaded and verified file: /home/twmmason/dev/disco/content/models/superres/last.ckpt/?dl=1
+Loading model from /home/twmmason/dev/disco/content/models/superres/last.ckpt/?dl=1
+LatentDiffusion: Running in eps-prediction mode
+DiffusionWrapper has 113.62 M params.
+Keeping EMAs of 308.
+making attention of type 'vanilla' with 512 in_channels
+Working with z of shape (1, 3, 64, 64) = 12288 dimensions.
+making attention of type 'vanilla' with 512 in_channels
+512 Model already downloaded, check check_model_SHA if the file is corrupt
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /home/twmmason/miniconda3/envs/pytti/lib/python3.6/site-packages/lpips/weights/v0.1/vgg.pth
+filepath /home/twmmason/dev/disco/content/images_out/TimeToDisco exists.
+Will save every 11 steps
+filepath /home/twmmason/dev/disco/content/images_out/TimeToDisco/partials exists.
+Starting Run: TimeToDisco(14) at frame 0
+Prepping model...
+range(0, 1)
+None
+Frame Prompt: ['A scenic view of Venice, by Canaletto, matte painting trending on artstation']
+Batches:   0%|          | 0/1 [00:00<?, ?it/s]

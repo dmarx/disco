@@ -1,0 +1,9 @@
+{
+    "python.analysis.extraPaths": [
+        "./latent-diffusion",
+        "./ResizeRight",
+        "./CLIP",
+        "./guided-diffusion"
+    ],
+    "python.formatting.provider": "autopep8"
+}
