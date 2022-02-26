@@ -3,7 +3,9 @@
         "./latent-diffusion",
         "./ResizeRight",
         "./CLIP",
-        "./guided-diffusion"
+        "./guided-diffusion",
+        "./AdaBins",
+        "./MiDaS"
     ],
     "python.formatting.provider": "autopep8"
 }

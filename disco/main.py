@@ -36,24 +36,24 @@ from utils import MakeCutouts, MakeCutoutsDango, SecondaryDiffusionImageNet2, al
 
 
 clip_list = [
-    "ViT-L/14",  # VRAM HEAVY!!!
+    #"ViT-L/14",  # VRAM HEAVY!!!
     # "RN50x64",     #VRAM HEAVY!!!
     'RN50x16',  # VRAM HEAVY!!!
     'ViT-B/32',
     "ViT-B/16",
-    "RN50x4",
-     "RN101",
-     "RN50"
+    #"RN50x4",
+     #"RN101",
+     #"RN50"
 ]
 
 settings = {
     # 'prompt': "A scenic view of an Alpine landscape in summer, matte painting trending on artstation",
     # 'prompt': "The Gateway to the Great Temple at Baalbec, matte painting trending on artstation",
     # 'prompt':'A scenic view of Torres del Paine National Park at Patagonia, matte painting trending on artstation',
-   'prompt': "A scenic view of a beautiful landscape full of grass and flowers by Noah Bradley, blue sky, mountains, matte painting trending on Artstation",
+   'prompt': "A scenic view of a Scottish loch in the Isle of Skye, matte painting trending on artstation",
     #  'prompt':'Astronaut in vale of tears and locusts attack by Gustav Dore. Rendered in Unreal Engine, Trending on Artstation',
     'clip_guidance_scale': 10000,
-    'steps': 500,
+    'steps': 250,
     'cut_ic_pow': 1,
     'range_scale': 150,
     'cutn_batches': 4,
