@@ -14,3 +14,6 @@
 /MiDaS
 /pytorch3d
 /disco-diffusion
+pretrained/AdaBins_nyu.pt
+pretrained/AdaBins_nyu.ptZone.Identifier
+tools/3d/BoostingMonocularDepth

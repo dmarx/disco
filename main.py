@@ -10,11 +10,6 @@ settings = {
     #'prompt': "A scenic view of a river valley and meadow, by Asher Brown Durand, featured on ArtStation.",
    # 'prompt': "A scenic view of a beautiful valley, by Asher Brown Durand, featured on ArtStation.",
         'prompt': "A close-up view of leaves in a dense jungle, by Asher Brown Durand, featured on ArtStation.",
-
-    
-    
-    
-
     #
     'clip_guidance_scale':5000,
     'steps':100,
@@ -25,6 +20,7 @@ settings = {
     'diffusion_steps':1000,
     'tv_scale':0,
     'sat_scale':0,
+    'relative_path':'./',
     'path':'/home/twmmason/dev/disco/content',
     'ViTB32': True,
     'ViTB16': True,
@@ -36,9 +32,11 @@ settings = {
     'RN50x64': False,
     'use_secondary_model':False,
     'skip_augs':False,
+    'frames_skip_steps':'60%',
     #'wh':[1280, 768],
     'wh':[640, 360],
-    'intermediate_saves': 2,
+
+    'intermediate_saves': 10,
     
     #'cutn_batches':4,
     'cutn_batches':4,
@@ -48,6 +46,7 @@ settings = {
 
 } 
 
+relative_path = settings['relative_path']
 
 """#Tutorial
 
@@ -196,10 +195,10 @@ import torch
 # os.system("pip install fvcore iopath")
 # os.system("pip install --no-index --no-cache-dir pytorch3d -f https://dl.fbaipublicfiles.com/pytorch3d/packaging/wheels/"+pyt_version_str+"/download.html")
 
-# sys.path.append('./../../SLIP')
-sys.path.append('./../../ResizeRight')
-sys.path.append('./../../MiDaS')
-sys.path.append('./../../latent-diffusion')
+# sys.path.append(relative_path + 'SLIP')
+sys.path.append(relative_path + 'ResizeRight')
+sys.path.append(relative_path + 'MiDaS')
+sys.path.append(relative_path + 'latent-diffusion')
 from dataclasses import dataclass
 from functools import partial
 import cv2
@@ -220,8 +219,8 @@ from torch.nn import functional as F
 import torchvision.transforms as T
 import torchvision.transforms.functional as TF
 from tqdm.notebook import tqdm
-sys.path.append('./../../CLIP')
-sys.path.append('./../../guided-diffusion')
+sys.path.append(relative_path + 'CLIP')
+sys.path.append(relative_path + 'guided-diffusion')
 import clip
 from resize_right import resize
 # from models import SLIP_VITB16, SLIP, SLIP_VITL16
@@ -244,7 +243,7 @@ import hashlib
 import ipywidgets as widgets
 import os
 sys.path.append(".")
-sys.path.append('./../../taming-transformers')
+sys.path.append(relative_path + 'taming-transformers')
 from taming.models import vqgan # checking correct import from taming
 from torchvision.datasets.utils import download_url
 # if is_colab:
@@ -267,13 +266,13 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 # AdaBins stuff
 if USE_ADABINS:
-  if is_colab:
-    os.system("git clone https://github.com/shariqfarooq123/AdaBins.git")
-    if not path_exists(model_path + "/AdaBins_nyu.pt"):
-      os.system("wget https://cloudflare-ipfs.com/ipfs/Qmd2mMnDLWePKmgfS8m6ntAg4nhV5VkUyAydYBp8cWWeB7/AdaBins_nyu.pt -P " + model_path + "")
-    os.system("mkdir pretrained")
-    os.system("cp  -P " + model_path + "/AdaBins_nyu.pt pretrained/AdaBins_nyu.pt")
-  sys.path.append('./../../AdaBins')
+#   if is_colab:
+#     os.system("git clone https://github.com/shariqfarooq123/AdaBins.git")
+#     if not path_exists(model_path + "/AdaBins_nyu.pt"):
+#       os.system("wget https://cloudflare-ipfs.com/ipfs/Qmd2mMnDLWePKmgfS8m6ntAg4nhV5VkUyAydYBp8cWWeB7/AdaBins_nyu.pt -P " + model_path + "")
+#     os.system("mkdir pretrained")
+#     os.system("cp  -P " + model_path + "/pretrained/AdaBins_nyu.pt")
+  sys.path.append(relative_path + 'AdaBins')
   from infer import InferenceHelper
   MAX_ADABINS_AREA = 500000
 
@@ -2051,7 +2050,7 @@ createPath(batchFolder)
 """###Animation Settings"""
 
 #@markdown ####**Animation Mode:**
-animation_mode = '2D' #@param ['None', '2D', '3D', 'Video Input'] {type:'string'}
+animation_mode = settings['animation_mode'] #@param ['None', '2D', '3D', 'Video Input'] {type:'string'}
 #@markdown *For animation, you probably want to turn `cutn_batches` to 1 to make it quicker.*
 
 
@@ -2085,7 +2084,7 @@ if animation_mode == "Video Input":
 #@markdown `zoom` is a multiplier of dimensions, 1 is no zoom.
 
 key_frames = True #@param {type:"boolean"}
-max_frames = 53#@param {type:"number"}
+max_frames = 530#@param {type:"number"}
 
 if animation_mode == "Video Input":
   max_frames = len(glob(f'{videoFramesFolder}/*.jpg'))
@@ -2098,7 +2097,7 @@ translation_x = "0: (0)"#@param {type:"string"}
 translation_y = "0: (0)"#@param {type:"string"}
 translation_z = "0: (10.0)"#@param {type:"string"}
 rotation_3d_x = "0: (0)"#@param {type:"string"}
-rotation_3d_y = "0: (0), 60: (10.0)"#@param {type:"string"}
+rotation_3d_y = "0: (0)" #, 600: (0.1)"#@param {type:"string"}
 rotation_3d_z = "0: (0)"#@param {type:"string"}
 midas_depth_model = "dpt_large"#@param {type:"string"}
 midas_weight = 0.3#@param {type:"number"}
@@ -2114,7 +2113,7 @@ sampling_mode = 'bicubic'#@param {type:"string"}
 #@markdown `frame_scale` tries to guide the new frame to looking like the old one. A good default is 1500.
 frames_scale = 1500 #@param{type: 'integer'}
 #@markdown `frame_skip_steps` will blur the previous frame - higher values will flicker less but struggle to add enough new detail to zoom into.
-frames_skip_steps = '0%'#'60%' #@param ['40%', '50%', '60%', '70%', '80%'] {type: 'string'}
+frames_skip_steps = settings['frames_skip_steps']#'60%' #@param ['40%', '50%', '60%', '70%', '80%'] {type: 'string'}
 
 
 def parse_key_frames(string, prompt_parser=None):
@@ -2502,15 +2501,23 @@ lines = [
 
 
 # }
+frames_per_scene= 10
 
-count = len(lines)
-text_prompts =dict.fromkeys(range(count))
-#dict(zip(range(count), [])) # dict.fromkeys(range(count))
+count = len(lines) 
+keys =  [i * frames_per_scene for i in range(count)]
+text_prompts =dict.fromkeys(keys)
 for i in range(count):
-    text_prompts[i]= [lines[i] + ", by Asher Brown Durand, featured on ArtStation"] 
+    text_prompts[i*frames_per_scene]= [lines[i] +", jungle surrounded by green hills and mountains in the distance, by Asher Brown Durand, featured on ArtStation"] #[lines[i] + ", by Asher Brown Durand, featured on ArtStation"] 
+    
+    
+    
+    
+    # text_prompts[i]= ["A close-up view of leaves in a dense jungle, by Asher Brown Durand, featured on ArtStation"] #[lines[i] + ", by Asher Brown Durand, featured on ArtStation"] 
+    # text_prompts[i]= [lines[i] + ", by Asher Brown Durand, featured on ArtStation"] 
     # setattr(text_prompts, i, [lines[i] + ", by Asher Brown Durand, featured on ArtStation"] )
 
 
+print(text_prompts)
 # text_prompts = {
 
     

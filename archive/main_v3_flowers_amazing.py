@@ -15,7 +15,6 @@ settings = {
     'steps':250,
     'cut_ic_pow':1,
     'range_scale':150,
-    'cutn_batches':4,
     'n_batches':5,
     'diffusion_steps':1000,
     'tv_scale':0,
@@ -31,6 +30,9 @@ settings = {
     'use_secondary_model':False,
     'skip_augs':False,
     'wh':[1280, 768],
+
+    'cutn_batches':4,
+    'animation_mode':'2D',
      #'wh':[512, 512],
     #'wh':[640, 376],
 

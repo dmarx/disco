@@ -13,6 +13,13 @@ beautiful landscape full of grass and flowers by Noah Bradley, matte painting, T
   'prompt': "A traveller at lightspeed in hyperspace, matte painting trending on Artstation", #by Asher Brown Durand
     'prompt': "Garden hall at Petra, matte painting trending on artstation", #by Asher Brown Durand
 
+
+This one was made with openAI 512 Clip guidance was about 2000 & tv scale was 1000 , maybe that's why it was 'smooth'ish
+Festival of Hats by Justin Blume
+Rosette Nebula - Neptunes Trident r astrophotography
+opposed symmetrical hexagonal lens flare of light complex fractal
+
+
 pip install piq
 pip install ftfy
 pip install ipywidgets
@@ -24,6 +31,9 @@ pip install pytorch-lightning
 pip install einops
 pip install omegaconf
 
+
+ffmpeg -framerate 15 -i default_%d.png out.mp4
+scp images_out/default/* twmma@81.132.159.76:share
 
 # for guided-diffusion-plms
 # Notebooks are not updated yet and may not be updated today 

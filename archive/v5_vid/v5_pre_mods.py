@@ -8,11 +8,7 @@ settings = {
     #'prompt': "A traveller meditating at lightspeed in hyperspace by Noah Bradley and Chris Rahn, reimagined by industrial light and magic, sunrays shine, ArtStation HD", #by Asher Brown Durand
     #'prompt': "A scenic view of angels in a garden with flowers and plants, by Asher Brown Durand, featured on ArtStation.", #by Asher Brown Durand
     #'prompt': "A scenic view of a river valley and meadow, by Asher Brown Durand, featured on ArtStation.",
-   # 'prompt': "A scenic view of a beautiful valley, by Asher Brown Durand, featured on ArtStation.",
-        'prompt': "A close-up view of leaves in a dense jungle, by Asher Brown Durand, featured on ArtStation.",
-
-    
-    
+    'prompt': "A scenic view of a beautiful valley, by Asher Brown Durand, featured on ArtStation.",
     
 
     #
@@ -25,23 +21,22 @@ settings = {
     'diffusion_steps':1000,
     'tv_scale':0,
     'sat_scale':0,
-    'path':'/home/twmmason/dev/disco/content',
+    'path':'/notebooks/dev/disco/content',
     'ViTB32': True,
-    'ViTB16': True,
-    'ViTL14': True,
+    'ViTB16': False,
+    'ViTL14': False,
     'RN101': False,
     'RN50': False,
     'RN50x4': False,
-    'RN50x16': True,
+    'RN50x16': False,
     'RN50x64': False,
     'use_secondary_model':False,
-    'skip_augs':False,
+    'skip_augs':True,
     #'wh':[1280, 768],
-    'wh':[640, 360],
-    'intermediate_saves': 2,
-    
+    'wh':[400, 260],
+    'intermediate_saves': 0,
     #'cutn_batches':4,
-    'cutn_batches':4,
+    'cutn_batches':1,
     'animation_mode':'2D',
      #'wh':[512, 512],
     #'wh':[640, 376],
@@ -256,6 +251,11 @@ from ldm.util import instantiate_from_config
 from ldm.modules.diffusionmodules.util import make_ddim_sampling_parameters, make_ddim_timesteps, noise_like
 # from ldm.models.diffusion.ddim import DDIMSampler
 from ldm.util import ismap
+# if is_colab:
+# #   %cd '/content'
+#   from google.colab import files
+# else:
+#   %cd $PROJECT_DIR
 from IPython.display import Image as ipyimg
 from numpy import asarray
 from einops import rearrange, repeat
@@ -304,7 +304,7 @@ default_models = {
     "dpt_hybrid": f"" + model_path + "/dpt_hybrid-midas-501f0c75.pt",
     "dpt_hybrid_nyu": f"" + model_path + "/dpt_hybrid_nyu-2ce69ec7.pt",}
 
-# print("asd",default_models)
+print("asd",default_models)
 
 def init_midas_depth_model(midas_model_type="dpt_large", optimize=True):
     midas_model = None
@@ -2085,20 +2085,19 @@ if animation_mode == "Video Input":
 #@markdown `zoom` is a multiplier of dimensions, 1 is no zoom.
 
 key_frames = True #@param {type:"boolean"}
-max_frames = 53#@param {type:"number"}
+max_frames = 10000#@param {type:"number"}
 
 if animation_mode == "Video Input":
   max_frames = len(glob(f'{videoFramesFolder}/*.jpg'))
 
 interp_spline = 'Linear' #Do not change, currently will not look good. param ['Linear','Quadratic','Cubic']{type:"string"}
 angle = "0:(0)"#@param {type:"string"}
-# zoom = "0: (1), 50: (1.05)"#@param {type:"string"} # was 10
-zoom = "0: (1)"#@param {type:"string"} # was 10
+zoom = "0: (1), 10: (1.05)"#@param {type:"string"}
 translation_x = "0: (0)"#@param {type:"string"}
 translation_y = "0: (0)"#@param {type:"string"}
 translation_z = "0: (10.0)"#@param {type:"string"}
 rotation_3d_x = "0: (0)"#@param {type:"string"}
-rotation_3d_y = "0: (0), 60: (10.0)"#@param {type:"string"}
+rotation_3d_y = "0: (0)"#@param {type:"string"}
 rotation_3d_z = "0: (0)"#@param {type:"string"}
 midas_depth_model = "dpt_large"#@param {type:"string"}
 midas_weight = 0.3#@param {type:"number"}
@@ -2114,7 +2113,7 @@ sampling_mode = 'bicubic'#@param {type:"string"}
 #@markdown `frame_scale` tries to guide the new frame to looking like the old one. A good default is 1500.
 frames_scale = 1500 #@param{type: 'integer'}
 #@markdown `frame_skip_steps` will blur the previous frame - higher values will flicker less but struggle to add enough new detail to zoom into.
-frames_skip_steps = '0%'#'60%' #@param ['40%', '50%', '60%', '70%', '80%'] {type: 'string'}
+frames_skip_steps = '60%' #@param ['40%', '50%', '60%', '70%', '80%'] {type: 'string'}
 
 
 def parse_key_frames(string, prompt_parser=None):
@@ -2436,202 +2435,10 @@ cut_icgray_p = "[0.2]*400+[0]*600"#@param {type: 'string'}
 `animation_mode: None` will only use the first set. `animation_mode: 2D / Video` will run through them per the set frames and hold on the last one.
 """
 
-lines = [
-
-"In Xanadu did Kubla Khan", 
-"A stately pleasure dome decree",
-"Where Alph the sacred riverran", 
-"Through caverns measureless to man", 
-"Down to a sunless sea",
-"So twice five miles of fertile ground", 
-"With walls and towers were girdled round", 
-"And there were gardens bright with sinuous rills", 
-"Where blossomed many an incense bearing tree", 
-"And here were forests ancient as the hills",
-"Enfolding sunny spots of greenery", 
-"But oh that deep romantic chasm which slanted", 
-"Down the green hill athwart a cedarn cover",
-"A savage place as holy and enchanted", 
-"As ever beneath a waning moon was haunted", 
-"By woman wailing for her demon lover",
-"And from this chasm with ceaseless turmoil seething", 
-"As if this earth in fast thick pants were breathing",
-"A mighty fountain momently was forced", 
-"Amid whose swift half intermitted burst",
-"Huge fragments vaulted like rebounding hail",
-"Or chaffy grain beneath the threshers flail",
-"And mid these dancing rocks at once and ever",
-"It flung up momently the sacred river", 
-"Five miles meandering with a mazy motion",
-"Through wood and dale the sacred river ran",
-"Then reached the caverns measureless to man", 
-"And sank in tumult to a lifeless ocean",
-"And mid this tumult Kubla heard from far",
-"Ancestral voices prophesying war", 
-"The shadow of the dome of pleasure",
-"Floated midway on the waves",
-"Where was heard the mingled measure", 
-"From the fountain and the caves", 
-"It was a miracle of rare device", 
-"A sunny pleasure dome with caves of ice",
-"A damsel with a dulcimer",
-"In a vision once I saw", 
-"It was an Abyssinian maid",
-"And on her dulcimer she played", 
-"Singing of Mount Abora", 
-"Could I revive within me", 
-"Her symphony and song", 
-"To such a deep delight it would win me", 
-"That with music loud and long",
-"I would build that dome in air",
-"That sunny dome those caves of ice",
-"And all who heard should see them there", 
-"And all should cry Beware Beware", 
-"His flashing eyes his floating hair",
-"Weave a circle round him thrice",
-"And close your eyes with holy dread",
-"For he on honey dew hath fed",
-"And drunk the milk of Paradise"
-]
-
-# text_prompts = {
-        
-#      0: [settings['prompt']],
-#      100: ["This set of prompts start at frame 100","This prompt has weight five:5"],
-
-
-
-# }
-
-count = len(lines)
-text_prompts =dict.fromkeys(range(count))
-#dict(zip(range(count), [])) # dict.fromkeys(range(count))
-for i in range(count):
-    text_prompts[i]= [lines[i] + ", by Asher Brown Durand, featured on ArtStation"] 
-    # setattr(text_prompts, i, [lines[i] + ", by Asher Brown Durand, featured on ArtStation"] )
-
-
-# text_prompts = {
-
-    
-#     # 0: [settings['prompt']],
-#     # 100: ["This set of prompts start at frame 100","This prompt has weight five:5"],
-
-
-
-
-# # 0	:["In Xanadu did Kubla Khan","dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 1	:["A stately pleasure dome decree",	"dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 2	:["Where Alph the sacred riverran","dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 3	:["Through caverns measureless to man","dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 4	:["Down to a sunless sea",	"dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 5	:["So twice five miles of fertile ground","dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 6	:["With walls and towers were girdled round","dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 7	:["And there were gardens bright with sinuous rills","dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 8	:["Where blossomed many an incense bearing tree","dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 9	:["And here were forests ancient as the hills",	"dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 10	:["Enfolding sunny spots of greenery","dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 11	:["But oh that deep romantic chasm which slanted","dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 12	:["Down the green hill athwart a cedarn cover",	"dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 13	:["A savage place as holy and enchanted","dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 14	:["As ever beneath a waning moon was haunted","dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 15	:["By woman wailing for her demon lover",	"dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 16	:["And from this chasm with ceaseless turmoil seething","dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 17	:["As if this earth in fast thick pants were breathing",	"dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 18	:["A mighty fountain momently was forced","dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 19	:["Amid whose swift half intermitted burst",	"dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 20	:["Huge fragments vaulted like rebounding hail",	"dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 21	:["Or chaffy grain beneath the threshers flail",	"dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 22	:["And mid these dancing rocks at once and ever",	"dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 23	:["It flung up momently the sacred river","dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 24	:["Five miles meandering with a mazy motion",	"dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 25	:["Through wood and dale the sacred river ran",	"dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 26	:["Then reached the caverns measureless to man","dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 27	:["And sank in tumult to a lifeless ocean",	"dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 28	:["And mid this tumult Kubla heard from far",	"dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 29	:["Ancestral voices prophesying war","dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 30	:["The shadow of the dome of pleasure",	"dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 31	:["Floated midway on the waves",	"dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 32	:["Where was heard the mingled measure","dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 33	:["From the fountain and the caves","dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 34	:["It was a miracle of rare device","dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 35	:["A sunny pleasure dome with caves of ice",	"dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 36	:["A damsel with a dulcimer",	"dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 37	:["In a vision once I saw","dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 38	:["It was an Abyssinian maid",	"dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 39	:["And on her dulcimer she played","dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 40	:["Singing of Mount Abora","dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 41	:["Could I revive within me","dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 42	:["Her symphony and song","dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 43	:["To such a deep delight it would win me","dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 44	:["That with music loud and long",	"dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 45	:["I would build that dome in air",	"dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 46	:["That sunny dome those caves of ice",	"dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 47	:["And all who heard should see them there","dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 48	:["And all should cry Beware Beware","dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 49	:["His flashing eyes his floating hair",	"dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 50	:["Weave a circle round him thrice",	"dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 51	:["And close your eyes with holy dread",	"dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 52	:["For he on honey dew hath fed",	"dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-# # 53	:["And drunk the milk of Paradise"	"dense jungle with tall trees:0.25","mountains:0.1","mist:0.1","blue sky with sparse clouds:0.25","branches:-0.2","by Asher Brown Durand", "featured on ArtStation"	],
-
-# 0	:[	 "In Xanadu did Kubla Khan", 	],
-# 1	:[	 "A stately pleasure dome decree",	],
-# 2	:[	 "Where Alph the sacred riverran", 	],
-# 3	:[	 "Through caverns measureless to man", 	],
-# 4	:[	 "Down to a sunless sea",	],
-# 5	:[	 "So twice five miles of fertile ground", 	],
-# 6	:[	 "With walls and towers were girdled round", 	],
-# 7	:[	 "And there were gardens bright with sinuous rills", 	],
-# 8	:[	 "Where blossomed many an incense bearing tree", 	],
-# 9	:[	 "And here were forests ancient as the hills",	],
-# 10	:[	 "Enfolding sunny spots of greenery", 	],
-# 11	:[	 "But oh that deep romantic chasm which slanted", 	],
-# 12	:[	 "Down the green hill athwart a cedarn cover",	],
-# 13	:[	 "A savage place as holy and enchanted", 	],
-# 14	:[	 "As ever beneath a waning moon was haunted", 	],
-# 15	:[	 "By woman wailing for her demon lover",	],
-# 16	:[	 "And from this chasm with ceaseless turmoil seething", 	],
-# 17	:[	 "As if this earth in fast thick pants were breathing",	],
-# 18	:[	 "A mighty fountain momently was forced", 	],
-# 19	:[	 "Amid whose swift half intermitted burst",	],
-# 20	:[	 "Huge fragments vaulted like rebounding hail",	],
-# 21	:[	 "Or chaffy grain beneath the threshers flail",	],
-# 22	:[	 "And mid these dancing rocks at once and ever",	],
-# 23	:[	 "It flung up momently the sacred river", 	],
-# 24	:[	 "Five miles meandering with a mazy motion",	],
-# 25	:[	 "Through wood and dale the sacred river ran",	],
-# 26	:[	 "Then reached the caverns measureless to man", 	],
-# 27	:[	 "And sank in tumult to a lifeless ocean",	],
-# 28	:[	 "And mid this tumult Kubla heard from far",	],
-# 29	:[	 "Ancestral voices prophesying war", 	],
-# 30	:[	 "The shadow of the dome of pleasure",	],
-# 31	:[	 "Floated midway on the waves",	],
-# 32	:[	 "Where was heard the mingled measure", 	],
-# 33	:[	 "From the fountain and the caves", 	],
-# 34	:[	 "It was a miracle of rare device", 	],
-# 35	:[	 "A sunny pleasure dome with caves of ice",	],
-# 36	:[	 "A damsel with a dulcimer",	],
-# 37	:[	 "In a vision once I saw", 	],
-# 38	:[	 "It was an Abyssinian maid",	],
-# 39	:[	 "And on her dulcimer she played", 	],
-# 40	:[	 "Singing of Mount Abora", 	],
-# 41	:[	 "Could I revive within me", 	],
-# 42	:[	 "Her symphony and song", 	],
-# 43	:[	 "To such a deep delight it would win me", 	],
-# 44	:[	 "That with music loud and long",	],
-# 45	:[	 "I would build that dome in air",	],
-# 46	:[	 "That sunny dome those caves of ice",	],
-# 47	:[	 "And all who heard should see them there", 	],
-# 48	:[	 "And all should cry Beware Beware", 	],
-# 49	:[	 "His flashing eyes his floating hair",	],
-# 50	:[	 "Weave a circle round him thrice",	],
-# 51	:[	 "And close your eyes with holy dread",	],
-# 52	:[	 "For he on honey dew hath fed",	],
-# 53	:[	 "And drunk the milk of Paradise"	],
-
-
-# }
+text_prompts = {
+    0: ["A scenic view of a river valley and meadow, by Asher Brown Durand, featured on ArtStation"],
+    100: ["This set of prompts start at frame 100","This prompt has weight five:5"],
+}
 
 image_prompts = {
     # 0:['ImagePromptsWorkButArentVeryGood.png:2',],
