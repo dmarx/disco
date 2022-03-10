@@ -5,25 +5,25 @@ settings = {
     'prompt': "A close-up view of leaves in a dense jungle, by Asher Brown Durand, matte painting trending on artstation.",
     # 'prompt':"A scenic view of a lake in the fjords, by Asher Brown Durand, a large and very detailed matte painting, trending on art-station.",
     'clip_guidance_scale':5000,
-    'steps':120,
+    'steps':100,
     'cut_ic_pow':1,
-    'range_scale':250,
+    'range_scale':150,
     'n_batches':5,
-    'eta' : 0.5,
+    'eta' : 0.8,
     'diffusion_steps':1000,
     'tv_scale':0,
-    'sat_scale':5000,
-    'path':'/home/twmmason/dev/disco/content',
+    'sat_scale':1000,
+    'path':'/notebooks/dev/disco/content',
     'ViTB32': True,
     'ViTB16': True,
     'ViTL14': False,
     'RN101': False,
     'RN50': False,
     'RN50x4': False,
-    'RN50x16': True,
+    'RN50x16': False,
     'RN50x64': False,
     'use_secondary_model':False,
-    'skip_augs':True,
+    'skip_augs':False,
     #'wh':[1280, 768],
     #'wh':[512, 512],
     'intermediate_saves': 10,
@@ -31,10 +31,10 @@ settings = {
     #'cutn_batches':4,
     'cutn_batches':2,
     'animation_mode':'3D',
-    'max_frames':100,
+    'max_frames':1000,
      #'wh':[512, 512],  
     # 'wh':[640, 376],
-    'wh':[800, 800],
+    'wh':[640, 320],
 
 } 
 
@@ -98,7 +98,7 @@ google_drive = False
 save_models_to_google_drive = False
 print("Google Colab not detected.")
 
-root_path = '/home/twmmason/dev/disco'
+root_path = '/notebooks/dev/disco'
 
 import os
 from os import path
@@ -189,6 +189,8 @@ import torch
 # sys.path.append('./SLIP')
 sys.path.append('./ResizeRight')
 sys.path.append('./MiDaS')
+sys.path.append('./latent-diffusion')
+
 from dataclasses import dataclass
 from functools import partial
 import cv2
@@ -232,14 +234,15 @@ import hashlib
 #SuperRes
 import ipywidgets as widgets
 import os
-sys.path.append(".")
+#sys.path.append(".")
 sys.path.append('./taming-transformers')
-from taming.models import vqgan # checking correct import from taming
+#from taming.models import vqgan # checking correct import from taming
 from torchvision.datasets.utils import download_url
 # if is_colab:
 # #   %cd '/content/latent-diffusion'
 # else:
-# #   %cd 'latent-diffusion'
+os.system("cd latent-diffusion")
+
 from functools import partial
 from ldm.util import instantiate_from_config
 from ldm.modules.diffusionmodules.util import make_ddim_sampling_parameters, make_ddim_timesteps, noise_like
@@ -250,6 +253,7 @@ from ldm.util import ismap
 #   from google.colab import files
 # else:
 # #   %cd $PROJECT_DIR
+os.system("cd ..")
 from IPython.display import Image as ipyimg
 from numpy import asarray
 from einops import rearrange, repeat
@@ -365,7 +369,6 @@ def init_midas_depth_model(midas_model_type="dpt_large", optimize=True):
                 ensure_multiple_of=32,
                 resize_method=resize_mode,
                 image_interpolation_method=cv2.INTER_CUBIC,
-                
             ),
             normalization,
             PrepareForNet(),
@@ -785,9 +788,9 @@ def do_run():
                 #                                         sampling_mode=args.sampling_mode, midas_weight=args.midas_weight)
                 # next_step_pil.save('prevFrameScaled.png')
 
-                theta = 1.5 * (math.pi/180) #x * 2 * pi ­ pi
+                theta = 2.5 * (math.pi/180) #x * 2 * pi ­ pi
                 #   phi = pi / 2 ­ y * pi
-                ipd = 50.0
+                ipd = 0.5
                 ray_origin = math.cos(theta) * ipd / 2 * (-1.0 if i==0 else (1.0 if i==1 else 0.0))
                 ray_rotation = (theta if i==0 else (-theta if i==1 else 0.0))
                 translate_xyz = [-(translation_x+ray_origin)*trans_scale, translation_y*trans_scale, -translation_z*trans_scale]
@@ -804,13 +807,12 @@ def do_run():
                 next_step_pil = dxf.transform_image_3d(img_filepath, midas_model, midas_transform, DEVICE,
                                                                 rot_mat, translate_xyz, args.near_plane, args.far_plane,
                                                                 args.fov, padding_mode=args.padding_mode,
-                                                                sampling_mode=args.sampling_mode, midas_weight=args.midas_weight,fisheye=(i!=2))
+                                                                sampling_mode=args.sampling_mode, midas_weight=args.midas_weight)
                 if i==2: 
                     next_step_pil.save('prevFrameScaled.png')
                 else:
                     eye_file_path = batchFolder+f"/frame_{frame_num-1:04}" + ('_l' if i==0 else ('_r' if i==1 else ''))+'.png'
                     next_step_pil.save(eye_file_path)
-                    # next_step_pil.save(batchFolder + '/frame_' + str(frame_num) + ('_l' if i==0 else ('_r' if i==1 else ''))+'.png')
 
 
 
@@ -1167,7 +1169,7 @@ def do_run():
               display.clear_output()
           
           plt.plot(np.array(loss_values), 'r')
-
+            
 def save_settings():
   setting_list = {
     'text_prompts': text_prompts,
@@ -2225,7 +2227,7 @@ for i in range(settings['max_frames']):
     # v = np.subtract(p2.copy(),newpos)
 
     #sx = str(i) +": (" + str(v[0]) + "),"
-    sz = str(i) +": (1.0),"
+    sz = str(i) +": (10.0),"
     #sr += str(i) +": (" + str(-math.pi / 180) + "),"
     # sr= str(i) +": (" + str((theta)) + "),"
     #sa += str(i) +": (-" + str( (math.pi / 180)/8) + "),"
@@ -2245,7 +2247,7 @@ midas_depth_model = "dpt_large"#@param {type:"string"}
 midas_weight = 0.3#@param {type:"number"}
 near_plane = 200#@param {type:"number"}
 far_plane = 10000#@param {type:"number"}
-fov = 120#@param {type:"number"}
+fov = 180#@param {type:"number"}
 padding_mode = 'border'#@param {type:"string"}
 sampling_mode = 'bicubic'#@param {type:"string"}
 #======= TURBO MODE
@@ -2264,6 +2266,7 @@ turbo_frame_blend = True #@param {type:"boolean"}
 frames_scale = 35000 #@param{type: 'integer'}
 #@markdown `frame_skip_steps` will blur the previous frame - higher values will flicker less but struggle to add enough new detail to zoom into.
 frames_skip_steps = '70%' #@param ['40%', '50%', '60%', '70%', '80%'] {type: 'string'}
+
 
 
 def parse_key_frames(string, prompt_parser=None):

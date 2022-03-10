@@ -2,39 +2,37 @@
 
 
 settings = {
-    'prompt': "A close-up view of leaves in a dense jungle, by Asher Brown Durand, matte painting trending on artstation.",
-    # 'prompt':"A scenic view of a lake in the fjords, by Asher Brown Durand, a large and very detailed matte painting, trending on art-station.",
-    'clip_guidance_scale':5000,
-    'steps':120,
+    'prompt':"A traveller meditating at lightspeed in hyperspace by Noah Bradley and Chris Rahn, reimagined by industrial light and magic, sunrays shine, ArtStation HD.",
+    'clip_guidance_scale':35000,
+    'steps':100,
     'cut_ic_pow':1,
-    'range_scale':250,
+    'range_scale':450,
     'n_batches':5,
-    'eta' : 0.5,
+    'eta' : 0.2,
     'diffusion_steps':1000,
-    'tv_scale':0,
-    'sat_scale':5000,
+    'tv_scale':1,
+    'sat_scale':10000,
     'path':'/home/twmmason/dev/disco/content',
     'ViTB32': True,
     'ViTB16': True,
     'ViTL14': False,
     'RN101': False,
-    'RN50': False,
+    'RN50': True,
     'RN50x4': False,
-    'RN50x16': True,
+    'RN50x16': False,
     'RN50x64': False,
     'use_secondary_model':False,
-    'skip_augs':True,
+    'skip_augs':False,
     #'wh':[1280, 768],
-    #'wh':[512, 512],
+    'wh':[512, 512],
     'intermediate_saves': 10,
     
     #'cutn_batches':4,
-    'cutn_batches':2,
+    'cutn_batches':1,
     'animation_mode':'3D',
-    'max_frames':100,
+    'total_frames':10000
      #'wh':[512, 512],  
-    # 'wh':[640, 376],
-    'wh':[800, 800],
+    #'wh':[640, 376],
 
 } 
 
@@ -365,7 +363,6 @@ def init_midas_depth_model(midas_model_type="dpt_large", optimize=True):
                 ensure_multiple_of=32,
                 resize_method=resize_mode,
                 image_interpolation_method=cv2.INTER_CUBIC,
-                
             ),
             normalization,
             PrepareForNet(),
@@ -743,7 +740,7 @@ def do_run():
           skip_steps = args.calc_frames_skip_steps
 
       if args.animation_mode == "3D":
-        if args.key_frames: 
+        if args.key_frames:
           angle = args.angle_series[frame_num]
           #zoom = args.zoom_series[frame_num]
           translation_x = args.translation_x_series[frame_num]
@@ -764,122 +761,41 @@ def do_run():
           )
 
         if frame_num > 0:
-            seed = seed + 1    
-            if resume_run and frame_num == start_frame:
-                img_filepath = batchFolder+f"/{batch_name}({batchNum})_{start_frame-1:04}.png"
+          seed = seed + 1    
+          if resume_run and frame_num == start_frame:
+            img_filepath = batchFolder+f"/{batch_name}({batchNum})_{start_frame-1:04}.png"
+          else:
+            img_filepath = '/content/prevFrame.png' if is_colab else 'prevFrame.png'
+          trans_scale = 1.0/200.0
+          translate_xyz = [-translation_x*trans_scale, translation_y*trans_scale, -translation_z*trans_scale]
+          rotate_xyz = [rotation_3d_x, rotation_3d_y, rotation_3d_z]
+          print('translation:',translate_xyz)
+          print('rotation:',rotate_xyz)
+          rot_mat = p3dT.euler_angles_to_matrix(torch.tensor(rotate_xyz, device=device), "XYZ").unsqueeze(0)
+          print("rot_mat: " + str(rot_mat))
+          next_step_pil = dxf.transform_image_3d(img_filepath, midas_model, midas_transform, DEVICE,
+                                                 rot_mat, translate_xyz, args.near_plane, args.far_plane,
+                                                 args.fov, padding_mode=args.padding_mode,
+                                                 sampling_mode=args.sampling_mode, midas_weight=args.midas_weight)
+          next_step_pil.save('prevFrameScaled.png')
+          ### Turbo mode - skip some diffusions to save time 
+          turbo_blend = False # default to normal frame saving later          
+          if turbo_mode == True and frame_num > 10: #preroll is 10 frames
+            if frame_num % int(turbo_steps) != 0: 
+              print('turbo skip this frame: skipping clip diffusion steps')
+              filename = f'{args.batch_name}({args.batchNum})_{frame_num:04}.png'
+              next_step_pil.save(f'{batchFolder}/{filename}') #save it as this frame. done.
+              next_step_pil.save(f'{img_filepath}') # save it also as prev_frame to feed next iteration
+              turbo_blend = False # default to normal-frame-saving later 
+              continue
             else:
-                img_filepath = '/content/prevFrame.png' if is_colab else 'prevFrame.png'
-            trans_scale = 1.0/200.0
-          
-            for i in range(3):
-                # translate_xyz = [-translation_x*trans_scale, translation_y*trans_scale, -translation_z*trans_scale]
-                # rotate_xyz = [rotation_3d_x, rotation_3d_y, rotation_3d_z]
-                # print('translation:',translate_xyz)
-                # print('rotation:',rotate_xyz)
-                # rot_mat = p3dT.euler_angles_to_matrix(torch.tensor(rotate_xyz, device=device), "XYZ").unsqueeze(0)
-                # print("rot_mat: " + str(rot_mat))
+              if turbo_frame_blend == True:
+                turbo_blend = True # blend frames for smoothness..
+              print('clip/diff this frame - generate clip diff image')
 
-                # next_step_pil = dxf.transform_image_3d(img_filepath, midas_model, midas_transform, DEVICE,
-                #                                         rot_mat, translate_xyz, args.near_plane, args.far_plane,
-                #                                         args.fov, padding_mode=args.padding_mode,
-                #                                         sampling_mode=args.sampling_mode, midas_weight=args.midas_weight)
-                # next_step_pil.save('prevFrameScaled.png')
-
-                theta = 1.5 * (math.pi/180) #x * 2 * pi ­ pi
-                #   phi = pi / 2 ­ y * pi
-                ipd = 50.0
-                ray_origin = math.cos(theta) * ipd / 2 * (-1.0 if i==0 else (1.0 if i==1 else 0.0))
-                ray_rotation = (theta if i==0 else (-theta if i==1 else 0.0))
-                translate_xyz = [-(translation_x+ray_origin)*trans_scale, translation_y*trans_scale, -translation_z*trans_scale]
-                rotate_xyz = [rotation_3d_x, rotation_3d_y+(ray_rotation), rotation_3d_z]
-
-                print("i="+ str(i),"theta="+str(theta),"ray_origin=" + str(ray_origin),"ray_rotation="+str(ray_rotation))
-                print('translation:',translate_xyz)
-                print('rotation:',rotate_xyz)
-                rot_mat = p3dT.euler_angles_to_matrix(torch.tensor(rotate_xyz, device=device), "XYZ").unsqueeze(0)
-                print("rot_mat: " + str(rot_mat))
-
-
-
-                next_step_pil = dxf.transform_image_3d(img_filepath, midas_model, midas_transform, DEVICE,
-                                                                rot_mat, translate_xyz, args.near_plane, args.far_plane,
-                                                                args.fov, padding_mode=args.padding_mode,
-                                                                sampling_mode=args.sampling_mode, midas_weight=args.midas_weight,fisheye=(i!=2))
-                if i==2: 
-                    next_step_pil.save('prevFrameScaled.png')
-                else:
-                    eye_file_path = batchFolder+f"/frame_{frame_num-1:04}" + ('_l' if i==0 else ('_r' if i==1 else ''))+'.png'
-                    next_step_pil.save(eye_file_path)
-                    # next_step_pil.save(batchFolder + '/frame_' + str(frame_num) + ('_l' if i==0 else ('_r' if i==1 else ''))+'.png')
-
-
-
-
-            ### Turbo mode - skip some diffusions to save time 
-            turbo_blend = False # default to normal frame saving later          
-            if turbo_mode == True and frame_num > 10: #preroll is 10 frames
-                if frame_num % int(turbo_steps) != 0: 
-                    print('turbo skip this frame: skipping clip diffusion steps')
-                    filename = f'{args.batch_name}({args.batchNum})_{frame_num:04}.png'
-                    next_step_pil.save(f'{batchFolder}/{filename}') #save it as this frame. done.
-                    next_step_pil.save(f'{img_filepath}') # save it also as prev_frame to feed next iteration
-                    turbo_blend = False # default to normal-frame-saving later 
-                    continue
-                else:
-                    if turbo_frame_blend == True:
-                        turbo_blend = True # blend frames for smoothness..
-                    print('clip/diff this frame - generate clip diff image')
-
-            init_image = 'prevFrameScaled.png'
-            init_scale = args.frames_scale
-            skip_steps = args.calc_frames_skip_steps
-        
-        # for i in range(3):
-        #     print("i=",i)
-        #     theta = 5 * (math.pi/180) #x * 2 * pi ­ pi
-        # #   phi = pi / 2 ­ y * pi
-        #     ipd = 1.0
-        #     ray_origin = math.cos(theta) * ipd / 2 * (-1.0 if i==0 else (0 if i==1 else 1.0))
-        #     ray_rotation = (theta if i==0 else (0 if i==1 else -theta))
-
-        #     translate_xyz = [-(translation_x+ray_origin)*trans_scale, translation_y*trans_scale, -translation_z*trans_scale]
-        #     rotate_xyz = [rotation_3d_x, rotation_3d_y+(ray_rotation), rotation_3d_z]
-
-        #     print("i="+ str(i),"theta="+str(theta),"ray_origin=" + str(ray_origin),"ray_rotation="+str(ray_rotation))
-        #     print('translation:',translate_xyz)
-        #     print('rotation:',rotate_xyz)
-        #     rot_mat = p3dT.euler_angles_to_matrix(torch.tensor(rotate_xyz, device=device), "XYZ").unsqueeze(0)
-        #     print("rot_mat: " + str(rot_mat))
-        #     next_step_pil = dxf.transform_image_3d(img_filepath, midas_model, midas_transform, DEVICE,
-        #                                             rot_mat, translate_xyz, args.near_plane, args.far_plane,
-        #                                             args.fov, padding_mode=args.padding_mode,
-        #                                             sampling_mode=args.sampling_mode, midas_weight=args.midas_weight)
-        #     # next_step_pil.save('prevFrameScaled'+ ('_l' if i==0 else ('' if i==1 else '_r'))+'.png')
-        #     if i==1: 
-        #         # next_step_pil.save(batchFolder + '/frame_' + frame_num + ('_l' if i==0 else ('' if i==1 else '_r'))+'.png')
-        #         next_step_pil.save('prevFrameScaled.png')
-        #     else:
-        #         next_step_pil.save(batchFolder + '/frame_' + str(frame_num) + ('_l' if i==0 else ('' if i==1 else '_r'))+'.png')
-        #     ### Turbo mode - skip some diffusions to save time 
-        #     turbo_blend = False # default to normal frame saving later      
-        #     if turbo_mode == True and frame_num > 10: #preroll is 10 frames
-        #         if frame_num % int(turbo_steps) != 0: 
-        #             print('turbo skip this frame: skipping clip diffusion steps')
-        #             # filename = f'{args.batch_name}({args.batchNum})_{frame_num:04}_'+('l' if i==0 else ('' if i==1 else 'r'))+'.png'
-        #             # print(filename)
-        #             filename = f'{args.batch_name}({args.batchNum})_{frame_num:04}.png'
-        #             next_step_pil.save(f'{batchFolder}/{filename}') #save it as this frame. done.
-        #             next_step_pil.save(f'{img_filepath}') # save it also as prev_frame to feed next iteration
-        #             turbo_blend = False # default to normal-frame-saving later 
-        #             continue
-        #         else:
-        #             if turbo_frame_blend == True:
-        #                 turbo_blend = True # blend frames for smoothness..
-        #             print('clip/diff this frame - generate clip diff image')   
-
-        #     init_image = 'prevFrameScaled.png'
-        #     init_scale = args.frames_scale
-        #     skip_steps = args.calc_frames_skip_steps
+          init_image = 'prevFrameScaled.png'
+          init_scale = args.frames_scale
+          skip_steps = args.calc_frames_skip_steps
 
       if  args.animation_mode == "Video Input":
         seed = seed + 1  
@@ -1934,7 +1850,7 @@ def do_superres(img, filepath):
 
 #@markdown ####**Models Settings:**
 diffusion_model = "512x512_diffusion_uncond_finetune_008100" #@param ["256x256_diffusion_uncond", "512x512_diffusion_uncond_finetune_008100"]
-use_secondary_model = settings["use_secondary_model"] #@param {type: 'boolean'}
+use_secondary_model = True #@param {type: 'boolean'}
 
 timestep_respacing = '50' # param ['25','50','100','150','250','500','1000','ddim25','ddim50', 'ddim75', 'ddim100','ddim150','ddim250','ddim500','ddim1000']  
 diffusion_steps = 1000 # param {type: 'number'}
@@ -2190,57 +2106,20 @@ if animation_mode == "Video Input":
 #@markdown `zoom` is a multiplier of dimensions, 1 is no zoom.
 
 key_frames = True #@param {type:"boolean"}
-max_frames = settings['max_frames'] #@param {type:"number"}
+max_frames = 250#@param {type:"number"}
 
 if animation_mode == "Video Input":
   max_frames = len(glob(f'{videoFramesFolder}/*.jpg'))
 
-
-
-import numpy as np
-import math
-
-sx = ""
-sz = ""
-sr = ""
-
-r=0.0
-px = 0.0
-pz = 0.0
-
-# ry="0: (0)"# "0: (0)"
-#ry = ""
-
-# frame=360
-# theta = -(math.pi*2) / (frame) #  -(math.pi / 180)
-
-for i in range(settings['max_frames']):
-    # px = 0.0
-    # pz = -r
-
-    # p1 = np.array([px,pz])
-    # p2 = np.array([r*math.cos(theta),r*math.sin(theta)])
-    # tv=  np.tan(np.flip(p1.copy())) #np.flip(np.tan(p1))
-    # newpos = np.add(p1.copy(),np.multiply(tv.copy(),(math.pi*r*2)/frame))
-    # v = np.subtract(p2.copy(),newpos)
-
-    #sx = str(i) +": (" + str(v[0]) + "),"
-    sz = str(i) +": (1.0),"
-    #sr += str(i) +": (" + str(-math.pi / 180) + "),"
-    # sr= str(i) +": (" + str((theta)) + "),"
-    #sa += str(i) +": (-" + str( (math.pi / 180)/8) + "),"
-
-
 interp_spline = 'Linear' #Do not change, currently will not look good. param ['Linear','Quadratic','Cubic']{type:"string"}
 angle = "0:(0)"#@param {type:"string"}
 zoom = "0: (1)"#@param {type:"string"}
-translation_x = "0:(0)" #,22:(4.465),41:(0.355),61:(1.163),69:(-1.358),85:(0.079),107:(-0.843),116:(-4.123),136:(1.029),157:(1.074),166:(-3.439),187:(-0.214),209:(0.357),219:(-4.708),239:(0.49)"#@param {type:"string"}
-translation_y = "0:(0)" #,100:(10.0)" #, 5000:(10)" #,22:(2.42),41:(-0.019),61:(0.24),69:(-2.381),85:(-0.358),107:(0.097),116:(1.479),136:(0.425),157:(-0.401),166:(-2.366),187:(-0.508),209:(-0.525),219:(0.683),239:(0.351)"#@param {type:"string"}
-# translation_z = "0:(0),2(0.1),1000:(0.1)"#@param {type:"string"}
-translation_z = sz #"0:(-0.01),100:(-0.01)"#,1000:(100.0)"#@param {type:"string"}
-rotation_3d_x = "0:(0)" #,22:(0.013),41:(-0.004),61:(-0.001),69:(-0.022),85:(0.005),107:(-0.002),116:(0.026),136:(0.004),157:(0.001),166:(0.027),187:(0.002),209:(-0.005),219:(-0.01),239:(-0.004)"#@param {type:"string"}
-rotation_3d_y = "0:(0)" #,21:(0.02),38:(0.001),53:(0.001),62:(0.016),82:(-0.004),102:(0.005),113:(0.012),130:(0.006),149:(0.002),159:(0.006),179:(0.005),200:(0.001),210:(-0.002),231:(0.005)"#@param {type:"string"}
-rotation_3d_z = "0:(0)" #,22:(0.007),41:(0.001),61:(0.005),69:(0.014),85:(-0.0),107:(-0.002),116:(0.028),136:(0.0),157:(0.003),166:(0.02),187:(-0.001),209:(-0.004),219:(-0.001),239:(-0.001)"#@param {type:"string"}
+translation_x = "0:(0),22:(4.465),41:(0.355),61:(1.163),69:(-1.358),85:(0.079),107:(-0.843),116:(-4.123),136:(1.029),157:(1.074),166:(-3.439),187:(-0.214),209:(0.357),219:(-4.708),239:(0.49)"#@param {type:"string"}
+translation_y = "0:(0),22:(2.42),41:(-0.019),61:(0.24),69:(-2.381),85:(-0.358),107:(0.097),116:(1.479),136:(0.425),157:(-0.401),166:(-2.366),187:(-0.508),209:(-0.525),219:(0.683),239:(0.351)"#@param {type:"string"}
+translation_z = "0:(6)"#@param {type:"string"}
+rotation_3d_x = "0:(0),22:(0.013),41:(-0.004),61:(-0.001),69:(-0.022),85:(0.005),107:(-0.002),116:(0.026),136:(0.004),157:(0.001),166:(0.027),187:(0.002),209:(-0.005),219:(-0.01),239:(-0.004)"#@param {type:"string"}
+rotation_3d_y = "0:(0),21:(0.02),38:(0.001),53:(0.001),62:(0.016),82:(-0.004),102:(0.005),113:(0.012),130:(0.006),149:(0.002),159:(0.006),179:(0.005),200:(0.001),210:(-0.002),231:(0.005)"#@param {type:"string"}
+rotation_3d_z = "0:(0),22:(0.007),41:(0.001),61:(0.005),69:(0.014),85:(-0.0),107:(-0.002),116:(0.028),136:(0.0),157:(0.003),166:(0.02),187:(-0.001),209:(-0.004),219:(-0.001),239:(-0.001)"#@param {type:"string"}
 midas_depth_model = "dpt_large"#@param {type:"string"}
 midas_weight = 0.3#@param {type:"number"}
 near_plane = 200#@param {type:"number"}
@@ -2512,7 +2391,7 @@ else:
 
 #@markdown ####**Saving:**
 
-intermediate_saves = settings['intermediate_saves'] #0#@param{type: 'raw'}
+intermediate_saves = 0#@param{type: 'raw'}
 intermediates_in_subfolder = True #@param{type: 'boolean'}
 #@markdown Intermediate steps will save a copy at your specified intervals. You can either format it as a single integer or a list of specific steps 
 
@@ -2592,27 +2471,6 @@ text_prompts = {
     #0: ["A beautiful painting of a singular lighthouse, shining its light across a tumultuous sea of blood by greg rutkowski and thomas kinkade, Trending on artstation.", "yellow color scheme"],
     #100: ["This set of prompts start at frame 100","This prompt has weight five:5"],
 }
-
-# lines = ["I met a traveller from an antique land",
-#         "Who said Two vast and trunkless legs of stone",
-# "Stand in the desert, Near them, on the sand",
-# "Half sunk a shattered visage lies, whose frown",
-# "And wrinkled lip, and sneer of cold command",
-# "Tell that its sculptor well those passions read",
-# "Which yet survive, stamped on these lifeless things",
-# "The hand that mocked them, and the heart that fed",
-# "And on the pedestal, these words appear",
-# "My name is Ozymandias, King of Kings",
-# "Look on my Works, ye Mighty, and despair!",
-# "Nothing beside remains. Round the decay",
-# "Of that colossal Wreck, boundless and bare",
-# "The lone and level sands stretch far away"]
-
-# text_prompts = {}
-# for i in range(len(lines)):
-#     text_prompts[i*2] = [lines[i] + ":1.0", "ozymandius, desert, by David Noton and Asher Brown Durand, a large and very detailed matte painting, trending on art-station:0.1" ]
-
-# print(text_prompts)
 
 image_prompts = {
     # 0:['ImagePromptsWorkButArentVeryGood.png:2',],

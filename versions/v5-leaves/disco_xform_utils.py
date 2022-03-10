@@ -14,7 +14,7 @@ except:
 MAX_ADABINS_AREA = 500000
 
 @torch.no_grad()
-def transform_image_3d(img_filepath, midas_model, midas_transform, device, rot_mat=torch.eye(3).unsqueeze(0), translate=(0.,0.,-0.04), near=2000, far=20000, fov_deg=60, padding_mode='border', sampling_mode='bicubic', midas_weight = 0.3,fisheye=False):
+def transform_image_3d(img_filepath, midas_model, midas_transform, device, rot_mat=torch.eye(3).unsqueeze(0), translate=(0.,0.,-0.04), near=2000, far=20000, fov_deg=60, padding_mode='border', sampling_mode='bicubic', midas_weight = 0.3):
     img_pil = Image.open(open(img_filepath, 'rb')).convert('RGB')
     w, h = img_pil.size
     image_tensor = torchvision.transforms.functional.to_tensor(img_pil).to(device)
@@ -100,34 +100,9 @@ def transform_image_3d(img_filepath, midas_model, midas_transform, device, rot_m
     # coords_2d will have shape (N,H,W,2).. which is also what grid_sample needs.
     coords_2d = torch.nn.functional.affine_grid(identity_2d_batch, [1,1,h,w], align_corners=False)
     offset_coords_2d = coords_2d - torch.reshape(offset_xy, (h,w,2)).unsqueeze(0)
-
-    if fisheye:
-        fisheye_grid = get_of_fisheye(h, w, torch.tensor([0,0], device=device), -1.0,device=device)#align_corners=False
-        # fisheye_output = torch.nn.functional.grid_sample(image_tensor.add(1/512 - 0.0001).unsqueeze(0), fisheye_grid,)
-        stage_image = torch.nn.functional.grid_sample(image_tensor.add(1/512 - 0.0001).unsqueeze(0), offset_coords_2d, mode=sampling_mode, padding_mode=padding_mode, align_corners=False)
-        new_image = torch.nn.functional.grid_sample(stage_image, fisheye_grid) #, mode=sampling_mode, padding_mode=padding_mode, align_corners=False)
-        print("fisheye")
-    else:
-        new_image = torch.nn.functional.grid_sample(image_tensor.add(1/512 - 0.0001).unsqueeze(0), offset_coords_2d, mode=sampling_mode, padding_mode=padding_mode, align_corners=False)
-    #new_image = torch.nn.functional.grid_sample(image_tensor.add(1/512 - 0.0001).unsqueeze(0), offset_coords_2d, mode=sampling_mode, padding_mode=padding_mode, align_corners=False)
-
+    new_image = torch.nn.functional.grid_sample(image_tensor.add(1/512 - 0.0001).unsqueeze(0), offset_coords_2d, mode=sampling_mode, padding_mode=padding_mode, align_corners=False)
     img_pil = torchvision.transforms.ToPILImage()(new_image.squeeze().clamp(0,1.))
-    # img_pil = torchvision.transforms.ToPILImage()(new_image.squeeze().clamp(0,1.))
 
     torch.cuda.empty_cache()
 
     return img_pil
-
-
-def get_of_fisheye(H, W, center, magnitude,device):  
-  xx, yy = torch.linspace(-1, 1, W,dtype=torch.float32,device=device), torch.linspace(-1, 1, H,dtype=torch.float32,device=device)  
-  gridy, gridx  = torch.meshgrid(yy, xx)#. //create identity grid
-  grid = torch.stack([gridx, gridy], dim=-1)  
-  d = center - grid    #  //calculate the distance(cx - x, cy - y)
-  d_sum = torch.pow((d**2).sum(axis=-1),7.0) #//sqrt((cx-x)^2+(cy-y)^2)
-#   grid += d * d_sum.unsqueeze(-1) * magnitude 
-  grid += d * d_sum.unsqueeze(-1) * magnitude 
-#   grid += d * d_sum * magnitude 
-  return grid.unsqueeze(0)
-
-

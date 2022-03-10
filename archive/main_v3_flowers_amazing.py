@@ -1837,7 +1837,7 @@ translation_y = "0: (0)"#@param {type:"string"}
 #@markdown `frame_scale` tries to guide the new frame to looking like the old one. A good default is 1500.
 frames_scale = 1500 #@param{type: 'integer'}
 #@markdown `frame_skip_steps` will blur the previous frame - higher values will flicker less but struggle to add enough new detail to zoom into.
-frames_skip_steps = '60%' #@param ['40%', '50%', '60%', '70%', '80%'] {type: 'string'}
+frames_skip_steps = '65%' #@param ['40%', '50%', '60%', '70%', '80%'] {type: 'string'}
 #frames_skip_steps = '0%' #@param ['40%', '50%', '60%', '70%', '80%'] {type: 'string'}
 
 

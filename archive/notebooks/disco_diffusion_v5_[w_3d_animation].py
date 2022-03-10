@@ -393,17 +393,19 @@ from omegaconf import OmegaConf
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
+  MAX_ADABINS_AREA = 500000
+
+
 # AdaBins stuff
 if USE_ADABINS:
-  if is_colab:
-    !git clone https://github.com/shariqfarooq123/AdaBins.git
-    if not path_exists(f'{model_path}/AdaBins_nyu.pt'):
-      !wget https://cloudflare-ipfs.com/ipfs/Qmd2mMnDLWePKmgfS8m6ntAg4nhV5VkUyAydYBp8cWWeB7/AdaBins_nyu.pt -P {model_path}
-    !mkdir pretrained
-    !cp  -P {model_path}/AdaBins_nyu.pt pretrained/AdaBins_nyu.pt
-  sys.path.append('./AdaBins')
-  from infer import InferenceHelper
-  MAX_ADABINS_AREA = 500000
+#   if is_colab:
+#     !git clone https://github.com/shariqfarooq123/AdaBins.git
+#     if not path_exists(f'{model_path}/AdaBins_nyu.pt'):
+#       !wget https://cloudflare-ipfs.com/ipfs/Qmd2mMnDLWePKmgfS8m6ntAg4nhV5VkUyAydYBp8cWWeB7/AdaBins_nyu.pt -P {model_path}
+#     !mkdir pretrained
+#     !cp  -P {model_path}/AdaBins_nyu.pt pretrained/AdaBins_nyu.pt
+#   sys.path.append('./AdaBins')
+#   from infer import InferenceHelper
 
 import torch
 DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -417,10 +419,13 @@ if torch.cuda.get_device_capability(DEVICE) == (8,0): ## A100 fix thanks to Emad
 #@title ### 1.4 Define Midas functions
 
 
-from midas.dpt_depth import DPTDepthModel
-from midas.midas_net import MidasNet
-from midas.midas_net_custom import MidasNet_small
-from midas.transforms import Resize, NormalizeImage, PrepareForNet
+from midas import midas 
+impor .midas.buwin3www import DPTDepthModel
+from midas import  midas
+.midas_net import MidasNet
+from midas import midaamidas_net_custom 
+import
+from midas.util import Resize, NormalizeImage, PrepareForNet
 
 # Initialize MiDaS depth model.
 # It remains resident in VRAM and likely takes around 2GB VRAM.
@@ -2218,14 +2223,14 @@ if animation_mode == "Video Input":
   max_frames = len(glob(f'{videoFramesFolder}/*.jpg'))
 
 interp_spline = 'Linear' #Do not change, currently will not look good. param ['Linear','Quadratic','Cubic']{type:"string"}
-angle = "0:(0)"#@param {type:"string"}
-zoom = "0: (1), 10: (1.05)"#@param {type:"string"}
-translation_x = "0: (0)"#@param {type:"string"}
-translation_y = "0: (0)"#@param {type:"string"}
-translation_z = "0: (10.0)"#@param {type:"string"}
-rotation_3d_x = "0: (0)"#@param {type:"string"}
-rotation_3d_y = "0: (0)"#@param {type:"string"}
-rotation_3d_z = "0: (0)"#@param {type:"string"}
+angle = "0: (0.0)"#@param {type:"string"}
+zoom = "0: (1.0)" #, 10: (1.05)"#@param {type:"string"}
+translation_x = "0: (0.0)"#@param {type:"string"}
+translation_y = "0: (10.0)"#@param {type:"string"}
+translation_z = "0: (0.0)"#@param {type:"string"}
+rotation_3d_x = "0: (0.0)"#@param {type:"string"}
+rotation_3d_y = "0: (0.0)"#@param {type:"string"}
+rotation_3d_z = "0: (0.0)"#@param {type:"string"}
 midas_depth_model = "dpt_large"#@param {type:"string"}
 midas_weight = 0.3#@param {type:"number"}
 near_plane = 200#@param {type:"number"}

@@ -270,7 +270,7 @@ if USE_ADABINS:
   if is_colab:
     os.system("git clone https://github.com/shariqfarooq123/AdaBins.git")
     if not path_exists(model_path + "/AdaBins_nyu.pt"):
-      os.system("wget https://cloudflare-ipfs.com/ipfs/Qmd2mMnDLWePKmgfS8m6ntAg4nhV5VkUyAydYBp8cWWeB7/AdaBins_nyu.pt -P " + model_path + "")
+      os.system("wget https://cloudflare-ipfs.com/ipfs/Qmd2mMnDLWePKmgfS8m6ntAg4nhV5VkUyAydYBp8cWWeB7/AdaBins_nyu.pt",)
     os.system("mkdir pretrained")
     os.system("cp  -P " + model_path + "/AdaBins_nyu.pt pretrained/AdaBins_nyu.pt")
   sys.path.append('./../../AdaBins')
@@ -289,10 +289,11 @@ if torch.cuda.get_device_capability(DEVICE) == (8,0): ## A100 fix thanks to Emad
 #@title ### 1.4 Define Midas functions
 
 
-from midas.dpt_depth import DPTDepthModel
-from midas.midas_net import MidasNet
-from midas.midas_net_custom import MidasNet_small
-from midas.transforms import Resize, NormalizeImage, PrepareForNet
+from dpt_depth import DPTDepthModel
+from midas_net import MidasNet
+from midas_net_custom import MidasNet_small
+from transforms  
+import Resize, NormalizeImage, PrepareForNet
 
 # Initialize MiDaS depth model.
 # It remains resident in VRAM and likely takes around 2GB VRAM.

@@ -32,8 +32,29 @@ pip install einops
 pip install omegaconf
 
 
+cd pytorch3d
+python3 setup.py install
+
 ffmpeg -framerate 15 -i default_%d.png out.mp4
-scp images_out/default/* twmma@81.132.159.76:share
+scp images_out/default/* twmma@86.173.121.211:share
+
+ffmpeg -framerate 15 -i frame_%4d_l.png l.mp4
+ffmpeg -framerate 15 -i frame_%4d_r.png r.mp4
+
+ffmpeg -framerate 30 -pattern_type glob -i 'frame_%4d_l.png'  l.mp4
+ffmpeg -framerate 30 -pattern_type glob -i 'frame_%4d_r.png'  r.mp4
+
+
+
+
+run out through flowframes
+then interpolate through topaz
+then scale through topaz
+
+VR
+3840x3840
+3840x1620
+
 
 # for guided-diffusion-plms
 # Notebooks are not updated yet and may not be updated today 
@@ -45,6 +66,24 @@ scp images_out/default/* twmma@81.132.159.76:share
 # Like 150 seems to work with order 2 but breaks higher orders.
 # TV loss is more tolerable with more timesteps, for any order.
 # you should, if your tv loss value is not too high, first try just putting in order 2 plms in place of whatever you are doing now
+
+mech hard surface render hyperrealistic ArtStation conceptart
+
+   #'prompt': "A scenic view of marshland dunes, by David Noton, a large and very detailed matte painting, trending on art-station.", #matte painting trending
+    
+    'prompt': "A scenic view of a mech with hard surface on a road, hyperrealistic conceptart render, by David Noton, trending on artstation HQ.", #matte painting trending
+  #  'prompt': "A scenic view of an idyllic ancient castle, national geographic, Hyperrealistic, by David Noton, RTX on, matte painting trending on artstation HQ.", #matte painting trending
+    #'prompt': "A view underwater of large sea monsters and volumetric light, by David Noton and Asher Brown Durand, matte painting trending on artstation HQ.", #matte painting trending
+    #'prompt':'A scenic view of a lake in the fjords, by David Noton, a large and very detailed matte painting, trending on art-station.',
+         #'prompt': "A close-up view of an overgrown tree in the Amazonian jungle, by Asher Brown Durand and Ivan Shishkin, oil painting trending on Artstation HQ.",
+    #'prompt': "A close-up view of leaves in a dense jungle, by Asher Brown Durand, matte painting trending on artstation.",Photorealistic Paintings of Ivan Shishkin
+
+
+      #'prompt': "A scenic view of dragons flying above the clouds, by David Noton and Asher Brown Durand, a large and very detailed matte painting, trending on art-station.", 
+    'prompt': "A close-up view of a baroque photorealistic octopus, artstation CGSociety, matte painting trending on artstation HQ.", #matte painting trending
+    #'prompt': "A scenic view deep in the Amazonian jungle with many overgrown trees, Photorealistic Paintings of Ivan Shishkin.",
+    #'prompt': "A close-up view of leaves in a dense jungle, by Asher Brown Durand, matte painting trending on artstation.",Photorealistic Paintings of Ivan Shishkin
+
 
 <!-- 
 diffusion2 full shot of the into the void vortex of  The incandescent magical clockwork tesla reactor light trail of the lotus  of electric corona fusion reaction fractal  of Fairy deity, eldritch origami duality, magical sunflower halo, eternal revelation, untamed perfection depth shader, opposed symmetry  by ross tran, artstation CGSociety -w 19200 -h 10800  -clip_guidance_scale 20000 -tv_scale 20000 -range_scale 175 -cutn 128 -cutn_batches 2
@@ -82,6 +121,22 @@ Disco Diffusion works best for me. Brian Froud lends itself well in the prompt t
 
 
 
+Other than the couple of tricks I used in the prompt, I also usually turn the steps up to 350 and set the initial image to mixed Perlin noise.
+
+I also set SuperRes sharpening to Fast, I think you can get even more details on Slow though.
+
+
+
+I seriously wish I knew, this was from a series of images that were mostly normal looking people but usually had like 2 mouths or were missing an eye.
+
+My prompt included the name of a Russian realist painter if I remember correctly, maybe that helped?
+
+Ivan Shishkin.
+
+You can try the word “confident:100”, I’ve managed to do compete perfect faces, though it might vary from artist to artist
+
+A scenic view of icebergs on a sunny day, by Asher Brown Durand, matte painting trending on artstation
+
 #prompts
 "A scenic view of the Hanging Gardens of Babylon, matte painting trending on artstation",
 
@@ -97,3 +152,6 @@ clear
 purify
 uncloud
 unsmudge
+
+
+idyllic ancient castle national geographic artstation rendered
