@@ -1,44 +1,46 @@
-
-
+import sys
+import torch
 
 settings = {
-    'prompt': "A close-up view of leaves in a dense jungle, by Asher Brown Durand, matte painting trending on artstation.",
-    # 'prompt':"A scenic view of a lake in the fjords, by Asher Brown Durand, a large and very detailed matte painting, trending on art-station.",
-    'clip_guidance_scale':5000,
-    'steps':120,
+          #'prompt': "A scenic view of a garden in summer, by Asher Brown Durand, matte painting trending on artstation.",
+         #"prompt":"A scenic view of a flower in a meadow, by Asher Brown Durand, featured on ArtStation.",
+    #'prompt': "A scenic view of a garden in summer, national geographic, Hyperrealistic, by Asher Brown Durand, RTX on, matte painting trending on artstation HQ.",
+      #'prompt':"A scenic view of trees in a jungle, by Asher Brown Durand, detailed render, I can't believe how detailed this is, matte painting trending on artstation artstation HQ.",
+     'prompt':"A scenic view of the devil's garden, by David Noton, detailed render, I can't believe how detailed this is, matte painting trending on artstation artstation HQ.",
+     'clip_guidance_scale':5000,
+    'steps':250,
     'cut_ic_pow':1,
-    'range_scale':250,
+    'range_scale':150,
     'n_batches':5,
-    'eta' : 0.5,
+    'eta' : 0.8,
     'diffusion_steps':1000,
     'tv_scale':0,
-    'sat_scale':5000,
+    'sat_scale':0,
     'path':'/home/twmmason/dev/disco/content',
     'ViTB32': True,
     'ViTB16': True,
-    'ViTL14': False,
+    'ViTL14': True,
     'RN101': False,
     'RN50': False,
     'RN50x4': False,
     'RN50x16': True,
-    'RN50x64': False,
+    'RN50x64': True,
     'use_secondary_model':False,
-    'skip_augs':True,
-    #'wh':[1280, 768],
-    #'wh':[512, 512],
+    'skip_augs':False,
+    'wh':[800, 480],
+    #'wh':[640, 320],
+    # 'wh':[1600,960],
     'intermediate_saves': 10,
-    
+    'max_frames':1000,
     #'cutn_batches':4,
-    'cutn_batches':2,
-    'animation_mode':'3D',
-    'max_frames':100,
-     #'wh':[512, 512],  
-    # 'wh':[640, 376],
-    'wh':[800, 800],
+    'cutn_batches':4,
+    'animation_mode':'None',
+     #'wh':[512, 512],
+    #'wh':[640, 376],
 
 } 
 
-
+print(settings)
 
 """#Tutorial
 
@@ -90,15 +92,10 @@ Setting | Description | Default
 
 # 1. Set Up
 """
-
-#@title 1.2 Prepare Folders
-
+root_path = settings['path']
 is_colab = False
-google_drive = False
-save_models_to_google_drive = False
-print("Google Colab not detected.")
-
-root_path = '/home/twmmason/dev/disco'
+google_drive=False
+save_models_to_google_drive=False
 
 import os
 from os import path
@@ -110,9 +107,9 @@ def createPath(filepath):
     else:
       print(f'filepath {filepath} exists.')
 
-initDirPath = f'{root_path}/content/init_images'
+initDirPath = f'{root_path}/init_images'
 createPath(initDirPath)
-outDirPath = f'{root_path}/content/images_out'
+outDirPath = f'{root_path}/images_out'
 createPath(outDirPath)
 
 # if is_colab:
@@ -123,20 +120,23 @@ createPath(outDirPath)
 #         model_path = f'{root_path}/model'
 #         createPath(model_path)
 # else:
-model_path = f'{root_path}/content/model'
-createPath(model_path)
+#     model_path = f'{root_path}/model'
+#     createPath(model_path)
 
+
+model_path = root_path + "/model"
+print("modelPath",model_path)
 # libraries = f'{root_path}/libraries'
 # createPath(libraries)
 
 # Commented out IPython magic to ensure Python compatibility.
-#@title ### 1.3 Install and import dependencies
+# @title ### 1.3 Install and import dependencies
 
 from os.path import exists as path_exists
 
-if not is_colab:
+#if not is_colab:
   # If running locally, there's a good chance your env will need this in order to not crash upon np.matmul() or similar operations.
-  os.environ['KMP_DUPLICATE_LIB_OK']='TRUE'
+ # os.environ['KMP_DUPLICATE_LIB_OK']='TRUE'
 
 PROJECT_DIR = os.path.abspath(os.getcwd())
 USE_ADABINS = True
@@ -154,53 +154,67 @@ model_512_downloaded = False
 model_secondary_downloaded = False
 
 # if is_colab:
-#   !git clone https://github.com/openai/CLIP
+  # !git clone https://github.com/openai/CLIP
 #   # !git clone https://github.com/facebookresearch/SLIP.git
-#   !git clone https://github.com/crowsonkb/guided-diffusion
-#   !git clone https://github.com/assafshocher/ResizeRight.git
-#   !pip install -e ./CLIP
-#   !pip install -e ./guided-diffusion
-#   !pip install lpips datetime timm
-#   !apt install imagemagick
-#   !git clone https://github.com/isl-org/MiDaS.git
-#   !git clone https://github.com/alembics/disco-diffusion.git
+  # !git clone https://github.com/crowsonkb/guided-diffusion
+  # !git clone https://github.com/assafshocher/ResizeRight.git
+  # !pip install -e ./CLIP
+  # !pip install -e ./guided-diffusion
+  # !pip install lpips datetime timm
+  # !apt install imagemagick
+  # !git clone https://github.com/isl-org/MiDaS.git
+  # !git clone https://github.com/alembics/disco-diffusion.git
 #   # Rename a file to avoid a name conflict..
-#   !mv MiDaS/utils.py MiDaS/midas_utils.py
-#   !cp disco-diffusion/disco_xform_utils.py disco_xform_utils.py
+  # !mv MiDaS/utils.py MiDaS/midas_utils.py
+  # !cp disco-diffusion/disco_xform_utils.py disco_xform_utils.py
 
 # !mkdir model
-# if not path_exists(f'{model_path}/dpt_large-midas-2f21e586.pt'):
-#   os.system("wget https://github.com/intel-isl/DPT/releases/download/1_0/dpt_large-midas-2f21e586.pt -P {model_path}
+print('check 1')
+if not path_exists(model_path + "/dpt_large-midas-2f21e586.pt"):
+  os.system("wget https://github.com/intel-isl/DPT/releases/download/1_0/dpt_large-midas-2f21e586.pt -P " + model_path + "")
 
-import sys
-import torch
 
-# #Install pytorch3d
-# if is_colab:
-#   pyt_version_str=torch.__version__.split("+")[0].replace(".", "")
-#   version_str="".join([
-#       f"py3{sys.version_info.minor}_cu",
-#       torch.version.cuda.replace(".",""),
-#       f"_pyt{pyt_version_str}"
-#   ])
-#   !pip install fvcore iopath
-#   !pip install --no-index --no-cache-dir pytorch3d -f https://dl.fbaipublicfiles.com/pytorch3d/packaging/wheels/{version_str}/download.html
 
-# sys.path.append('./SLIP')
+
+
+# Install pytorch3d
+
+# pyt_version_str=torch.__version__.split("+")[0].replace(".", "")
+# version_str="".join([
+#     f"py3{sys.version_info.minor}_cu",
+#     torch.version.cuda.replace(".",""),
+#     f"_pyt{pyt_version_str}"
+# ])
+# print("vs",version_str,pyt_version_str)
+# os.system("pip install fvcore iopath")
+# os.system("pip install --no-index --no-cache-dir pytorch3d -f https://dl.fbaipublicfiles.com/pytorch3d/packaging/wheels/"+pyt_version_str+"/download.html")
+
+print('check 2')
+
+# sys.path.append('./../../SLIP')
 sys.path.append('./ResizeRight')
+print('check 3')
+
 sys.path.append('./MiDaS')
+print('check 4')
+sys.path.append('./latent-diffusion')
+print('check 5')
+
 from dataclasses import dataclass
 from functools import partial
 import cv2
 import pandas as pd
 import gc
 import io
+print("a")
 import math
 import timm
 from IPython import display
 import lpips
 from PIL import Image, ImageOps
 import requests
+print("b")
+
 from glob import glob
 import json
 from types import SimpleNamespace
@@ -208,38 +222,51 @@ from torch import nn
 from torch.nn import functional as F
 import torchvision.transforms as T
 import torchvision.transforms.functional as TF
+print("c")
+
 from tqdm.notebook import tqdm
 sys.path.append('./CLIP')
 sys.path.append('./guided-diffusion')
 import clip
 from resize_right import resize
+print("d")
+
 # from models import SLIP_VITB16, SLIP, SLIP_VITL16
 from guided_diffusion.script_util import create_model_and_diffusion, model_and_diffusion_defaults
+print("e")
+
 from datetime import datetime
 import numpy as np
 import matplotlib.pyplot as plt
 import random
+print("f")
+
 from ipywidgets import Output
 import hashlib
 
 # #SuperRes
 # if is_colab:
-#   !git clone https://github.com/CompVis/latent-diffusion.git
-#   !git clone https://github.com/CompVis/taming-transformers
-#   !pip install -e ./taming-transformers
-#   !pip install ipywidgets omegaconf>=2.0.0 pytorch-lightning>=1.0.8 torch-fidelity einops wandb
+  # !git clone https://github.com/CompVis/latent-diffusion.git
+  # !git clone https://github.com/CompVis/taming-transformers
+  # !pip install -e ./taming-transformers
+  # !pip install ipywidgets omegaconf>=2.0.0 pytorch-lightning>=1.0.8 torch-fidelity einops wandb
+
+print("tamin")
 
 #SuperRes
 import ipywidgets as widgets
 import os
-sys.path.append(".")
+#sys.path.append(".")
 sys.path.append('./taming-transformers')
-from taming.models import vqgan # checking correct import from taming
+print("taming2")
+#from taming.models import vqgan # checking correct import from taming
 from torchvision.datasets.utils import download_url
 # if is_colab:
 # #   %cd '/content/latent-diffusion'
 # else:
-# #   %cd 'latent-diffusion'
+print("ldm")
+
+os.system("cd latent-diffusion")
 from functools import partial
 from ldm.util import instantiate_from_config
 from ldm.modules.diffusionmodules.util import make_ddim_sampling_parameters, make_ddim_timesteps, noise_like
@@ -249,7 +276,9 @@ from ldm.util import ismap
 # #   %cd '/content'
 #   from google.colab import files
 # else:
-# #   %cd $PROJECT_DIR
+print("imports")
+
+os.system("cd " + PROJECT_DIR)
 from IPython.display import Image as ipyimg
 from numpy import asarray
 from einops import rearrange, repeat
@@ -259,18 +288,20 @@ from omegaconf import OmegaConf
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
+print("adabins")
 # AdaBins stuff
-# if USE_ADABINS:
-#   if is_colab:
-#     !git clone https://github.com/shariqfarooq123/AdaBins.git
-#     if not path_exists(f'{model_path}/AdaBins_nyu.pt'):
-#       os.system("wget https://cloudflare-ipfs.com/ipfs/Qmd2mMnDLWePKmgfS8m6ntAg4nhV5VkUyAydYBp8cWWeB7/AdaBins_nyu.pt -P {model_path}
-#     !mkdir pretrained
-#     !cp  -P {model_path}/AdaBins_nyu.pt pretrained/AdaBins_nyu.pt
-sys.path.append('./AdaBins')
-from infer import InferenceHelper
-MAX_ADABINS_AREA = 500000
+if USE_ADABINS:
+  if is_colab:
+    os.system("git clone https://github.com/shariqfarooq123/AdaBins.git")
+    if not path_exists(model_path + "/AdaBins_nyu.pt"):
+      os.system("wget https://cloudflare-ipfs.com/ipfs/Qmd2mMnDLWePKmgfS8m6ntAg4nhV5VkUyAydYBp8cWWeB7/AdaBins_nyu.pt -P " + model_path + "")
+    os.system("mkdir pretrained")
+    os.system("cp  -P " + model_path + "/AdaBins_nyu.pt pretrained/AdaBins_nyu.pt")
+  sys.path.append('./AdaBins')
+  from infer import InferenceHelper
+  MAX_ADABINS_AREA = 500000
 
+print("torch")
 import torch
 DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 print('Using device:', DEVICE)
@@ -280,7 +311,7 @@ if torch.cuda.get_device_capability(DEVICE) == (8,0): ## A100 fix thanks to Emad
   print('Disabling CUDNN for A100 gpu', file=sys.stderr)
   torch.backends.cudnn.enabled = False
 
-#@title ### 1.4 Define Midas functions
+# @title ### 1.4 Define Midas functions
 
 
 from midas.dpt_depth import DPTDepthModel
@@ -292,12 +323,13 @@ from midas.transforms import Resize, NormalizeImage, PrepareForNet
 # It remains resident in VRAM and likely takes around 2GB VRAM.
 # You could instead initialize it for each frame (and free it after each frame) to save VRAM.. but initializing it is slow.
 default_models = {
-    "midas_v21_small": f"{model_path}/midas_v21_small-70d6b9c8.pt",
-    "midas_v21": f"{model_path}/midas_v21-f6b98070.pt",
-    "dpt_large": f"{model_path}/dpt_large-midas-2f21e586.pt",
-    "dpt_hybrid": f"{model_path}/dpt_hybrid-midas-501f0c75.pt",
-    "dpt_hybrid_nyu": f"{model_path}/dpt_hybrid_nyu-2ce69ec7.pt",}
+    "midas_v21_small": f"" + model_path + "/midas_v21_small-70d6b9c8.pt",
+    "midas_v21": f"" + model_path + "/midas_v21-f6b98070.pt",
+    "dpt_large": f"" + model_path + "/dpt_large-midas-2f21e586.pt",
+    "dpt_hybrid": f"" + model_path + "/dpt_hybrid-midas-501f0c75.pt",
+    "dpt_hybrid_nyu": f"" + model_path + "/dpt_hybrid_nyu-2ce69ec7.pt",}
 
+print("asd",default_models)
 
 def init_midas_depth_model(midas_model_type="dpt_large", optimize=True):
     midas_model = None
@@ -365,7 +397,6 @@ def init_midas_depth_model(midas_model_type="dpt_large", optimize=True):
                 ensure_multiple_of=32,
                 resize_method=resize_mode,
                 image_interpolation_method=cv2.INTER_CUBIC,
-                
             ),
             normalization,
             PrepareForNet(),
@@ -384,7 +415,7 @@ def init_midas_depth_model(midas_model_type="dpt_large", optimize=True):
     print(f"MiDaS '{midas_model_type}' depth model initialized.")
     return midas_model, midas_transform, net_w, net_h, resize_mode, normalization
 
-#@title 1.5 Define necessary functions
+# @title 1.5 Define necessary functions
 
 # https://gist.github.com/adefossez/0646dbe9ed4005480a2407c62aac8869
 
@@ -674,7 +705,6 @@ def range_loss(input):
 stop_on_next_loop = False  # Make sure GPU memory doesn't get corrupted from cancelling the run mid-way through, allow a full frame to complete
 
 def do_run():
-  turbo_blend=False
   seed = args.seed
   print(range(args.start_frame, args.max_frames))
 
@@ -743,7 +773,7 @@ def do_run():
           skip_steps = args.calc_frames_skip_steps
 
       if args.animation_mode == "3D":
-        if args.key_frames: 
+        if args.key_frames:
           angle = args.angle_series[frame_num]
           #zoom = args.zoom_series[frame_num]
           translation_x = args.translation_x_series[frame_num]
@@ -764,14 +794,14 @@ def do_run():
           )
 
         if frame_num > 0:
-            seed = seed + 1    
-            if resume_run and frame_num == start_frame:
-                img_filepath = batchFolder+f"/{batch_name}({batchNum})_{start_frame-1:04}.png"
-            else:
-                img_filepath = '/content/prevFrame.png' if is_colab else 'prevFrame.png'
-            trans_scale = 1.0/200.0
-          
-            for i in range(3):
+          seed = seed + 1    
+          if resume_run and frame_num == start_frame:
+            img_filepath = batchFolder+f"/{batch_name}({batchNum})_{start_frame-1:04}.png"
+          else:
+            img_filepath = '/content/prevFrame.png' if is_colab else 'prevFrame.png'
+          trans_scale = 1.0/200.0
+        
+          for i in range(3):
                 # translate_xyz = [-translation_x*trans_scale, translation_y*trans_scale, -translation_z*trans_scale]
                 # rotate_xyz = [rotation_3d_x, rotation_3d_y, rotation_3d_z]
                 # print('translation:',translate_xyz)
@@ -787,7 +817,7 @@ def do_run():
 
                 theta = 1.5 * (math.pi/180) #x * 2 * pi ­ pi
                 #   phi = pi / 2 ­ y * pi
-                ipd = 50.0
+                ipd = 2.0
                 ray_origin = math.cos(theta) * ipd / 2 * (-1.0 if i==0 else (1.0 if i==1 else 0.0))
                 ray_rotation = (theta if i==0 else (-theta if i==1 else 0.0))
                 translate_xyz = [-(translation_x+ray_origin)*trans_scale, translation_y*trans_scale, -translation_z*trans_scale]
@@ -804,7 +834,7 @@ def do_run():
                 next_step_pil = dxf.transform_image_3d(img_filepath, midas_model, midas_transform, DEVICE,
                                                                 rot_mat, translate_xyz, args.near_plane, args.far_plane,
                                                                 args.fov, padding_mode=args.padding_mode,
-                                                                sampling_mode=args.sampling_mode, midas_weight=args.midas_weight,fisheye=(i!=2))
+                                                                sampling_mode=args.sampling_mode, midas_weight=args.midas_weight)
                 if i==2: 
                     next_step_pil.save('prevFrameScaled.png')
                 else:
@@ -814,72 +844,11 @@ def do_run():
 
 
 
-
-            ### Turbo mode - skip some diffusions to save time 
-            turbo_blend = False # default to normal frame saving later          
-            if turbo_mode == True and frame_num > 10: #preroll is 10 frames
-                if frame_num % int(turbo_steps) != 0: 
-                    print('turbo skip this frame: skipping clip diffusion steps')
-                    filename = f'{args.batch_name}({args.batchNum})_{frame_num:04}.png'
-                    next_step_pil.save(f'{batchFolder}/{filename}') #save it as this frame. done.
-                    next_step_pil.save(f'{img_filepath}') # save it also as prev_frame to feed next iteration
-                    turbo_blend = False # default to normal-frame-saving later 
-                    continue
-                else:
-                    if turbo_frame_blend == True:
-                        turbo_blend = True # blend frames for smoothness..
-                    print('clip/diff this frame - generate clip diff image')
-
-            init_image = 'prevFrameScaled.png'
-            init_scale = args.frames_scale
-            skip_steps = args.calc_frames_skip_steps
+                
         
-        # for i in range(3):
-        #     print("i=",i)
-        #     theta = 5 * (math.pi/180) #x * 2 * pi ­ pi
-        # #   phi = pi / 2 ­ y * pi
-        #     ipd = 1.0
-        #     ray_origin = math.cos(theta) * ipd / 2 * (-1.0 if i==0 else (0 if i==1 else 1.0))
-        #     ray_rotation = (theta if i==0 else (0 if i==1 else -theta))
-
-        #     translate_xyz = [-(translation_x+ray_origin)*trans_scale, translation_y*trans_scale, -translation_z*trans_scale]
-        #     rotate_xyz = [rotation_3d_x, rotation_3d_y+(ray_rotation), rotation_3d_z]
-
-        #     print("i="+ str(i),"theta="+str(theta),"ray_origin=" + str(ray_origin),"ray_rotation="+str(ray_rotation))
-        #     print('translation:',translate_xyz)
-        #     print('rotation:',rotate_xyz)
-        #     rot_mat = p3dT.euler_angles_to_matrix(torch.tensor(rotate_xyz, device=device), "XYZ").unsqueeze(0)
-        #     print("rot_mat: " + str(rot_mat))
-        #     next_step_pil = dxf.transform_image_3d(img_filepath, midas_model, midas_transform, DEVICE,
-        #                                             rot_mat, translate_xyz, args.near_plane, args.far_plane,
-        #                                             args.fov, padding_mode=args.padding_mode,
-        #                                             sampling_mode=args.sampling_mode, midas_weight=args.midas_weight)
-        #     # next_step_pil.save('prevFrameScaled'+ ('_l' if i==0 else ('' if i==1 else '_r'))+'.png')
-        #     if i==1: 
-        #         # next_step_pil.save(batchFolder + '/frame_' + frame_num + ('_l' if i==0 else ('' if i==1 else '_r'))+'.png')
-        #         next_step_pil.save('prevFrameScaled.png')
-        #     else:
-        #         next_step_pil.save(batchFolder + '/frame_' + str(frame_num) + ('_l' if i==0 else ('' if i==1 else '_r'))+'.png')
-        #     ### Turbo mode - skip some diffusions to save time 
-        #     turbo_blend = False # default to normal frame saving later      
-        #     if turbo_mode == True and frame_num > 10: #preroll is 10 frames
-        #         if frame_num % int(turbo_steps) != 0: 
-        #             print('turbo skip this frame: skipping clip diffusion steps')
-        #             # filename = f'{args.batch_name}({args.batchNum})_{frame_num:04}_'+('l' if i==0 else ('' if i==1 else 'r'))+'.png'
-        #             # print(filename)
-        #             filename = f'{args.batch_name}({args.batchNum})_{frame_num:04}.png'
-        #             next_step_pil.save(f'{batchFolder}/{filename}') #save it as this frame. done.
-        #             next_step_pil.save(f'{img_filepath}') # save it also as prev_frame to feed next iteration
-        #             turbo_blend = False # default to normal-frame-saving later 
-        #             continue
-        #         else:
-        #             if turbo_frame_blend == True:
-        #                 turbo_blend = True # blend frames for smoothness..
-        #             print('clip/diff this frame - generate clip diff image')   
-
-        #     init_image = 'prevFrameScaled.png'
-        #     init_scale = args.frames_scale
-        #     skip_steps = args.calc_frames_skip_steps
+          init_image = 'prevFrameScaled.png'
+          init_scale = args.frames_scale
+          skip_steps = args.calc_frames_skip_steps
 
       if  args.animation_mode == "Video Input":
         seed = seed + 1  
@@ -1054,7 +1023,7 @@ def do_run():
             batchBar.n = i
             batchBar.refresh()
           print('')
-          display.display(image_display)
+          #display.display(image_display)
           gc.collect()
           torch.cuda.empty_cache()
           cur_t = diffusion.num_timesteps - skip_steps - 1
@@ -1146,17 +1115,7 @@ def do_run():
                           if args.keep_unsharp is True:
                             image.save(f'{unsharpenFolder}/{filename}')
                         else:
-                          #if turbo_blend, save a blended image 
-                          if turbo_blend == True:
-                            #mix new image with prevFrameScaled
-                            newFrame = cv2.imread('prevFrame.png')#this is already updated..
-                            prev_frame_warped = cv2.imread('prevFrameScaled.png')
-                            blendedImage = cv2.addWeighted(newFrame, 0.5, prev_frame_warped, 0.5, 0.0)
-                            cv2.imwrite(f'{batchFolder}/{filename}',blendedImage)
-                            turbo_blend = False # reset to false
-                          else:
-                            print("saving", f'{batchFolder}/{filename}')
-                            image.save(f'{batchFolder}/{filename}')
+                          image.save(f'{batchFolder}/{filename}')
                         # if frame_num != args.max_frames-1:
                         #   display.clear_output()
 
@@ -1235,15 +1194,12 @@ def save_settings():
     'sampling_mode': sampling_mode,
     'video_init_path':video_init_path,
     'extract_nth_frame':extract_nth_frame,
-    'turbo_mode':turbo_mode,
-    'turbo_steps':turbo_steps,
-    'turbo_frame_blend':turbo_frame_blend,
   }
   # print('Settings:', setting_list)
   with open(f"{batchFolder}/{batch_name}({batchNum})_settings.txt", "w+") as f:   #save settings
     json.dump(setting_list, f, ensure_ascii=False, indent=4)
 
-#@title 1.6 Define the secondary diffusion model
+# @title 1.6 Define the secondary diffusion model
 
 def append_dims(x, n):
     return x[(Ellipsis, *(None,) * (n - x.ndim))]
@@ -1592,8 +1548,8 @@ def download_models(mode):
         url_conf = 'https://heibox.uni-heidelberg.de/f/31a76b13ea27482981b4/?dl=1'
         url_ckpt = 'https://heibox.uni-heidelberg.de/f/578df07c8fc04ffbadf3/?dl=1'
 
-        path_conf = f'{model_path}/superres/project.yaml'
-        path_ckpt = f'{model_path}/superres/last.ckpt'
+        path_conf = model_path + "/superres/project.yaml"
+        path_ckpt = model_path + "/superres/last.ckpt"
 
         download_url(url_conf, path_conf)
         download_url(url_ckpt, path_ckpt)
@@ -1934,19 +1890,19 @@ def do_superres(img, filepath):
 
 #@markdown ####**Models Settings:**
 diffusion_model = "512x512_diffusion_uncond_finetune_008100" #@param ["256x256_diffusion_uncond", "512x512_diffusion_uncond_finetune_008100"]
-use_secondary_model = settings["use_secondary_model"] #@param {type: 'boolean'}
+use_secondary_model = settings['use_secondary_model'] #@param {type: 'boolean'}
 
 timestep_respacing = '50' # param ['25','50','100','150','250','500','1000','ddim25','ddim50', 'ddim75', 'ddim100','ddim150','ddim250','ddim500','ddim1000']  
 diffusion_steps = 1000 # param {type: 'number'}
 use_checkpoint = True #@param {type: 'boolean'}
-ViTB32 = settings["ViTB32"] #@param{type:"boolean"}
-ViTB16 = settings["ViTB16"] #@param{type:"boolean"}
-ViTL14 = settings["ViTL14"] #@param{type:"boolean"}
-RN101 = settings["RN101"] #@param{type:"boolean"}
-RN50 = settings["RN50"] #@param{type:"boolean"}
-RN50x4 = settings["RN50x4"] #@param{type:"boolean"}
-RN50x16 = settings["RN50x16"] #@param{type:"boolean"}
-RN50x64 = settings["RN50x64"] #@param{type:"boolean"}
+ViTB32 = settings['ViTB32'] #@param{type:"boolean"}
+ViTB16 = settings['ViTB16'] #@param{type:"boolean"}
+ViTL14 = settings['ViTL14'] #@param{type:"boolean"}
+RN101 = settings['RN101'] #@param{type:"boolean"}
+RN50 = settings['RN50'] #@param{type:"boolean"}
+RN50x4 = settings['RN50x4'] #@param{type:"boolean"}
+RN50x16 = settings['RN50x16'] #@param{type:"boolean"}
+RN50x64 = settings['RN50x64'] #@param{type:"boolean"}
 SLIPB16 = False # param{type:"boolean"}
 SLIPL16 = False # param{type:"boolean"}
 
@@ -1961,9 +1917,9 @@ model_256_link = 'https://openaipublic.blob.core.windows.net/diffusion/jul-2021/
 model_512_link = 'https://v-diffusion.s3.us-west-2.amazonaws.com/512x512_diffusion_uncond_finetune_008100.pt'
 model_secondary_link = 'https://v-diffusion.s3.us-west-2.amazonaws.com/secondary_model_imagenet_2.pth'
 
-model_256_path = f'{model_path}/256x256_diffusion_uncond.pt'
-model_512_path = f'{model_path}/512x512_diffusion_uncond_finetune_008100.pt'
-model_secondary_path = f'{model_path}/secondary_model_imagenet_2.pth'
+model_256_path = model_path + "/256x256_diffusion_uncond.pt"
+model_512_path = model_path + "/512x512_diffusion_uncond_finetune_008100.pt"
+model_secondary_path = model_path + "/secondary_model_imagenet_2.pth"
 
 # Download the diffusion model
 if diffusion_model == '256x256_diffusion_uncond':
@@ -1977,7 +1933,7 @@ if diffusion_model == '256x256_diffusion_uncond':
       model_256_downloaded = True
     else: 
       print("256 Model SHA doesn't match, redownloading...")
-      os.system("wget --continue {model_256_link} -P " + model_path + "" )
+      os.system("wget --continue {model_256_link} -P " + model_path + "")
       model_256_downloaded = True
   elif os.path.exists(model_256_path) and not check_model_SHA or model_256_downloaded == True:
     print('256 Model already downloaded, check check_model_SHA if the file is corrupt')
@@ -1995,12 +1951,12 @@ elif diffusion_model == '512x512_diffusion_uncond_finetune_008100':
       model_512_downloaded = True
     else:  
       print("512 Model SHA doesn't match, redownloading...")
-      os.system("wget --continue {model_512_link} -P " + model_path + "")
+      os.system("wget --continue " + model_512_link +" -P " + model_path + "")
       model_512_downloaded = True
   elif os.path.exists(model_512_path) and not check_model_SHA or model_512_downloaded == True:
     print('512 Model already downloaded, check check_model_SHA if the file is corrupt')
   else:  
-    os.system("wget --continue {model_512_link} -P " + model_path + "")
+    os.system("wget --continue " + model_512_link +" -P " + model_path + "")
     model_512_downloaded = True
 
 
@@ -2016,12 +1972,12 @@ if use_secondary_model == True:
       model_secondary_downloaded = True
     else:  
       print("Secondary Model SHA doesn't match, redownloading...")
-      os.system("wget --continue {model_secondary_link} -P " + model_path + "")
+      os.system("wget --continue " + model_secondary_link + " -P " + model_path + "")
       model_secondary_downloaded = True
   elif os.path.exists(model_secondary_path) and not check_model_SHA or model_secondary_downloaded == True:
     print('Secondary Model already downloaded, check check_model_SHA if the file is corrupt')
   else:  
-    os.system("wget --continue {model_secondary_link} -P " + model_path + "")
+    os.system("wget --continue " + model_secondary_link + " -P " + model_path + "")
     model_secondary_downloaded = True
 
 model_config = model_and_diffusion_defaults()
@@ -2069,7 +2025,7 @@ model_default = model_config['image_size']
 
 if secondary_model_ver == 2:
     secondary_model = SecondaryDiffusionImageNet2()
-    secondary_model.load_state_dict(torch.load(f'{model_path}/secondary_model_imagenet_2.pth', map_location='cpu'))
+    secondary_model.load_state_dict(torch.load(model_path + "/secondary_model_imagenet_2.pth", map_location='cpu'))
 secondary_model.eval().requires_grad_(False).to(device)
 
 clip_models = []
@@ -2082,33 +2038,33 @@ if RN50x16 is True: clip_models.append(clip.load('RN50x16', jit=False)[0].eval()
 if RN50x64 is True: clip_models.append(clip.load('RN50x64', jit=False)[0].eval().requires_grad_(False).to(device)) 
 if RN101 is True: clip_models.append(clip.load('RN101', jit=False)[0].eval().requires_grad_(False).to(device)) 
 
-if SLIPB16:
-  SLIPB16model = SLIP_VITB16(ssl_mlp_dim=4096, ssl_emb_dim=256)
-  if not os.path.exists(f'{model_path}/slip_base_100ep.pt'):
-    os.system("wget https://dl.fbaipublicfiles.com/slip/slip_base_100ep.pt -P " + model_path + "")
-  sd = torch.load(f'{model_path}/slip_base_100ep.pt')
-  real_sd = {}
-  for k, v in sd['state_dict'].items():
-    real_sd['.'.join(k.split('.')[1:])] = v
-  del sd
-  SLIPB16model.load_state_dict(real_sd)
-  SLIPB16model.requires_grad_(False).eval().to(device)
+# if SLIPB16:
+#   SLIPB16model = SLIP_VITB16(ssl_mlp_dim=4096, ssl_emb_dim=256)
+#   if not os.path.exists(model_path + "/slip_base_100ep.pt'):
+#     os.system("wget https://dl.fbaipublicfiles.com/slip/slip_base_100ep.pt -P " + model_path + "")
+#   sd = torch.load(model_path + "/slip_base_100ep.pt')
+#   real_sd = {}
+#   for k, v in sd['state_dict'].items():
+#     real_sd['.'.join(k.split('.')[1:])] = v
+#   del sd
+#   SLIPB16model.load_state_dict(real_sd)
+#   SLIPB16model.requires_grad_(False).eval().to(device)
 
-  clip_models.append(SLIPB16model)
+#   clip_models.append(SLIPB16model)
 
-if SLIPL16:
-  SLIPL16model = SLIP_VITL16(ssl_mlp_dim=4096, ssl_emb_dim=256)
-  if not os.path.exists(f'{model_path}/slip_large_100ep.pt'):
-    os.system("wget https://dl.fbaipublicfiles.com/slip/slip_large_100ep.pt -P " + model_path + "")
-  sd = torch.load(f'{model_path}/slip_large_100ep.pt')
-  real_sd = {}
-  for k, v in sd['state_dict'].items():
-    real_sd['.'.join(k.split('.')[1:])] = v
-  del sd
-  SLIPL16model.load_state_dict(real_sd)
-  SLIPL16model.requires_grad_(False).eval().to(device)
+# if SLIPL16:
+#   SLIPL16model = SLIP_VITL16(ssl_mlp_dim=4096, ssl_emb_dim=256)
+#   if not os.path.exists(model_path + "/slip_large_100ep.pt'):
+#     os.system("wget https://dl.fbaipublicfiles.com/slip/slip_large_100ep.pt -P " + model_path + "")
+#   sd = torch.load(model_path + "/slip_large_100ep.pt')
+#   real_sd = {}
+#   for k, v in sd['state_dict'].items():
+#     real_sd['.'.join(k.split('.')[1:])] = v
+#   del sd
+#   SLIPL16model.load_state_dict(real_sd)
+#   SLIPL16model.requires_grad_(False).eval().to(device)
 
-  clip_models.append(SLIPL16model)
+#   clip_models.append(SLIPL16model)
 
 normalize = T.Normalize(mean=[0.48145466, 0.4578275, 0.40821073], std=[0.26862954, 0.26130258, 0.27577711])
 lpips_model = lpips.LPIPS(net='vgg').to(device)
@@ -2116,22 +2072,22 @@ lpips_model = lpips.LPIPS(net='vgg').to(device)
 """# 3. Settings"""
 
 #@markdown ####**Basic Settings:**
-batch_name = 'TimeToDiscoTurbo' #@param{type: 'string'}
-steps = settings["steps"] #@param [25,50,100,150,250,500,1000]{type: 'raw', allow-input: true}
-width_height = settings["wh"]#@param{type: 'raw'}
-clip_guidance_scale = settings["clip_guidance_scale"] #@param{type: 'number'}
-tv_scale =  settings["tv_scale"] #@param{type: 'number'}
-range_scale =   settings["range_scale"]#@param{type: 'number'}
-sat_scale =   settings["sat_scale"]#@param{type: 'number'}
-cutn_batches = settings["cutn_batches"]  #@param{type: 'number'}
-skip_augs = settings["skip_augs"]#@param{type: 'boolean'}
+batch_name = 'TimeToDisco' #@param{type: 'string'}
+steps = settings['steps'] #@param [25,50,100,150,250,500,1000]{type: 'raw', allow-input: true}
+width_height = settings['wh']#@param{type: 'raw'}
+clip_guidance_scale = settings['clip_guidance_scale'] #@param{type: 'number'}
+tv_scale =  settings['tv_scale'] #@param{type: 'number'}
+range_scale =   settings['range_scale'] #@param{type: 'number'}
+sat_scale =   settings['sat_scale'] #@param{type: 'number'}
+cutn_batches = settings['cutn_batches']  #@param{type: 'number'}
+skip_augs = settings['skip_augs']#@param{type: 'boolean'}
 
-#@markdown ---
+# @markdown ---
 
 #@markdown ####**Init Settings:**
 init_image = None #@param{type: 'string'}
 init_scale = 1000 #@param{type: 'integer'}
-skip_steps = 18 #@param{type: 'integer'}
+skip_steps = 0 #@param{type: 'integer'}
 #@markdown *Make sure you set skip_steps to ~50% of your steps if you want to use an init image.*
 
 #Get corrected sizes
@@ -2151,16 +2107,15 @@ model_config.update({
 #Make folder for batch
 batchFolder = f'{outDirPath}/{batch_name}'
 createPath(batchFolder)
-print("batch_folder",batchFolder)
 
 """###Animation Settings"""
 
 #@markdown ####**Animation Mode:**
-animation_mode = settings["animation_mode"] #@param ['None', '2D', '3D', 'Video Input'] {type:'string'}
+animation_mode = settings['animation_mode'] #@param ['None', '2D', '3D', 'Video Input'] {type:'string'}
 #@markdown *For animation, you probably want to turn `cutn_batches` to 1 to make it quicker.*
 
 
-#@markdown ---
+# @markdown ---
 
 #@markdown ####**Video Input Settings:**
 if is_colab:
@@ -2184,13 +2139,13 @@ if animation_mode == "Video Input":
   os.system("ffmpeg -i {video_init_path} -vf {vf} -vsync vfr -q:v 2 -loglevel error -stats {videoFramesFolder}/%04d.jpg")
 
 
-#@markdown ---
+# @markdown ---
 
-#@markdown ####**2D/3D Animation Settings:**
-#@markdown `zoom` is a multiplier of dimensions, 1 is no zoom.
+# @markdown ####**2D Animation Settings:**
+# @markdown `zoom` is a multiplier of dimensions, 1 is no zoom.
 
 key_frames = True #@param {type:"boolean"}
-max_frames = settings['max_frames'] #@param {type:"number"}
+max_frames = settings['max_frames']#@param {type:"number"}
 
 if animation_mode == "Video Input":
   max_frames = len(glob(f'{videoFramesFolder}/*.jpg'))
@@ -2225,7 +2180,7 @@ for i in range(settings['max_frames']):
     # v = np.subtract(p2.copy(),newpos)
 
     #sx = str(i) +": (" + str(v[0]) + "),"
-    sz = str(i) +": (1.0),"
+    sz = str(i) +": (100.0),"
     #sr += str(i) +": (" + str(-math.pi / 180) + "),"
     # sr= str(i) +": (" + str((theta)) + "),"
     #sa += str(i) +": (-" + str( (math.pi / 180)/8) + "),"
@@ -2254,17 +2209,51 @@ sampling_mode = 'bicubic'#@param {type:"string"}
 #@markdown (Starts after frame 10,) skips diffusion steps and just uses depth map to warp images for skipped frames.
 #@markdown Speeds up rendering by 2x-4x, and may improve image coherence between frames. frame_blend_mode smooths abrupt texture changes across 2 frames.
 
-turbo_mode = True #@param {type:"boolean"}
-turbo_steps = "3" #@param ["2","3","4","5","6"] {type:'string'}
-turbo_frame_blend = True #@param {type:"boolean"}
-#@markdown ---
+
+# print("translation_x: " + translation_x)
+# print("translation_y: " + translation_y)
+# print("translation_z: " + translation_z)
+# print("angle: " + )
+
+#print("rot_: " + rotation_3d_y)
+
+
+
+
+
+# @markdown ---
 
 #@markdown ####**Coherency Settings:**
 #@markdown `frame_scale` tries to guide the new frame to looking like the old one. A good default is 1500.
-frames_scale = 35000 #@param{type: 'integer'}
+frames_scale = 1500 #@param{type: 'integer'}
 #@markdown `frame_skip_steps` will blur the previous frame - higher values will flicker less but struggle to add enough new detail to zoom into.
 frames_skip_steps = '70%' #@param ['40%', '50%', '60%', '70%', '80%'] {type: 'string'}
 
+ # def CircleTangents2Vector(Vec2(0,0), float r, Vector2 p, ref Vector2 tanPosA, ref Vector2 tanPosB) {
+#      p -= center;
+     
+#      float P = p.magnitude;
+     
+#      // if p is inside the circle, there ain't no tangents.
+#      if (P <= r) {
+#        return false;
+#      }
+         
+#      float a = r * r                                          / P;    
+#      float q = r * (float)System.Math.Sqrt((P * P) - (r * r)) / P;
+     
+#      Vector2 pN  = p / P;
+#      Vector2 pNP = new Vector2(-pN.y, pN.x);
+#      Vector2 va  = pN * a;
+     
+#      tanPosA = va + pNP * q;
+#      tanPosB = va - pNP * q;
+ 
+#      tanPosA += center;
+#      tanPosB += center;
+     
+#      return true;
+#    }
 
 def parse_key_frames(string, prompt_parser=None):
     """Given a string representing frame numbers paired with parameter values at that frame,
@@ -2510,15 +2499,15 @@ else:
  Partial Saves, Diffusion Sharpening, Advanced Settings, Cutn Scheduling
 """
 
-#@markdown ####**Saving:**
+# @markdown ####**Saving:**
 
-intermediate_saves = settings['intermediate_saves'] #0#@param{type: 'raw'}
+intermediate_saves = settings['intermediate_saves']#@param{type: 'raw'}
 intermediates_in_subfolder = True #@param{type: 'boolean'}
 #@markdown Intermediate steps will save a copy at your specified intervals. You can either format it as a single integer or a list of specific steps 
 
-#@markdown A value of `2` will save a copy at 33% and 66%. 0 will save none.
+# @markdown A value of `2` will save a copy at 33% and 66%. 0 will save none.
 
-#@markdown A value of `[5, 9, 34, 45]` will save at steps 5, 9, 34, and 45. (Make sure to include the brackets)
+# @markdown A value of `[5, 9, 34, 45]` will save at steps 5, 9, 34, and 45. (Make sure to include the brackets)
 
 
 if type(intermediate_saves) is not list:
@@ -2549,70 +2538,47 @@ if sharpen_preset != 'Off' and keep_unsharp is True:
 
   #@markdown ---
 
-#@markdown ####**Advanced Settings:**
-#@markdown *There are a few extra advanced settings available if you double click this cell.*
+# @markdown ####**Advanced Settings:**
+# @markdown *There are a few extra advanced settings available if you double click this cell.*
 
-#@markdown *Perlin init will replace your init, so uncheck if using one.*
+# @markdown *Perlin init will replace your init, so uncheck if using one.*
 
 perlin_init = False  #@param{type: 'boolean'}
 perlin_mode = 'mixed' #@param ['mixed', 'color', 'gray']
 set_seed = 'random_seed' #@param{type: 'string'}
-eta = settings["eta"]#@param{type: 'number'}
+eta = settings['eta'] #@param{type: 'number'}
 clamp_grad = True #@param{type: 'boolean'}
-clamp_max = 0.15 #@param{type: 'number'}
+clamp_max = 0.05 #@param{type: 'number'}
 
 
 ### EXTRA ADVANCED SETTINGS:
 randomize_class = True
 clip_denoised = False
 fuzzy_prompt = False
-rand_mag = 0.1
+rand_mag = 0.05
 
 
  #@markdown ---
 
-#@markdown ####**Cutn Scheduling:**
-#@markdown Format: `[40]*400+[20]*600` = 40 cuts for the first 400 /1000 steps, then 20 for the last 600/1000
+# @markdown ####**Cutn Scheduling:**
+# @markdown Format: `[40]*400+[20]*600` = 40 cuts for the first 400 /1000 steps, then 20 for the last 600/1000
 
-#@markdown cut_overview and cut_innercut are cumulative for total cutn on any given step. Overview cuts see the entire image and are good for early structure, innercuts are your standard cutn.
+# @markdown cut_overview and cut_innercut are cumulative for total cutn on any given step. Overview cuts see the entire image and are good for early structure, innercuts are your standard cutn.
 
-cut_overview = "[8]*30+[0]*2970" #@param {type: 'string'}       
-cut_innercut ="[8]*30+[32]*2970"#@param {type: 'string'}  
-cut_ic_pow = 1#@param {type: 'number'}  
-cut_icgray_p = "[0.2]*30+[0]*2970"#@param {type: 'string'}
+cut_overview = "[12]*400+[4]*600" #@param {type: 'string'}       
+cut_innercut ="[4]*400+[12]*600"#@param {type: 'string'}  
+cut_ic_pow = settings['cut_ic_pow'] #@param {type: 'number'}  
+cut_icgray_p = "[0.2]*400+[0]*600"#@param {type: 'string'}
 
 """###Prompts
 `animation_mode: None` will only use the first set. `animation_mode: 2D / Video` will run through them per the set frames and hold on the last one.
 """
 
 text_prompts = {
-    
-    0: [settings["prompt"]],
-    
-    #0: ["A beautiful painting of a singular lighthouse, shining its light across a tumultuous sea of blood by greg rutkowski and thomas kinkade, Trending on artstation.", "yellow color scheme"],
-    #100: ["This set of prompts start at frame 100","This prompt has weight five:5"],
+    0: [settings['prompt']]
 }
-
-# lines = ["I met a traveller from an antique land",
-#         "Who said Two vast and trunkless legs of stone",
-# "Stand in the desert, Near them, on the sand",
-# "Half sunk a shattered visage lies, whose frown",
-# "And wrinkled lip, and sneer of cold command",
-# "Tell that its sculptor well those passions read",
-# "Which yet survive, stamped on these lifeless things",
-# "The hand that mocked them, and the heart that fed",
-# "And on the pedestal, these words appear",
-# "My name is Ozymandias, King of Kings",
-# "Look on my Works, ye Mighty, and despair!",
-# "Nothing beside remains. Round the decay",
-# "Of that colossal Wreck, boundless and bare",
-# "The lone and level sands stretch far away"]
-
-# text_prompts = {}
-# for i in range(len(lines)):
-#     text_prompts[i*2] = [lines[i] + ":1.0", "ozymandius, desert, by David Noton and Asher Brown Durand, a large and very detailed matte painting, trending on art-station:0.1" ]
-
-# print(text_prompts)
+#     100: ["This set of prompts start at frame 100","This prompt has weight five:5"],
+# }
 
 image_prompts = {
     # 0:['ImagePromptsWorkButArentVeryGood.png:2',],
@@ -2622,7 +2588,7 @@ image_prompts = {
 
 #@title Do the Run!
 #@markdown `n_batches` ignored with animation modes.
-display_rate =  25 #@param{type: 'number'}
+display_rate =  50 #@param{type: 'number'}
 n_batches =  50 #@param{type: 'number'}
 
 batch_size = 1 
@@ -2633,7 +2599,7 @@ def move_files(start_num, end_num, old_folder, new_folder):
         new_file = new_folder + f'/{batch_name}({batchNum})_{i:04}.png'
         os.rename(old_file, new_file)
 
-#@markdown ---
+# @markdown ---
 
 
 resume_run = False #@param{type: 'boolean'}
@@ -2769,7 +2735,7 @@ args = SimpleNamespace(**args)
 
 print('Prepping model...')
 model, diffusion = create_model_and_diffusion(**model_config)
-model.load_state_dict(torch.load(f'{model_path}/{diffusion_model}.pt', map_location='cpu'))
+model.load_state_dict(torch.load(model_path + "/" +  diffusion_model +".pt", map_location='cpu'))
 model.requires_grad_(False).eval().to(device)
 for name, param in model.named_parameters():
     if 'qkv' in name or 'norm' in name or 'proj' in name:
@@ -2791,7 +2757,7 @@ finally:
 """# 5. Create the video"""
 
 # @title ### **Create video**
-#@markdown Video file will save in the same folder as your images.
+# @markdown Video file will save in the same folder as your images.
 
 skip_video_for_run_all = True #@param {type: 'boolean'}
 

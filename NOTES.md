@@ -19,6 +19,9 @@ Festival of Hats by Justin Blume
 Rosette Nebula - Neptunes Trident r astrophotography
 opposed symmetrical hexagonal lens flare of light complex fractal
 
+git clone https://github.com/facebookresearch/pytorch3d.git
+
+
 
 pip install piq
 pip install ftfy
@@ -44,8 +47,11 @@ ffmpeg -framerate 15 -i frame_%4d_r.png r.mp4
 ffmpeg -framerate 30 -pattern_type glob -i 'frame_%4d_l.png'  l.mp4
 ffmpeg -framerate 30 -pattern_type glob -i 'frame_%4d_r.png'  r.mp4
 
+ffmpeg -i output.mp4 -i audio.mp3 -c:v copy -c:a aac output2.mp4
+ffmpeg -i out.mp4 -filter:v "setpts=2.0*PTS" output.mp4
 
-
+cat frame_*_l.png | ffmpeg -framerate 15 -f image2pipe -i - -c:v libx264 -r 15 -pix_fmt yuv420p l.mp4
+cat frame_*_r.png | ffmpeg -framerate 15 -f image2pipe -i - -c:v libx264 -r 15 -pix_fmt yuv420p r.mp4
 
 run out through flowframes
 then interpolate through topaz
