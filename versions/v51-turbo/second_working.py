@@ -1666,7 +1666,7 @@ for i in range(settings['max_frames']):
     sz = str(i) +": (" + str(v[1]) + "),"
     sr= str(i) +": (" + str((theta)) + "),"
     
-    sz = str(i) +": (" + str(7.0) + "),"
+    sz = str(i) +": (" + str(20.0) + "),"
     
 
 interp_spline = 'Linear' #Do not change, currently will not look good. param ['Linear','Quadratic','Cubic']{type:"string"}

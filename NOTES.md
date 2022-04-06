@@ -1,3 +1,11 @@
+GOOD LANDSCAPE
+------
+CGS:2000
+cutn:8
+
+
+
+
 y main changes: 
 - clip models: RN16/32 + rn50x4
 - eta: 0.9
@@ -43,12 +51,13 @@ scp images_out/default/* twmma@86.173.121.211:share
 
 ffmpeg -framerate 15 -i frame_%4d_l.png l.mp4
 ffmpeg -framerate 15 -i frame_%4d_r.png r.mp4
+ffmpeg -framerate 15 -i mainframe_%4d.png main.mp4
 
 ffmpeg -framerate 30 -pattern_type glob -i 'frame_%4d_l.png'  l.mp4
 ffmpeg -framerate 30 -pattern_type glob -i 'frame_%4d_r.png'  r.mp4
 
-ffmpeg -i output.mp4 -i audio.mp3 -c:v copy -c:a aac output2.mp4
 ffmpeg -i out.mp4 -filter:v "setpts=2.0*PTS" output.mp4
+ffmpeg -i output.mp4 -i audio.mp3 -c:v copy -c:a aac output2.mp4
 
 cat frame_*_l.png | ffmpeg -framerate 15 -f image2pipe -i - -c:v libx264 -r 15 -pix_fmt yuv420p l.mp4
 cat frame_*_r.png | ffmpeg -framerate 15 -f image2pipe -i - -c:v libx264 -r 15 -pix_fmt yuv420p r.mp4
@@ -84,6 +93,7 @@ mech hard surface render hyperrealistic ArtStation conceptart
          #'prompt': "A close-up view of an overgrown tree in the Amazonian jungle, by Asher Brown Durand and Ivan Shishkin, oil painting trending on Artstation HQ.",
     #'prompt': "A close-up view of leaves in a dense jungle, by Asher Brown Durand, matte painting trending on artstation.",Photorealistic Paintings of Ivan Shishkin
 
+   'prompt':"A beautiful wilderness in which a lonely monolith glowing by Caspar David Friedrich, matte painting trending on artstation HQ.",
 
       #'prompt': "A scenic view of dragons flying above the clouds, by David Noton and Asher Brown Durand, a large and very detailed matte painting, trending on art-station.", 
     'prompt': "A close-up view of a baroque photorealistic octopus, artstation CGSociety, matte painting trending on artstation HQ.", #matte painting trending

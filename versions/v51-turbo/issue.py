@@ -108,8 +108,8 @@ settings = {
     # 'wh':[640, 376],
     #'wh':[540,540],
      #'wh':[1024,1024],
-       # 'wh':[1280,768],
-         'wh':[1024,1024],
+        'wh':[512,512],
+        # 'wh':[1024,1024],
 
 
 } 
@@ -1680,6 +1680,8 @@ rotation_3d_x = "0: (0)"#@param {type:"string"}
 rotation_3d_y = "0: (0)" ##@param {type:"string"}
 rotation_3d_z = "0: (0)"#@param {type:"string"}
 
+print("anim transforms",translation_z)
+
 # translation_x = "0:(0),22:(4.465),41:(0.355),61:(1.163),69:(-1.358),85:(0.079),107:(-0.843),116:(-4.123),136:(1.029),157:(1.074),166:(-3.439),187:(-0.214),209:(0.357),219:(-4.708),239:(0.49)"#@param {type:"string"}
 # translation_y = "0:(0),22:(2.42),41:(-0.019),61:(0.24),69:(-2.381),85:(-0.358),107:(0.097),116:(1.479),136:(0.425),157:(-0.401),166:(-2.366),187:(-0.508),209:(-0.525),219:(0.683),239:(0.351)"#@param {type:"string"}
 # translation_z = "0:(6)"#@param {type:"string"}
@@ -1689,7 +1691,7 @@ rotation_3d_z = "0: (0)"#@param {type:"string"}
 
 
 
-
+print("max_frames",max_frames)
 
 
 
@@ -1710,7 +1712,7 @@ sampling_mode = 'bicubic'#@param {type:"string"}
 #@markdown For different settings tuned for Turbo Mode, refer to the original Disco-Turbo Github: https://github.com/zippy731/disco-diffusion-turbo
 
 turbo_mode = settings['turbo_mode'] #@param {type:"boolean"}
-turbo_steps = settings['turbo_steps'] #@param ["2","3","4","5","6"] {type:"string"}
+turbo_steps = settings['skip_steps'] #@param ["2","3","4","5","6"] {type:"string"}
 turbo_preroll = 10 # frames
 
 #insist turbo be used only w 3d anim.
@@ -2038,7 +2040,7 @@ cut_icgray_p = "[0.2]*400+[0]*600"#@param {type: 'string'}
 
 text_prompts = {
     0: settings['prompt'],
-    #100: ["This set of prompts start at frame 100","This prompt has weight five:5"],
+    100: ["This set of prompts start at frame 100","This prompt has weight five:5"],
 }
 
 image_prompts = {

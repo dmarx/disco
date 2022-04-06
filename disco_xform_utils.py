@@ -102,10 +102,11 @@ def transform_image_3d(img_filepath, midas_model, midas_transform, device, rot_m
     offset_coords_2d = coords_2d - torch.reshape(offset_xy, (h,w,2)).unsqueeze(0)
 
     if spherical:
-        # spherical_grid = get_spherical_projection(h, w, torch.tensor([0,0], device=device), 0.25,device=device)#align_corners=False
-        # stage_image = torch.nn.functional.grid_sample(image_tensor.add(1/512 - 0.0001).unsqueeze(0), offset_coords_2d, mode=sampling_mode, padding_mode=padding_mode, align_corners=False)
-        # new_image = torch.nn.functional.grid_sample(stage_image, spherical_grid,align_corners=True) #, mode=sampling_mode, padding_mode=padding_mode, align_corners=False)
-        new_image = torch.nn.functional.grid_sample(image_tensor.add(1/512 - 0.0001).unsqueeze(0), offset_coords_2d, mode=sampling_mode, padding_mode=padding_mode, align_corners=False)
+        spherical_grid = get_spherical_projection(h, w, torch.tensor([0,0], device=device), -0.4,device=device)#align_corners=False
+        # spherical_grid = get_spherical_projection(h, w, torch.tensor([0,0], device=device), -1.0,device=device)#align_corners=False
+        stage_image = torch.nn.functional.grid_sample(image_tensor.add(1/512 - 0.0001).unsqueeze(0), offset_coords_2d, mode=sampling_mode, padding_mode=padding_mode, align_corners=True)
+        new_image = torch.nn.functional.grid_sample(stage_image, spherical_grid,align_corners=True) #, mode=sampling_mode, padding_mode=padding_mode, align_corners=False)
+        #new_image = torch.nn.functional.grid_sample(image_tensor.add(1/512 - 0.0001).unsqueeze(0), offset_coords_2d, mode=sampling_mode, padding_mode=padding_mode, align_corners=False)
     else:
         new_image = torch.nn.functional.grid_sample(image_tensor.add(1/512 - 0.0001).unsqueeze(0), offset_coords_2d, mode=sampling_mode, padding_mode=padding_mode, align_corners=False)
     #new_image = torch.nn.functional.grid_sample(image_tensor.add(1/512 - 0.0001).unsqueeze(0), offset_coords_2d, mode=sampling_mode, padding_mode=padding_mode, align_corners=False)
@@ -131,4 +132,11 @@ def get_spherical_projection(H, W, center, magnitude,device):
     #   grid += d * d_sum * magnitude 
     return grid.unsqueeze(0)
 
-
+# def get_of_fisheye(height, width, center, magnitude):
+#   xx, yy = torch.linspace(-1, 1, width), torch.linspace(-1, 1, height)
+#   gridy, gridx  = torch.meshgrid(yy, xx)   #create identity grid
+#   grid = torch.stack([gridx, gridy], dim=-1)
+#   d = center - grid         #calculate the distance(cx - x, cy - y) 
+#   d_sum = torch.sqrt((d**2).sum(axis=-1)) # sqrt((cx-x)**2 + (cy-y)**2)
+#   grid += d * d_sum.unsqueeze(-1) * magnitude #calculate dx & dy and add to original values
+#   return grid.unsqueeze(0)    #unsqueeze(0) since the grid needs to be 4D.

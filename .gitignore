@@ -19,3 +19,4 @@ pretrained/AdaBins_nyu.ptZone.Identifier
 tools/3d/BoostingMonocularDepth
 model/superres/last.ckpt/dl=1
 model/superres/project.yaml/dl=1
+pytorch3d-lite/

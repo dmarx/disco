@@ -108,8 +108,8 @@ settings = {
     # 'wh':[640, 376],
     #'wh':[540,540],
      #'wh':[1024,1024],
-       # 'wh':[1280,768],
-         'wh':[1024,1024],
+        'wh':[1280,768],
+        # 'wh':[1024,1024],
 
 
 } 
@@ -1617,7 +1617,7 @@ if animation_mode == "Video Input":
 #@markdown All rotations are provided in degrees.
 
 key_frames = True #@param {type:"boolean"}
-max_frames = settings['max_frames'] #@param {type:"number"}
+max_frames = settings['skip_steps'] #@param {type:"number"}
 
 if animation_mode == "Video Input":
   max_frames = len(glob(f'{videoFramesFolder}/*.jpg'))
@@ -1666,7 +1666,7 @@ for i in range(settings['max_frames']):
     sz = str(i) +": (" + str(v[1]) + "),"
     sr= str(i) +": (" + str((theta)) + "),"
     
-    sz = str(i) +": (" + str(7.0) + "),"
+    sz = str(i) +": (" + str(20.0) + "),"
     
 
 interp_spline = 'Linear' #Do not change, currently will not look good. param ['Linear','Quadratic','Cubic']{type:"string"}
@@ -1710,7 +1710,7 @@ sampling_mode = 'bicubic'#@param {type:"string"}
 #@markdown For different settings tuned for Turbo Mode, refer to the original Disco-Turbo Github: https://github.com/zippy731/disco-diffusion-turbo
 
 turbo_mode = settings['turbo_mode'] #@param {type:"boolean"}
-turbo_steps = settings['turbo_steps'] #@param ["2","3","4","5","6"] {type:"string"}
+turbo_steps = settings['skip_steps'] #@param ["2","3","4","5","6"] {type:"string"}
 turbo_preroll = 10 # frames
 
 #insist turbo be used only w 3d anim.
@@ -2119,7 +2119,7 @@ print(f'Starting Run: {batch_name}({batchNum}) at frame {start_frame}')
 if set_seed == 'random_seed':
     random.seed()
     seed = random.randint(0, 2**32)
-    print(f'Using seed: {seed}')
+    # print(f'Using seed: {seed}')
 else:
     seed = int(set_seed)
 
