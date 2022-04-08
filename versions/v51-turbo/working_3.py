@@ -47,27 +47,8 @@ import os
 
 settings = {
 
-    #'prompt':["A view of a kelp forest underwater with volumetric light, by Asher Brown Durand, matte painting trending on artstation HQ"],
-    #'prompt':["A close-up view of a Menger Sponge Fractal, by Asher Brown Durand, matte painting trending on artstation HQ"],
-         # 'prompt':"A scenic view of trees in a jungle, by David Noton and Asher Brown Durand, detailed render, I can't believe how detailed this is, matte painting trending on artstation artstation HQ.",
-  'prompt':
-            [
-                #"A scenic view of trees in a jungle, by David Noton and Asher Brown Durand, detailed render, I can't believe how detailed this is, matte painting trending on artstation artstation HQ:10",
-                "A scenic view of a mystical place, by David Noton and by Asher Brown Durand, detailed render, I can't believe how detailed this is, matte painting trending on artstation artstation HQ.",
-                #"A view of a galaxy nebula, astrophotography,  trending on artstation HQ.",
-                #"A scenic view of trees in a jungle, by David Noton and Asher Brown Durand, detailed render, I can't believe how detailed this is, matte painting trending on artstation artstation HQ.",
-#"by David Noton and by Asher Brown Durand. detailed render, I can't believe how detailed this is, matte painting trending on artstation HQ:10",
-                #"sunrays and shadows:11",
-                #"epic cinematography:12",
-                #"solarpunk:8",
-               # "gothic architecture:5",
-                #"8k resolution; beautifully lit:8",
-                #"with a shimmering soft light glowing in the distance:6",
-               # "stone:-5",
-               # "halo:-5",
-                #"blur:-7",
-                #"crucifix:-5"
-            ],
+    'prompt':["A view of a kelp forest underwater with volumetric light, by Asher Brown Durand, matte painting trending on artstation HQ"],
+
     'clip_guidance_scale':5000,
     'steps':200,
     'cut_ic_pow':1,
@@ -79,15 +60,14 @@ settings = {
     'sat_scale':0,
     'clamp_max':0.05,
     'rand_mag':0.05,
-    'cutn_batches':4, #2
     'path':os.getcwd(),
     'ViTB32': True,
     'ViTB16': True,
-    'ViTL14': False, # True
+    'ViTL14': True, # True
     'RN101': False,
     'RN50': False,
     'RN50x4': False,
-    'RN50x16': False,
+    'RN50x16': True,
     'RN50x64': False,
     'use_secondary_model':False,
     'skip_augs':False,
@@ -96,7 +76,6 @@ settings = {
     'turbo_mode':True,
     'turbo_steps':"3",
     'skip_steps':10, # was 20
-    'vr_mode':True,
     'eye_angle':2.5,
     'ipd':50.0,
     #'wh':[1280, 768],
@@ -104,14 +83,13 @@ settings = {
     'intermediate_saves': 10,
     
     #'cutn_batches':4,
+    'cutn_batches':4, #2
     'animation_mode':'3D',
     'max_frames':10000,
-    'wh':[512, 512],  
-       # 'wh':[1024, 576],  
-
+   # 'wh':[512, 512],  
      #'wh':[1024,1024],
-        #'wh':[1280,768],
-   #      'wh':[1024,1024],
+       # 'wh':[1280,768],
+         'wh':[512,512],
 
 
 } 
@@ -727,8 +705,6 @@ def range_loss(input):
 
 stop_on_next_loop = False  # Make sure GPU memory doesn't get corrupted from cancelling the run mid-way through, allow a full frame to complete
 
-trans_scale = 1.0/200.0
-
 def do_3d_step(img_filepath, frame_num, midas_model, midas_transform):
   if args.key_frames:
     translation_x = args.translation_x_series[frame_num]
@@ -746,6 +722,7 @@ def do_3d_step(img_filepath, frame_num, midas_model, midas_transform):
         f'rotation_3d_z: {rotation_3d_z}',
     )
 
+  trans_scale = 1.0/200.0
   translate_xyz = [-translation_x*trans_scale, translation_y*trans_scale, -translation_z*trans_scale]
   rotate_xyz_degrees = [rotation_3d_x, rotation_3d_y, rotation_3d_z]
   print('translation:',translate_xyz)
@@ -1142,35 +1119,11 @@ def do_run():
                             cv2.imwrite(f'{batchFolder}/{filename}',blendedImage)
                           else:
                             image.save(f'{batchFolder}/{filename}')
-                            
-                          if settings['vr_mode']:
-                            generate_eye_views(trans_scale,batchFolder,filename,frame_num,midas_model, midas_transform)
-                            
                         # if frame_num != args.max_frames-1:
                         #   display.clear_output()
           
           plt.plot(np.array(loss_values), 'r')
 
-def generate_eye_views(trans_scale,batchFolder,filename,frame_num,midas_model, midas_transform):
-   for i in range(2):
-      theta = settings['eye_angle'] * (math.pi/180) #x * 2 * pi ­ pi
-      #   phi = pi / 2 ­ y * pi
-      ipd = settings['ipd']
-      ray_origin = math.cos(theta) * ipd / 2 * (-1.0 if i==0 else 1.0)
-      ray_rotation = (theta if i==0 else -theta)
-      # translate_xyz = [-(translation_x+ray_origin)*trans_scale, translation_y*trans_scale, -translation_z*trans_scale]
-      translate_xyz = [-(ray_origin)*trans_scale, 0,0]
-      rotate_xyz = [0, (ray_rotation), 0]
-      rot_mat = p3dT.euler_angles_to_matrix(torch.tensor(rotate_xyz, device=device), "XYZ").unsqueeze(0)
-      transformed_image = dxf.transform_image_3d(f'{batchFolder}/{filename}', midas_model, midas_transform, DEVICE,
-                                                      rot_mat, translate_xyz, args.near_plane, args.far_plane,
-                                                      args.fov, padding_mode=args.padding_mode,
-                                                      sampling_mode=args.sampling_mode, midas_weight=args.midas_weight,spherical=True)
-      eye_file_path = batchFolder+f"/frame_{frame_num-1:04}" + ('_l' if i==0 else '_r')+'.png'
-      transformed_image.save(eye_file_path)
-      #print("saved turbo eye version")
-
-  
 def save_settings():
   setting_list = {
     'text_prompts': text_prompts,

@@ -190,6 +190,7 @@ if not is_colab:
 PROJECT_DIR = os.path.abspath(os.getcwd())
 USE_ADABINS = True
 
+vr_mode = settings['vr_mode']
 # if is_colab:
 #   if google_drive is not True:
 #     root_path = f'/content'

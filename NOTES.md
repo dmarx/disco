@@ -3,17 +3,6 @@ GOOD LANDSCAPE
 CGS:2000
 cutn:8
 
-
-
-
-y main changes: 
-- clip models: RN16/32 + rn50x4
-- eta: 0.9
-- clamp_max: 0.05
-and the most important:
-- skip_augs: true
-- secondary: false
-
 rtx on
 beautiful landscape full of grass and flowers by Noah Bradley, matte painting, Trending on Artstation
     'prompt': "A scenic view of a beautiful landscape full of grass and flowers by Noah Bradley, blue sky, mountains, matte painting trending on Artstation",
@@ -29,8 +18,6 @@ opposed symmetrical hexagonal lens flare of light complex fractal
 
 git clone https://github.com/facebookresearch/pytorch3d.git
 
-
-
 pip install piq
 pip install ftfy
 pip install ipywidgets
@@ -42,12 +29,12 @@ pip install pytorch-lightning
 pip install einops
 pip install omegaconf
 
-
 cd pytorch3d
 python3 setup.py install
 
-ffmpeg -framerate 15 -i default_%d.png out.mp4
+<!-- video -->
 scp images_out/default/* twmma@86.173.121.211:share
+ffmpeg -framerate 15 -i default_%d.png out.mp4
 
 ffmpeg -framerate 15 -i frame_%4d_l.png l.mp4
 ffmpeg -framerate 15 -i frame_%4d_r.png r.mp4
@@ -84,22 +71,6 @@ VR
 
 mech hard surface render hyperrealistic ArtStation conceptart
 
-   #'prompt': "A scenic view of marshland dunes, by David Noton, a large and very detailed matte painting, trending on art-station.", #matte painting trending
-    
-    'prompt': "A scenic view of a mech with hard surface on a road, hyperrealistic conceptart render, by David Noton, trending on artstation HQ.", #matte painting trending
-  #  'prompt': "A scenic view of an idyllic ancient castle, national geographic, Hyperrealistic, by David Noton, RTX on, matte painting trending on artstation HQ.", #matte painting trending
-    #'prompt': "A view underwater of large sea monsters and volumetric light, by David Noton and Asher Brown Durand, matte painting trending on artstation HQ.", #matte painting trending
-    #'prompt':'A scenic view of a lake in the fjords, by David Noton, a large and very detailed matte painting, trending on art-station.',
-         #'prompt': "A close-up view of an overgrown tree in the Amazonian jungle, by Asher Brown Durand and Ivan Shishkin, oil painting trending on Artstation HQ.",
-    #'prompt': "A close-up view of leaves in a dense jungle, by Asher Brown Durand, matte painting trending on artstation.",Photorealistic Paintings of Ivan Shishkin
-
-   'prompt':"A beautiful wilderness in which a lonely monolith glowing by Caspar David Friedrich, matte painting trending on artstation HQ.",
-
-      #'prompt': "A scenic view of dragons flying above the clouds, by David Noton and Asher Brown Durand, a large and very detailed matte painting, trending on art-station.", 
-    'prompt': "A close-up view of a baroque photorealistic octopus, artstation CGSociety, matte painting trending on artstation HQ.", #matte painting trending
-    #'prompt': "A scenic view deep in the Amazonian jungle with many overgrown trees, Photorealistic Paintings of Ivan Shishkin.",
-    #'prompt': "A close-up view of leaves in a dense jungle, by Asher Brown Durand, matte painting trending on artstation.",Photorealistic Paintings of Ivan Shishkin
-
 
 <!-- 
 diffusion2 full shot of the into the void vortex of  The incandescent magical clockwork tesla reactor light trail of the lotus  of electric corona fusion reaction fractal  of Fairy deity, eldritch origami duality, magical sunflower halo, eternal revelation, untamed perfection depth shader, opposed symmetry  by ross tran, artstation CGSociety -w 19200 -h 10800  -clip_guidance_scale 20000 -tv_scale 20000 -range_scale 175 -cutn 128 -cutn_batches 2
@@ -131,9 +102,7 @@ a_laser_canon_powered_by_embedded_aura_quartz_monolith_crystal_cluster_o.mp4
 
 Disco Diffusion works best for me. Brian Froud lends itself well in the prompt to a soft, natural look. The first two used that..
 
-    'prompt': "The Gateway to the Great Temple at Baalbec, matte painting trending on artstation",
-    'prompt': "Assassin's Creed Valhalla, by Calleva Atrebatum, matte painting trending on artstation",
-    'prompt': "Greek temple, by Carl Jungheim, matte painting trending on artstation",
+
 
 
 
