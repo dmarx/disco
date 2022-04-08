@@ -53,7 +53,7 @@ settings = {
   'prompt':
             [
                 #"A scenic view of trees in a jungle, by David Noton and Asher Brown Durand, detailed render, I can't believe how detailed this is, matte painting trending on artstation artstation HQ:10",
-                "A scenic view of a mystical place, by David Noton and by Asher Brown Durand, matte painting trending on artstation artstation HQ.",
+                               "A scenic view across a mystical place, by David Noton and by Asher Brown Durand, detailed render, I can't believe how detailed this is, matte painting trending on artstation artstation HQ.",
                 #"A view of a galaxy nebula, astrophotography,  trending on artstation HQ.",
                 #"A scenic view of trees in a jungle, by David Noton and Asher Brown Durand, detailed render, I can't believe how detailed this is, matte painting trending on artstation artstation HQ.",
 #"by David Noton and by Asher Brown Durand. detailed render, I can't believe how detailed this is, matte painting trending on artstation HQ:10",
@@ -83,12 +83,12 @@ settings = {
     'path':os.getcwd(),
     'ViTB32': True,
     'ViTB16': True,
-    'ViTL14': False, # True
+    'ViTL14': True, # True
     'RN101': False,
     'RN50': False,
     'RN50x4': False,
-    'RN50x16': False,
-    'RN50x64': False,
+    'RN50x16': True,
+    'RN50x64': True,
     'use_secondary_model':False,
     'skip_augs':False,
     'frames_scale': 1500, #@param{type: 'integer'}
@@ -97,8 +97,8 @@ settings = {
     'turbo_steps':"3",
     'skip_steps':10, # was 20
     'vr_mode':True,
-    'vr_eye_angle':0.5,
-    'vr_ipd':5.0,
+    'eye_angle':2.5,
+    'ipd':50.0,
     #'wh':[1280, 768],
     #'wh':[512, 512],
     'intermediate_saves': 10,
@@ -106,10 +106,8 @@ settings = {
     #'cutn_batches':4,
     'animation_mode':'3D',
     'max_frames':10000,
-    #'wh':[512, 512],  
+    'wh':[1024, 614],  
        # 'wh':[1024, 576],  
-    'wh':[1024,1024],
-    #'wh':[1024, 614],  
 
      #'wh':[1024,1024],
         #'wh':[1280,768],
@@ -729,8 +727,6 @@ def range_loss(input):
 
 stop_on_next_loop = False  # Make sure GPU memory doesn't get corrupted from cancelling the run mid-way through, allow a full frame to complete
 
-trans_scale = 1.0/200.0
-
 def do_3d_step(img_filepath, frame_num, midas_model, midas_transform):
   if args.key_frames:
     translation_x = args.translation_x_series[frame_num]
@@ -748,6 +744,7 @@ def do_3d_step(img_filepath, frame_num, midas_model, midas_transform):
         f'rotation_3d_z: {rotation_3d_z}',
     )
 
+  trans_scale = 1.0/200.0
   translate_xyz = [-translation_x*trans_scale, translation_y*trans_scale, -translation_z*trans_scale]
   rotate_xyz_degrees = [rotation_3d_x, rotation_3d_y, rotation_3d_z]
   print('translation:',translate_xyz)
@@ -1144,35 +1141,11 @@ def do_run():
                             cv2.imwrite(f'{batchFolder}/{filename}',blendedImage)
                           else:
                             image.save(f'{batchFolder}/{filename}')
-                            
-                          if settings['vr_mode']:
-                            generate_eye_views(trans_scale,batchFolder,filename,frame_num,midas_model, midas_transform)
-                            
                         # if frame_num != args.max_frames-1:
                         #   display.clear_output()
           
           plt.plot(np.array(loss_values), 'r')
 
-def generate_eye_views(trans_scale,batchFolder,filename,frame_num,midas_model, midas_transform):
-   for i in range(2):
-      theta = settings['vr_eye_angle'] * (math.pi/180) #x * 2 * pi ­ pi
-      #   phi = pi / 2 ­ y * pi
-      ipd = settings['vr_ipd']
-      ray_origin = math.cos(theta) * ipd / 2 * (-1.0 if i==0 else 1.0)
-      ray_rotation = (theta if i==0 else -theta)
-      # translate_xyz = [-(translation_x+ray_origin)*trans_scale, translation_y*trans_scale, -translation_z*trans_scale]
-      translate_xyz = [-(ray_origin)*trans_scale, 0,0]
-      rotate_xyz = [0, (ray_rotation), 0]
-      rot_mat = p3dT.euler_angles_to_matrix(torch.tensor(rotate_xyz, device=device), "XYZ").unsqueeze(0)
-      transformed_image = dxf.transform_image_3d(f'{batchFolder}/{filename}', midas_model, midas_transform, DEVICE,
-                                                      rot_mat, translate_xyz, args.near_plane, args.far_plane,
-                                                      args.fov, padding_mode=args.padding_mode,
-                                                      sampling_mode=args.sampling_mode, midas_weight=args.midas_weight,spherical=True)
-      eye_file_path = batchFolder+f"/frame_{frame_num-1:04}" + ('_l' if i==0 else '_r')+'.png'
-      transformed_image.save(eye_file_path)
-      #print("saved turbo eye version")
-
-  
 def save_settings():
   setting_list = {
     'text_prompts': text_prompts,
@@ -1695,7 +1668,7 @@ for i in range(settings['max_frames']):
     sz = str(i) +": (" + str(v[1]) + "),"
     sr= str(i) +": (" + str((theta)) + "),"
     
-    sz = str(i) +": (" + str(2.0) + "),"
+    sz = str(i) +": (" + str(3.0) + "),"
     
 
 interp_spline = 'Linear' #Do not change, currently will not look good. param ['Linear','Quadratic','Cubic']{type:"string"}
@@ -2065,81 +2038,10 @@ cut_icgray_p = "[0.2]*400+[0]*600"#@param {type: 'string'}
 `animation_mode: None` will only use the first set. `animation_mode: 2D / Video` will run through them per the set frames and hold on the last one.
 """
 
-
-lines ={
-0	:[	 "In Xanadu did Kubla Khan", 	],
-1	:[	 "A stately pleasure dome decree",	],
-2	:[	 "Where Alph the sacred riverran", 	],
-3	:[	 "Through caverns measureless to man", 	],
-4	:[	 "Down to a sunless sea",	],
-5	:[	 "So twice five miles of fertile ground", 	],
-6	:[	 "With walls and towers were girdled round", 	],
-7	:[	 "And there were gardens bright with sinuous rills", 	],
-8	:[	 "Where blossomed many an incense bearing tree", 	],
-9	:[	 "And here were forests ancient as the hills",	],
-10	:[	 "Enfolding sunny spots of greenery", 	],
-11	:[	 "But oh that deep romantic chasm which slanted", 	],
-12	:[	 "Down the green hill athwart a cedarn cover",	],
-13	:[	 "A savage place as holy and enchanted", 	],
-14	:[	 "As ever beneath a waning moon was haunted", 	],
-15	:[	 "By woman wailing for her demon lover",	],
-16	:[	 "And from this chasm with ceaseless turmoil seething", 	],
-17	:[	 "As if this earth in fast thick pants were breathing",	],
-18	:[	 "A mighty fountain momently was forced", 	],
-19	:[	 "Amid whose swift half intermitted burst",	],
-20	:[	 "Huge fragments vaulted like rebounding hail",	],
-21	:[	 "Or chaffy grain beneath the threshers flail",	],
-22	:[	 "And mid these dancing rocks at once and ever",	],
-23	:[	 "It flung up momently the sacred river", 	],
-24	:[	 "Five miles meandering with a mazy motion",	],
-25	:[	 "Through wood and dale the sacred river ran",	],
-26	:[	 "Then reached the caverns measureless to man", 	],
-27	:[	 "And sank in tumult to a lifeless ocean",	],
-28	:[	 "And mid this tumult Kubla heard from far",	],
-29	:[	 "Ancestral voices prophesying war", 	],
-30	:[	 "The shadow of the dome of pleasure",	],
-31	:[	 "Floated midway on the waves",	],
-32	:[	 "Where was heard the mingled measure", 	],
-33	:[	 "From the fountain and the caves", 	],
-34	:[	 "It was a miracle of rare device", 	],
-35	:[	 "A sunny pleasure dome with caves of ice",	],
-36	:[	 "A damsel with a dulcimer",	],
-37	:[	 "In a vision once I saw", 	],
-38	:[	 "It was an Abyssinian maid",	],
-39	:[	 "And on her dulcimer she played", 	],
-40	:[	 "Singing of Mount Abora", 	],
-41	:[	 "Could I revive within me", 	],
-42	:[	 "Her symphony and song", 	],
-43	:[	 "To such a deep delight it would win me", 	],
-44	:[	 "That with music loud and long",	],
-45	:[	 "I would build that dome in air",	],
-46	:[	 "That sunny dome those caves of ice",	],
-47	:[	 "And all who heard should see them there", 	],
-48	:[	 "And all should cry Beware Beware", 	],
-49	:[	 "His flashing eyes his floating hair",	],
-50	:[	 "Weave a circle round him thrice",	],
-51	:[	 "And close your eyes with holy dread",	],
-52	:[	 "For he on honey dew hath fed",	],
-53	:[	 "And drunk the milk of Paradise"	],
-
-}
-
 text_prompts = {
-  0	:[ "A scenic view of trees in a jungle,  Asher Brown Durand, detailed render, I can't believe how detailed this is, matte painting trending on artstation artstation HQ."	],  
+    0: settings['prompt'],
+    #100: ["This set of prompts start at frame 100","This prompt has weight five:5"],
 }
-
-for i in range(len(lines)) :
-  a =[lines[i][0]+":10"]
-  #a.append("A scenic view of trees in a jungle:1")
-  a.append("by Asher Brown Durand, detailed render, I can't believe how detailed this is, matte painting trending on artstation artstation HQ.:7")
-  text_prompts[(i+1)*20] = a
-
-print("text_prompts:", text_prompts)
-
-# text_prompts = {
-#     0: settings['prompt'],
-#     #100: ["This set of prompts start at frame 100","This prompt has weight five:5"],
-# }
 
 image_prompts = {
     # 0:['ImagePromptsWorkButArentVeryGood.png:2',],

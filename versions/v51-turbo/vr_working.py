@@ -96,7 +96,7 @@ settings = {
     'turbo_mode':True,
     'turbo_steps':"3",
     'skip_steps':10, # was 20
-    'vr_mode':True,
+    'vr_mode':False,
     'vr_eye_angle':0.5,
     'vr_ipd':5.0,
     #'wh':[1280, 768],
@@ -109,7 +109,6 @@ settings = {
     #'wh':[512, 512],  
        # 'wh':[1024, 576],  
     'wh':[1024,1024],
-    #'wh':[1024, 614],  
 
      #'wh':[1024,1024],
         #'wh':[1280,768],
@@ -2066,80 +2065,10 @@ cut_icgray_p = "[0.2]*400+[0]*600"#@param {type: 'string'}
 """
 
 
-lines ={
-0	:[	 "In Xanadu did Kubla Khan", 	],
-1	:[	 "A stately pleasure dome decree",	],
-2	:[	 "Where Alph the sacred riverran", 	],
-3	:[	 "Through caverns measureless to man", 	],
-4	:[	 "Down to a sunless sea",	],
-5	:[	 "So twice five miles of fertile ground", 	],
-6	:[	 "With walls and towers were girdled round", 	],
-7	:[	 "And there were gardens bright with sinuous rills", 	],
-8	:[	 "Where blossomed many an incense bearing tree", 	],
-9	:[	 "And here were forests ancient as the hills",	],
-10	:[	 "Enfolding sunny spots of greenery", 	],
-11	:[	 "But oh that deep romantic chasm which slanted", 	],
-12	:[	 "Down the green hill athwart a cedarn cover",	],
-13	:[	 "A savage place as holy and enchanted", 	],
-14	:[	 "As ever beneath a waning moon was haunted", 	],
-15	:[	 "By woman wailing for her demon lover",	],
-16	:[	 "And from this chasm with ceaseless turmoil seething", 	],
-17	:[	 "As if this earth in fast thick pants were breathing",	],
-18	:[	 "A mighty fountain momently was forced", 	],
-19	:[	 "Amid whose swift half intermitted burst",	],
-20	:[	 "Huge fragments vaulted like rebounding hail",	],
-21	:[	 "Or chaffy grain beneath the threshers flail",	],
-22	:[	 "And mid these dancing rocks at once and ever",	],
-23	:[	 "It flung up momently the sacred river", 	],
-24	:[	 "Five miles meandering with a mazy motion",	],
-25	:[	 "Through wood and dale the sacred river ran",	],
-26	:[	 "Then reached the caverns measureless to man", 	],
-27	:[	 "And sank in tumult to a lifeless ocean",	],
-28	:[	 "And mid this tumult Kubla heard from far",	],
-29	:[	 "Ancestral voices prophesying war", 	],
-30	:[	 "The shadow of the dome of pleasure",	],
-31	:[	 "Floated midway on the waves",	],
-32	:[	 "Where was heard the mingled measure", 	],
-33	:[	 "From the fountain and the caves", 	],
-34	:[	 "It was a miracle of rare device", 	],
-35	:[	 "A sunny pleasure dome with caves of ice",	],
-36	:[	 "A damsel with a dulcimer",	],
-37	:[	 "In a vision once I saw", 	],
-38	:[	 "It was an Abyssinian maid",	],
-39	:[	 "And on her dulcimer she played", 	],
-40	:[	 "Singing of Mount Abora", 	],
-41	:[	 "Could I revive within me", 	],
-42	:[	 "Her symphony and song", 	],
-43	:[	 "To such a deep delight it would win me", 	],
-44	:[	 "That with music loud and long",	],
-45	:[	 "I would build that dome in air",	],
-46	:[	 "That sunny dome those caves of ice",	],
-47	:[	 "And all who heard should see them there", 	],
-48	:[	 "And all should cry Beware Beware", 	],
-49	:[	 "His flashing eyes his floating hair",	],
-50	:[	 "Weave a circle round him thrice",	],
-51	:[	 "And close your eyes with holy dread",	],
-52	:[	 "For he on honey dew hath fed",	],
-53	:[	 "And drunk the milk of Paradise"	],
-
-}
-
 text_prompts = {
-  0	:[ "A scenic view of trees in a jungle,  Asher Brown Durand, detailed render, I can't believe how detailed this is, matte painting trending on artstation artstation HQ."	],  
+    0: settings['prompt'],
+    #100: ["This set of prompts start at frame 100","This prompt has weight five:5"],
 }
-
-for i in range(len(lines)) :
-  a =[lines[i][0]+":10"]
-  #a.append("A scenic view of trees in a jungle:1")
-  a.append("by Asher Brown Durand, detailed render, I can't believe how detailed this is, matte painting trending on artstation artstation HQ.:7")
-  text_prompts[(i+1)*20] = a
-
-print("text_prompts:", text_prompts)
-
-# text_prompts = {
-#     0: settings['prompt'],
-#     #100: ["This set of prompts start at frame 100","This prompt has weight five:5"],
-# }
 
 image_prompts = {
     # 0:['ImagePromptsWorkButArentVeryGood.png:2',],
