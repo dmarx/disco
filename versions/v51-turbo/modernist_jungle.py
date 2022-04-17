@@ -53,8 +53,9 @@ settings = {
   'prompt':
             [
                 #"A scenic view of trees in a jungle, by David Noton and Asher Brown Durand, detailed render, I can't believe how detailed this is, matte painting trending on artstation artstation HQ:10",
-                #"A scenic view of a mystical place, by David Noton and by Asher Brown Durand, matte painting trending on artstation artstation HQ.",
-                "A scenic view of a mystical place, by Felix Kahn, matte painting trending on artstation artstation HQ.",
+                #"A beautiful wilderness in which a lonely jungle temple glowing, by Felix Kahn and Asher Brown Durand, matte painting trending on artstation HQ.",
+                "A scenic view of a lonely modernist building in a misty forest, warm unreal engine 3, by Felix Kahn, matte painting trending on artstation",
+                               #"A scenic view across a mystical place, by David Noton and by Asher Brown Durand, detailed render, I can't believe how detailed this is, matte painting trending on artstation artstation HQ.",
                 #"A view of a galaxy nebula, astrophotography,  trending on artstation HQ.",
                 #"A scenic view of trees in a jungle, by David Noton and Asher Brown Durand, detailed render, I can't believe how detailed this is, matte painting trending on artstation artstation HQ.",
 #"by David Noton and by Asher Brown Durand. detailed render, I can't believe how detailed this is, matte painting trending on artstation HQ:10",
@@ -70,7 +71,7 @@ settings = {
                 #"crucifix:-5"
             ],
     'clip_guidance_scale':5000,
-    'steps':200,
+    'steps':250,
     'cut_ic_pow':1,
     'range_scale':0,
     'n_batches':5,
@@ -89,141 +90,33 @@ settings = {
     'RN50': False,
     'RN50x4': False,
     'RN50x16': True,
-    'RN50x64': False,
+    'RN50x64': True,
     'use_secondary_model':False,
     'skip_augs':False,
-    
-    'soft_limiter_on': True,#@param{type: 'boolean'}\n",
-    'soft_limiter_knee': .98, #@param{type: 'number'}\n",
-
     'frames_scale': 1500, #@param{type: 'integer'}
     'frames_skip_steps':'65%',
     'turbo_mode':True,
     'turbo_steps':"3",
-    'turbo_preroll':2,
-    'skip_steps':10, # was 20
+    'skip_steps':0, # was 20
     'vr_mode':False,
-    'vr_eye_angle':0.5,
-    'vr_ipd':5.0,
+    'eye_angle':2.5,
+    'ipd':50.0,
     #'wh':[1280, 768],
-    'wh':[640,384],
     #'wh':[512, 512],
     'intermediate_saves': 10,
     
     #'cutn_batches':4,
-    'animation_mode':'3D',
+    'animation_mode':'None',
     'max_frames':10000,
-    #'wh':[512, 512],  
-       #'wh':[1024, 576],  
-    #'wh':[1024,1024],
-   #'wh':[1024, 614],  
+    #'wh':[1024, 614],  
+       # 'wh':[1024, 576],  
 
      #'wh':[1024,1024],
-   # 'wh':[512,512],
+        'wh':[1280,768],
    #      'wh':[1024,1024],
 
 
 } 
-
-
-
-
-#text_prompts = {
- # 0	:[ "a scenic view of a dense jungle in a valley with volumetric light:5",
-  #    "by Felix Kahn and Chris Rahn and Felix Kelly and Michelangelo and Nusch Eluard and Philip Sue and Pierre Brosnan, matte painting trending on artstation artstation HQ.:5"	],  
-#}
-
-# text_prompts = {
-#   0	:[ "a scenic view of a dense jungle in a valley with volumetric light by Pierre Brosnan, matte painting trending on artstation artstation HQ."	],  
-# }
-
-# #for i in range(len(lines)) :
-#   #a =[lines[i][0]+":10"]
-#   #a.append("A scenic view of trees in a jungle:1")
-#   #a.append("a scenic view of a dense jungle in a valley:4")
-#   #a.append("by Asher Brown Durand, matte painting trending on artstation artstation HQ.:5")
-# #   #text_prompts[settings['turbo_preroll'] + (i*30)] = a
-
-# lines ={
-# 0	:[	 "I met a traveller from an antique land", 	],
-# 1	:[	 "Who said—“Two vast and trunkless legs of stone", 	],
-# 2	:[	 "Stand in the desert. . . . Near them, on the sand", 	],
-# 3	:[	 "Half sunk a shattered visage lies, whose frown", 	],
-# 4	:[	 "And wrinkled lip, and sneer of cold command", 	],
-# 5	:[	 "Tell that its sculptor well those passions read", 	],
-# 6	:[	 "Which yet survive, stamped on these lifeless things", 	],
-# 7	:[	 "The hand that mocked them, and the heart that fed", 	],
-# 8	:[	 "And on the pedestal, these words appear", 	],
-# 9	:[	 "My name is Ozymandias, King of Kings", 	],
-# 10	:[	 "Look on my Works, ye Mighty, and despair", 	],
-# 11	:[	 "Nothing beside remains. Round the decay", 	],
-# 12	:[	 "Of that colossal Wreck, boundless and bare", 	],
-# 13	:[	 "The lone and level sands stretch far away", 	],
-# }
-
-
-lines ={
-0	:[ "SAY! I LIKE GREEN EGGS AND HAM!", 	],
-1	:[ "I DO! I LIKE THEM, SAM-I-AM!", 	],
-2	:[ "AND I WOULD EAT THEM IN A BOAT.", 	],
-3	:[ "AND I WOULD EAT THEM WITH A GOAT...", 	],
-4	:[ "AND I WILL EAT THEM, IN THE RAIN.", 	],
-5	:[ "AND IN THE DARK. AND ON A TRAIN.", 	],
-6	:[ "AND IN A CAR. AND IN A TREE.", 	],
-7	:[ "THEY ARE SO GOOD, SO GOOD, YOU SEE!", 	],
-8	:[ "SO I WILL EAT THEM IN A BOX.", 	],
-9	:[ "AND I WILL EAT THEM WITH A FOX.", 	],
-10	:[ "AND I WILL EAT THEM IN A HOUSE.", 	],
-11	:[ "AND I WILL EAT THEM WITH A MOUSE.", 	],
-12	:[ "AND I WILL EAT THEM HERE AND THERE.", 	],
-13	:[ "SAY! I WILL EAT THEM ANYWHERE!", 	],
-14	:[ "I DO SO LIKE GREEN EGGS AND HAM!", 	],
-15	:[ "THANK YOU! THANK YOU, SAM I AM.", 	],
-}
-
-lines ={
-0	:["I wandered lonely as a cloud", 	],
-1	:["That floats on high o'er vales and hills,", 	],
-2	:["When all at once I saw a crowd,", 	],
-3	:["A host, of golden daffodils;", 	],
-4	:["Beside the lake, beneath the trees,", 	],
-5	:["Fluttering and dancing in the breeze.", 	],
-
-6	:["Continuous as the stars that shine", 	],
-7	:["And twinkle on the milky way,", 	],
-8	:["They stretched in never-ending line", 	],
-9	:["Along the margin of a bay:", 	],
-10	:["Ten thousand saw I at a glance,", 	],
-11	:["Tossing their heads in sprightly dance.", 	],
-
-12:["The waves beside them danced; but they", 	],
-13	:["Out-did the sparkling waves in glee:", 	],
-14	:["A poet could not but be gay,", 	],
-15	:["In such a jocund company:", 	],
-16	:["I gazed—and gazed—but little thought", 	],
-17	:["What wealth the show to me had brought:", 	],
-
-18	:["For oft, when on my couch I lie", 	],
-19	:["In vacant or in pensive mood,", 	],
-20	:["They flash upon that inward eye", 	],
-21	:["Which is the bliss of solitude;", 	],
-22	:["And then my heart with pleasure fills,", 	],
-23	:["And dances with the daffodils.", 	]
-}
-
-text_prompts = {
-  0	:[ "a scenic view over a meadow valley in summer:5",
-      "by Felix Kahn, matte painting trending on artstation artstation HQ.:5"	],  
-}
-
-for i in range(len(lines)) :
-  a =[lines[i][0]+":10"]
-  #a.append("A scenic view of trees in a jungle:1")
-  #a.append("a scenic view of a dense jungle in a valley:4")
-  a.append("by Felix Kahn, matte painting trending on artstation artstation HQ.:5")
-  text_prompts[settings['turbo_preroll'] + (i*20)] = a
-
-print("text_prompts:", text_prompts)
 
 
 import subprocess
@@ -676,15 +569,6 @@ def resample(input, size, align_corners=True):
     input = input.reshape([n, c, h, w])
     return F.interpolate(input, size, mode='bicubic', align_corners=align_corners)
 
-def soft_limit(x):
-  #value from -n to n, always return a value -1<x<1\n",
-  #soft_limiter_knee set in params = 0.97 # where does compression start?\n",
-  soft_sign = x/abs(x)
-  soft_overage = ((abs(x)-soft_limiter_knee)+(abs(abs(x)-soft_limiter_knee)))/2
-  soft_base = abs(x)-soft_overage
-  soft_limited_x = soft_base + torch.tanh(soft_overage/(1-soft_limiter_knee))*(1-soft_limiter_knee)
-  return soft_limited_x*soft_sign
-        
 class MakeCutouts(nn.Module):
     def __init__(self, cut_size, cutn, skip_augs=False):
         super().__init__()
@@ -845,8 +729,6 @@ def range_loss(input):
 
 stop_on_next_loop = False  # Make sure GPU memory doesn't get corrupted from cancelling the run mid-way through, allow a full frame to complete
 
-trans_scale = 1.0/200.0
-
 def do_3d_step(img_filepath, frame_num, midas_model, midas_transform):
   if args.key_frames:
     translation_x = args.translation_x_series[frame_num]
@@ -864,6 +746,7 @@ def do_3d_step(img_filepath, frame_num, midas_model, midas_transform):
         f'rotation_3d_z: {rotation_3d_z}',
     )
 
+  trans_scale = 1.0/200.0
   translate_xyz = [-translation_x*trans_scale, translation_y*trans_scale, -translation_z*trans_scale]
   rotate_xyz_degrees = [rotation_3d_x, rotation_3d_y, rotation_3d_z]
   print('translation:',translate_xyz)
@@ -976,8 +859,6 @@ def do_run():
                 blendedImage = cv2.addWeighted(newWarpedImg, blend_factor, oldWarpedImg,1-blend_factor, 0.0)
                 cv2.imwrite(f'{batchFolder}/{filename}',blendedImage)
                 next_step_pil.save(f'{img_filepath}') # save it also as prev_frame to feed next iteration
-                if settings['vr_mode']:
-                  generate_eye_views(trans_scale,batchFolder,filename,frame_num,midas_model, midas_transform)
                 continue
               else:
                 #if not a skip frame, will run diffusion and need to blend.
@@ -1228,16 +1109,7 @@ def do_run():
                           # Or else, iIf we're working with specific steps, append those
                           else:
                             filename = f'{args.batch_name}({args.batchNum})_{i:04}-{j:03}.png'
-                      #image = TF.to_pil_image(image.add(1).div(2).clamp(0, 1))
-                      if args.soft_limiter_on == True:
-                        #zippy's soft limiter\n",
-                        image=(soft_limit(image)+1)/2
-                        image = TF.to_pil_image(image)
-                      else:
-                        #default clamping behavior\n",
-                        #clamp values to between 0 and 1\n",
-                        image = TF.to_pil_image(image.add(1).div(2).clamp(0, 1))
-                        #image = TF.to_pil_image(image.add(1).div(2).clamp(0, 1))
+                      image = TF.to_pil_image(image.add(1).div(2).clamp(0, 1))
                       if j % args.display_rate == 0 or cur_t == -1:
                         image.save('progress.png')
                         display.clear_output(wait=True)
@@ -1271,35 +1143,11 @@ def do_run():
                             cv2.imwrite(f'{batchFolder}/{filename}',blendedImage)
                           else:
                             image.save(f'{batchFolder}/{filename}')
-                            
-                          if settings['vr_mode']:
-                            generate_eye_views(trans_scale,batchFolder,filename,frame_num,midas_model, midas_transform)
-                            
                         # if frame_num != args.max_frames-1:
                         #   display.clear_output()
           
           plt.plot(np.array(loss_values), 'r')
 
-def generate_eye_views(trans_scale,batchFolder,filename,frame_num,midas_model, midas_transform):
-   for i in range(2):
-      theta = settings['vr_eye_angle'] * (math.pi/180) #x * 2 * pi ­ pi
-      #   phi = pi / 2 ­ y * pi
-      ipd = settings['vr_ipd']
-      ray_origin = math.cos(theta) * ipd / 2 * (-1.0 if i==0 else 1.0)
-      ray_rotation = (theta if i==0 else -theta)
-      # translate_xyz = [-(translation_x+ray_origin)*trans_scale, translation_y*trans_scale, -translation_z*trans_scale]
-      translate_xyz = [-(ray_origin)*trans_scale, 0,0]
-      rotate_xyz = [0, (ray_rotation), 0]
-      rot_mat = p3dT.euler_angles_to_matrix(torch.tensor(rotate_xyz, device=device), "XYZ").unsqueeze(0)
-      transformed_image = dxf.transform_image_3d(f'{batchFolder}/{filename}', midas_model, midas_transform, DEVICE,
-                                                      rot_mat, translate_xyz, args.near_plane, args.far_plane,
-                                                      args.fov, padding_mode=args.padding_mode,
-                                                      sampling_mode=args.sampling_mode, midas_weight=args.midas_weight,spherical=True)
-      eye_file_path = batchFolder+f"/frame_{frame_num:04}" + ('_l' if i==0 else '_r')+'.png'
-      transformed_image.save(eye_file_path)
-      #print("saved turbo eye version")
-
-  
 def save_settings():
   setting_list = {
     'text_prompts': text_prompts,
@@ -1706,15 +1554,6 @@ sat_scale =   settings['sat_scale'] #0#@param{type: 'number'}
 cutn_batches = settings['cutn_batches']   #@param{type: 'number'}
 skip_augs =  settings['skip_augs'] #@param{type: 'boolean'}
 
- #@markdown ####**Soft Limiter (Use 0.97 - 0.995 range):**\n",
-        #@markdown *Experimental! ...may help mitigate color clipping.*\n",
-soft_limiter_on = settings['soft_limiter_on'] #@param{type: 'boolean'}\n",
-soft_limiter_knee = settings['soft_limiter_knee'] #@param{type: 'number'}\n",
-if soft_limiter_knee < 0.5 or soft_limiter_knee > .999:
-  soft_limiter_knee = .98
-  print('soft_limiter_knee out of range. Automatically reset to 0.98')
-       
-        
 #@markdown ---
 
 #@markdown ####**Init Settings:**
@@ -1803,62 +1642,47 @@ import numpy as np
 import math
 
 sx = ""
-sy = ""
 sz = ""
 sr = ""
-rz = ""
 
 r=7.0
 px = 0.0
 pz = 0.0
 
+# ry="0: (0)"# "0: (0)"
+#ry = ""
+
+
 frame=360
 theta = -(math.pi*2) / (frame) #  -(math.pi / 180)
 for i in range(settings['max_frames']):
 
-    # px = 0.0
-    # pz = -r
-
-    # p1 = np.array([px,pz])
-    # p2 = np.array([r*math.cos(theta/2),r*math.sin(theta/2)])
-    # tv=  np.tan(np.flip(p1.copy())) 
-    # newpos = np.add(p1.copy(),np.multiply(tv.copy(),(math.pi*r*2)/frame))
-    # v = np.subtract(p2.copy(),newpos)
-
-    # sx = str(i) +": (" + str(v[0]) + "),"
-    # sz = str(i) +": (" + str(v[1]) + "),"
-    # sr = str(i) +": (" + str((theta)) + "),"
-    
+    px = 0.0
     pz = -r
+
+    p1 = np.array([px,pz])
+    p2 = np.array([r*math.cos(theta/2),r*math.sin(theta/2)])
+    tv=  np.tan(np.flip(p1.copy())) 
+    newpos = np.add(p1.copy(),np.multiply(tv.copy(),(math.pi*r*2)/frame))
+    v = np.subtract(p2.copy(),newpos)
+
+    sx = str(i) +": (" + str(v[0]) + "),"
+    sz = str(i) +": (" + str(v[1]) + "),"
+    sr= str(i) +": (" + str((theta)) + "),"
     
-    if (i%50)>20 and (i%50)<30:
-      f = ((i-20)/10) * (math.pi/180)
-      sx += str(i) +": (" + str(10.0 * math.sin(f) ) + "),"
-      sy += str(i) +": (" + str(5.0 * math.sin(f+math.pi)) + "),"
-      rz += str(i) +": (" + str(1.0 * math.sin(f+math.pi)) + "),"
-    else:
-      sx += str(i) +": (" + str(0.0) + "),"
-      sy += str(i) +": (" + str(0.0) + "),"
-      rz += str(i) +": (" + str(0.0) + "),"
-        
-    sz += str(i) +": (" + str(2.0) + "),"
+    sz = str(i) +": (" + str(3.0) + "),"
     
 
 interp_spline = 'Linear' #Do not change, currently will not look good. param ['Linear','Quadratic','Cubic']{type:"string"}
 angle = "0:(0.0)" #sa #@param {type:"string"}
 zoom = "0:(1.0)"#", 50: (1.05)"#@param {type:"string"} # was 10
 
-translation_x = sx #"0: (0.0)" #"0: (0)"#@param {type:"string"}
-translation_y = sy #"0: (0.0)" #"#@param {type:"string"}
+translation_x = "0: (0.0)" #"0: (0)"#@param {type:"string"}
+translation_y ="0: (0.0)" #"#@param {type:"string"}
 translation_z = sz #"0: (0.0)" #sz #"0: (0.0)" #0: (-10.0), 360: (-10)" #"0: (0.0)" #0: (1.0),360: (1.0)" # #"0: (10.0)"#@param {type:"string"}
 rotation_3d_x = "0: (0)"#@param {type:"string"}
 rotation_3d_y = "0: (0)" ##@param {type:"string"}
-rotation_3d_z = rz #"0: (0)"#@param {type:"string"}
-
-print (sx)
-print (sy)
-print (sz)
-print (rz)
+rotation_3d_z = "0: (0)"#@param {type:"string"}
 
 # translation_x = "0:(0),22:(4.465),41:(0.355),61:(1.163),69:(-1.358),85:(0.079),107:(-0.843),116:(-4.123),136:(1.029),157:(1.074),166:(-3.439),187:(-0.214),209:(0.357),219:(-4.708),239:(0.49)"#@param {type:"string"}
 # translation_y = "0:(0),22:(2.42),41:(-0.019),61:(0.24),69:(-2.381),85:(-0.358),107:(0.097),116:(1.479),136:(0.425),157:(-0.401),166:(-2.366),187:(-0.508),209:(-0.525),219:(0.683),239:(0.351)"#@param {type:"string"}
@@ -1891,7 +1715,7 @@ sampling_mode = 'bicubic'#@param {type:"string"}
 
 turbo_mode = settings['turbo_mode'] #@param {type:"boolean"}
 turbo_steps = settings['turbo_steps'] #@param ["2","3","4","5","6"] {type:"string"}
-turbo_preroll = settings['turbo_preroll'] # frames
+turbo_preroll = 10 # frames
 
 #insist turbo be used only w 3d anim.
 if turbo_mode and animation_mode != '3D':
@@ -2216,11 +2040,10 @@ cut_icgray_p = "[0.2]*400+[0]*600"#@param {type: 'string'}
 `animation_mode: None` will only use the first set. `animation_mode: 2D / Video` will run through them per the set frames and hold on the last one.
 """
 
-
-# text_prompts = {
-#     0: settings['prompt'],
-#     #100: ["This set of prompts start at frame 100","This prompt has weight five:5"],
-# }
+text_prompts = {
+    0: settings['prompt'],
+    #100: ["This set of prompts start at frame 100","This prompt has weight five:5"],
+}
 
 image_prompts = {
     # 0:['ImagePromptsWorkButArentVeryGood.png:2',],
@@ -2383,8 +2206,6 @@ args = {
     'clip_denoised': clip_denoised,
     'fuzzy_prompt': fuzzy_prompt,
     'rand_mag': rand_mag,
-    'soft_limiter_on': soft_limiter_on,
-    'soft_limiter_knee': soft_limiter_knee,
 }
 
 args = SimpleNamespace(**args)

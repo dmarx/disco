@@ -46,7 +46,6 @@ import os
 # 1. Set Up
 
 settings = {
-
     #'prompt':["A view of a kelp forest underwater with volumetric light, by Asher Brown Durand, matte painting trending on artstation HQ"],
     #'prompt':["A close-up view of a Menger Sponge Fractal, by Asher Brown Durand, matte painting trending on artstation HQ"],
          # 'prompt':"A scenic view of trees in a jungle, by David Noton and Asher Brown Durand, detailed render, I can't believe how detailed this is, matte painting trending on artstation artstation HQ.",

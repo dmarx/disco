@@ -70,9 +70,9 @@ settings = {
                 #"crucifix:-5"
             ],
     'clip_guidance_scale':5000,
-    'steps':200,
+    'steps':150,
     'cut_ic_pow':1,
-    'range_scale':0,
+    'range_scale':150,
     'n_batches':5,
     'eta' : 0.8,
     'diffusion_steps':1000,
@@ -84,11 +84,11 @@ settings = {
     'path':os.getcwd(),
     'ViTB32': True,
     'ViTB16': True,
-    'ViTL14': True, # True
+    'ViTL14': False, # True
     'RN101': False,
     'RN50': False,
     'RN50x4': False,
-    'RN50x16': True,
+    'RN50x16': False,
     'RN50x64': False,
     'use_secondary_model':False,
     'skip_augs':False,
@@ -106,17 +106,16 @@ settings = {
     'vr_eye_angle':0.5,
     'vr_ipd':5.0,
     #'wh':[1280, 768],
-    'wh':[640,384],
     #'wh':[512, 512],
     'intermediate_saves': 10,
     
     #'cutn_batches':4,
     'animation_mode':'3D',
     'max_frames':10000,
-    #'wh':[512, 512],  
+    'wh':[512, 512],  
        #'wh':[1024, 576],  
     #'wh':[1024,1024],
-   #'wh':[1024, 614],  
+    #'wh':[1024, 614],  
 
      #'wh':[1024,1024],
    # 'wh':[512,512],
@@ -212,15 +211,15 @@ lines ={
 }
 
 text_prompts = {
-  0	:[ "a scenic view over a meadow valley in summer:5",
-      "by Felix Kahn, matte painting trending on artstation artstation HQ.:5"	],  
+  0	:[ "a scenic view of a meadow valley in summer:5",
+      "by Asher Brown Durand, matte painting trending on artstation artstation HQ.:5"	],  
 }
 
 for i in range(len(lines)) :
   a =[lines[i][0]+":10"]
   #a.append("A scenic view of trees in a jungle:1")
   #a.append("a scenic view of a dense jungle in a valley:4")
-  a.append("by Felix Kahn, matte painting trending on artstation artstation HQ.:5")
+  a.append("by Asher Brown Durand, matte painting trending on artstation artstation HQ.:5")
   text_prompts[settings['turbo_preroll'] + (i*20)] = a
 
 print("text_prompts:", text_prompts)
@@ -1803,10 +1802,8 @@ import numpy as np
 import math
 
 sx = ""
-sy = ""
 sz = ""
 sr = ""
-rz = ""
 
 r=7.0
 px = 0.0
@@ -1816,49 +1813,32 @@ frame=360
 theta = -(math.pi*2) / (frame) #  -(math.pi / 180)
 for i in range(settings['max_frames']):
 
-    # px = 0.0
-    # pz = -r
-
-    # p1 = np.array([px,pz])
-    # p2 = np.array([r*math.cos(theta/2),r*math.sin(theta/2)])
-    # tv=  np.tan(np.flip(p1.copy())) 
-    # newpos = np.add(p1.copy(),np.multiply(tv.copy(),(math.pi*r*2)/frame))
-    # v = np.subtract(p2.copy(),newpos)
-
-    # sx = str(i) +": (" + str(v[0]) + "),"
-    # sz = str(i) +": (" + str(v[1]) + "),"
-    # sr = str(i) +": (" + str((theta)) + "),"
-    
+    px = 0.0
     pz = -r
+
+    p1 = np.array([px,pz])
+    p2 = np.array([r*math.cos(theta/2),r*math.sin(theta/2)])
+    tv=  np.tan(np.flip(p1.copy())) 
+    newpos = np.add(p1.copy(),np.multiply(tv.copy(),(math.pi*r*2)/frame))
+    v = np.subtract(p2.copy(),newpos)
+
+    sx = str(i) +": (" + str(v[0]) + "),"
+    sz = str(i) +": (" + str(v[1]) + "),"
+    sr = str(i) +": (" + str((theta)) + "),"
     
-    if (i%50)>20 and (i%50)<30:
-      f = ((i-20)/10) * (math.pi/180)
-      sx += str(i) +": (" + str(10.0 * math.sin(f) ) + "),"
-      sy += str(i) +": (" + str(5.0 * math.sin(f+math.pi)) + "),"
-      rz += str(i) +": (" + str(1.0 * math.sin(f+math.pi)) + "),"
-    else:
-      sx += str(i) +": (" + str(0.0) + "),"
-      sy += str(i) +": (" + str(0.0) + "),"
-      rz += str(i) +": (" + str(0.0) + "),"
-        
-    sz += str(i) +": (" + str(2.0) + "),"
+    sz = str(i) +": (" + str(2.0) + "),"
     
 
 interp_spline = 'Linear' #Do not change, currently will not look good. param ['Linear','Quadratic','Cubic']{type:"string"}
 angle = "0:(0.0)" #sa #@param {type:"string"}
 zoom = "0:(1.0)"#", 50: (1.05)"#@param {type:"string"} # was 10
 
-translation_x = sx #"0: (0.0)" #"0: (0)"#@param {type:"string"}
-translation_y = sy #"0: (0.0)" #"#@param {type:"string"}
+translation_x = "0: (0.0)" #"0: (0)"#@param {type:"string"}
+translation_y ="0: (0.0)" #"#@param {type:"string"}
 translation_z = sz #"0: (0.0)" #sz #"0: (0.0)" #0: (-10.0), 360: (-10)" #"0: (0.0)" #0: (1.0),360: (1.0)" # #"0: (10.0)"#@param {type:"string"}
 rotation_3d_x = "0: (0)"#@param {type:"string"}
 rotation_3d_y = "0: (0)" ##@param {type:"string"}
-rotation_3d_z = rz #"0: (0)"#@param {type:"string"}
-
-print (sx)
-print (sy)
-print (sz)
-print (rz)
+rotation_3d_z = "0: (0)"#@param {type:"string"}
 
 # translation_x = "0:(0),22:(4.465),41:(0.355),61:(1.163),69:(-1.358),85:(0.079),107:(-0.843),116:(-4.123),136:(1.029),157:(1.074),166:(-3.439),187:(-0.214),209:(0.357),219:(-4.708),239:(0.49)"#@param {type:"string"}
 # translation_y = "0:(0),22:(2.42),41:(-0.019),61:(0.24),69:(-2.381),85:(-0.358),107:(0.097),116:(1.479),136:(0.425),157:(-0.401),166:(-2.366),187:(-0.508),209:(-0.525),219:(0.683),239:(0.351)"#@param {type:"string"}

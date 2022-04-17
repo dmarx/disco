@@ -1,3 +1,6 @@
+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 
+git config --global --add safe.directory /path/to/the/repo
+
 GOOD LANDSCAPE
 ------
 CGS:2000

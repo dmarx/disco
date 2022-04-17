@@ -70,9 +70,9 @@ settings = {
                 #"crucifix:-5"
             ],
     'clip_guidance_scale':5000,
-    'steps':200,
+    'steps':250,
     'cut_ic_pow':1,
-    'range_scale':0,
+    'range_scale':150,
     'n_batches':5,
     'eta' : 0.8,
     'diffusion_steps':1000,
@@ -106,7 +106,6 @@ settings = {
     'vr_eye_angle':0.5,
     'vr_ipd':5.0,
     #'wh':[1280, 768],
-    'wh':[640,384],
     #'wh':[512, 512],
     'intermediate_saves': 10,
     
@@ -116,7 +115,7 @@ settings = {
     #'wh':[512, 512],  
        #'wh':[1024, 576],  
     #'wh':[1024,1024],
-   #'wh':[1024, 614],  
+    'wh':[1024, 614],  
 
      #'wh':[1024,1024],
    # 'wh':[512,512],
@@ -142,85 +141,78 @@ settings = {
 #   #a.append("A scenic view of trees in a jungle:1")
 #   #a.append("a scenic view of a dense jungle in a valley:4")
 #   #a.append("by Asher Brown Durand, matte painting trending on artstation artstation HQ.:5")
-# #   #text_prompts[settings['turbo_preroll'] + (i*30)] = a
+#   #text_prompts[settings['turbo_preroll'] + (i*30)] = a
 
-# lines ={
-# 0	:[	 "I met a traveller from an antique land", 	],
-# 1	:[	 "Who said—“Two vast and trunkless legs of stone", 	],
-# 2	:[	 "Stand in the desert. . . . Near them, on the sand", 	],
-# 3	:[	 "Half sunk a shattered visage lies, whose frown", 	],
-# 4	:[	 "And wrinkled lip, and sneer of cold command", 	],
-# 5	:[	 "Tell that its sculptor well those passions read", 	],
-# 6	:[	 "Which yet survive, stamped on these lifeless things", 	],
-# 7	:[	 "The hand that mocked them, and the heart that fed", 	],
-# 8	:[	 "And on the pedestal, these words appear", 	],
-# 9	:[	 "My name is Ozymandias, King of Kings", 	],
-# 10	:[	 "Look on my Works, ye Mighty, and despair", 	],
-# 11	:[	 "Nothing beside remains. Round the decay", 	],
-# 12	:[	 "Of that colossal Wreck, boundless and bare", 	],
-# 13	:[	 "The lone and level sands stretch far away", 	],
-# }
 
 
 lines ={
-0	:[ "SAY! I LIKE GREEN EGGS AND HAM!", 	],
-1	:[ "I DO! I LIKE THEM, SAM-I-AM!", 	],
-2	:[ "AND I WOULD EAT THEM IN A BOAT.", 	],
-3	:[ "AND I WOULD EAT THEM WITH A GOAT...", 	],
-4	:[ "AND I WILL EAT THEM, IN THE RAIN.", 	],
-5	:[ "AND IN THE DARK. AND ON A TRAIN.", 	],
-6	:[ "AND IN A CAR. AND IN A TREE.", 	],
-7	:[ "THEY ARE SO GOOD, SO GOOD, YOU SEE!", 	],
-8	:[ "SO I WILL EAT THEM IN A BOX.", 	],
-9	:[ "AND I WILL EAT THEM WITH A FOX.", 	],
-10	:[ "AND I WILL EAT THEM IN A HOUSE.", 	],
-11	:[ "AND I WILL EAT THEM WITH A MOUSE.", 	],
-12	:[ "AND I WILL EAT THEM HERE AND THERE.", 	],
-13	:[ "SAY! I WILL EAT THEM ANYWHERE!", 	],
-14	:[ "I DO SO LIKE GREEN EGGS AND HAM!", 	],
-15	:[ "THANK YOU! THANK YOU, SAM I AM.", 	],
-}
+0	:[	 "In Xanadu did Kubla Khan", 	],
+1	:[	 "A stately pleasure dome decree",	],
+2	:[	 "Where Alph the sacred riverran", 	],
+3	:[	 "Through caverns measureless to man", 	],
+4	:[	 "Down to a sunless sea",	],
+5	:[	 "So twice five miles of fertile ground", 	],
+6	:[	 "With walls and towers were girdled round", 	],
+7	:[	 "And there were gardens bright with sinuous rills", 	],
+8	:[	 "Where blossomed many an incense bearing tree", 	],
+9	:[	 "And here were forests ancient as the hills",	],
+10	:[	 "Enfolding sunny spots of greenery", 	],
+11	:[	 "But oh that deep romantic chasm which slanted", 	],
+12	:[	 "Down the green hill athwart a cedarn cover",	],
+13	:[	 "A savage place as holy and enchanted", 	],
+14	:[	 "As ever beneath a waning moon was haunted", 	],
+15	:[	 "By woman wailing for her demon lover",	],
+16	:[	 "And from this chasm with ceaseless turmoil seething", 	],
+17	:[	 "As if this earth in fast thick pants were breathing",	],
+18	:[	 "A mighty fountain momently was forced", 	],
+19	:[	 "Amid whose swift half intermitted burst",	],
+20	:[	 "Huge fragments vaulted like rebounding hail",	],
+21	:[	 "Or chaffy grain beneath the threshers flail",	],
+22	:[	 "And mid these dancing rocks at once and ever",	],
+23	:[	 "It flung up momently the sacred river", 	],
+24	:[	 "Five miles meandering with a mazy motion",	],
+25	:[	 "Through wood and dale the sacred river ran",	],
+26	:[	 "Then reached the caverns measureless to man", 	],
+27	:[	 "And sank in tumult to a lifeless ocean",	],
+28	:[	 "And mid this tumult Kubla heard from far",	],
+29	:[	 "Ancestral voices prophesying war", 	],
+30	:[	 "The shadow of the dome of pleasure",	],
+31	:[	 "Floated midway on the waves",	],
+32	:[	 "Where was heard the mingled measure", 	],
+33	:[	 "From the fountain and the caves", 	],
+34	:[	 "It was a miracle of rare device", 	],
+35	:[	 "A sunny pleasure dome with caves of ice",	],
+36	:[	 "A damsel with a dulcimer",	],
+37	:[	 "In a vision once I saw", 	],
+38	:[	 "It was an Abyssinian maid",	],
+39	:[	 "And on her dulcimer she played", 	],
+40	:[	 "Singing of Mount Abora", 	],
+41	:[	 "Could I revive within me", 	],
+42	:[	 "Her symphony and song", 	],
+43	:[	 "To such a deep delight it would win me", 	],
+44	:[	 "That with music loud and long",	],
+45	:[	 "I would build that dome in air",	],
+46	:[	 "That sunny dome those caves of ice",	],
+47	:[	 "And all who heard should see them there", 	],
+48	:[	 "And all should cry Beware Beware", 	],
+49	:[	 "His flashing eyes his floating hair",	],
+50	:[	 "Weave a circle round him thrice",	],
+51	:[	 "And close your eyes with holy dread",	],
+52	:[	 "For he on honey dew hath fed",	],
+53	:[	 "And drunk the milk of Paradise"	],
 
-lines ={
-0	:["I wandered lonely as a cloud", 	],
-1	:["That floats on high o'er vales and hills,", 	],
-2	:["When all at once I saw a crowd,", 	],
-3	:["A host, of golden daffodils;", 	],
-4	:["Beside the lake, beneath the trees,", 	],
-5	:["Fluttering and dancing in the breeze.", 	],
-
-6	:["Continuous as the stars that shine", 	],
-7	:["And twinkle on the milky way,", 	],
-8	:["They stretched in never-ending line", 	],
-9	:["Along the margin of a bay:", 	],
-10	:["Ten thousand saw I at a glance,", 	],
-11	:["Tossing their heads in sprightly dance.", 	],
-
-12:["The waves beside them danced; but they", 	],
-13	:["Out-did the sparkling waves in glee:", 	],
-14	:["A poet could not but be gay,", 	],
-15	:["In such a jocund company:", 	],
-16	:["I gazed—and gazed—but little thought", 	],
-17	:["What wealth the show to me had brought:", 	],
-
-18	:["For oft, when on my couch I lie", 	],
-19	:["In vacant or in pensive mood,", 	],
-20	:["They flash upon that inward eye", 	],
-21	:["Which is the bliss of solitude;", 	],
-22	:["And then my heart with pleasure fills,", 	],
-23	:["And dances with the daffodils.", 	]
 }
 
 text_prompts = {
-  0	:[ "a scenic view over a meadow valley in summer:5",
-      "by Felix Kahn, matte painting trending on artstation artstation HQ.:5"	],  
+  0	:[ "a scenic view of a dense jungle in a valley:5",
+      "by Asher Brown Durand, matte painting trending on artstation artstation HQ.:5"	],  
 }
 
 for i in range(len(lines)) :
   a =[lines[i][0]+":10"]
   #a.append("A scenic view of trees in a jungle:1")
   #a.append("a scenic view of a dense jungle in a valley:4")
-  a.append("by Felix Kahn, matte painting trending on artstation artstation HQ.:5")
+  a.append("by Asher Brown Durand, matte painting trending on artstation artstation HQ.:5")
   text_prompts[settings['turbo_preroll'] + (i*20)] = a
 
 print("text_prompts:", text_prompts)
@@ -1803,10 +1795,8 @@ import numpy as np
 import math
 
 sx = ""
-sy = ""
 sz = ""
 sr = ""
-rz = ""
 
 r=7.0
 px = 0.0
@@ -1816,49 +1806,32 @@ frame=360
 theta = -(math.pi*2) / (frame) #  -(math.pi / 180)
 for i in range(settings['max_frames']):
 
-    # px = 0.0
-    # pz = -r
-
-    # p1 = np.array([px,pz])
-    # p2 = np.array([r*math.cos(theta/2),r*math.sin(theta/2)])
-    # tv=  np.tan(np.flip(p1.copy())) 
-    # newpos = np.add(p1.copy(),np.multiply(tv.copy(),(math.pi*r*2)/frame))
-    # v = np.subtract(p2.copy(),newpos)
-
-    # sx = str(i) +": (" + str(v[0]) + "),"
-    # sz = str(i) +": (" + str(v[1]) + "),"
-    # sr = str(i) +": (" + str((theta)) + "),"
-    
+    px = 0.0
     pz = -r
+
+    p1 = np.array([px,pz])
+    p2 = np.array([r*math.cos(theta/2),r*math.sin(theta/2)])
+    tv=  np.tan(np.flip(p1.copy())) 
+    newpos = np.add(p1.copy(),np.multiply(tv.copy(),(math.pi*r*2)/frame))
+    v = np.subtract(p2.copy(),newpos)
+
+    sx = str(i) +": (" + str(v[0]) + "),"
+    sz = str(i) +": (" + str(v[1]) + "),"
+    sr = str(i) +": (" + str((theta)) + "),"
     
-    if (i%50)>20 and (i%50)<30:
-      f = ((i-20)/10) * (math.pi/180)
-      sx += str(i) +": (" + str(10.0 * math.sin(f) ) + "),"
-      sy += str(i) +": (" + str(5.0 * math.sin(f+math.pi)) + "),"
-      rz += str(i) +": (" + str(1.0 * math.sin(f+math.pi)) + "),"
-    else:
-      sx += str(i) +": (" + str(0.0) + "),"
-      sy += str(i) +": (" + str(0.0) + "),"
-      rz += str(i) +": (" + str(0.0) + "),"
-        
-    sz += str(i) +": (" + str(2.0) + "),"
+    sz = str(i) +": (" + str(2.0) + "),"
     
 
 interp_spline = 'Linear' #Do not change, currently will not look good. param ['Linear','Quadratic','Cubic']{type:"string"}
 angle = "0:(0.0)" #sa #@param {type:"string"}
 zoom = "0:(1.0)"#", 50: (1.05)"#@param {type:"string"} # was 10
 
-translation_x = sx #"0: (0.0)" #"0: (0)"#@param {type:"string"}
-translation_y = sy #"0: (0.0)" #"#@param {type:"string"}
+translation_x = "0: (0.0)" #"0: (0)"#@param {type:"string"}
+translation_y ="0: (0.0)" #"#@param {type:"string"}
 translation_z = sz #"0: (0.0)" #sz #"0: (0.0)" #0: (-10.0), 360: (-10)" #"0: (0.0)" #0: (1.0),360: (1.0)" # #"0: (10.0)"#@param {type:"string"}
 rotation_3d_x = "0: (0)"#@param {type:"string"}
 rotation_3d_y = "0: (0)" ##@param {type:"string"}
-rotation_3d_z = rz #"0: (0)"#@param {type:"string"}
-
-print (sx)
-print (sy)
-print (sz)
-print (rz)
+rotation_3d_z = "0: (0)"#@param {type:"string"}
 
 # translation_x = "0:(0),22:(4.465),41:(0.355),61:(1.163),69:(-1.358),85:(0.079),107:(-0.843),116:(-4.123),136:(1.029),157:(1.074),166:(-3.439),187:(-0.214),209:(0.357),219:(-4.708),239:(0.49)"#@param {type:"string"}
 # translation_y = "0:(0),22:(2.42),41:(-0.019),61:(0.24),69:(-2.381),85:(-0.358),107:(0.097),116:(1.479),136:(0.425),157:(-0.401),166:(-2.366),187:(-0.508),209:(-0.525),219:(0.683),239:(0.351)"#@param {type:"string"}

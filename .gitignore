@@ -20,3 +20,6 @@ tools/3d/BoostingMonocularDepth
 model/superres/last.ckpt/dl=1
 model/superres/project.yaml/dl=1
 pytorch3d-lite/
+models/512x512_diffusion_uncond_finetune_008100.pt
+models/dpt_large-midas-2f21e586.pt
+models/secondary_model_imagenet_2.pth
