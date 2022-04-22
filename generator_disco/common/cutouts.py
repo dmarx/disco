@@ -8,6 +8,8 @@ import torchvision.transforms.functional as TF
 
 from resize_right import resize
 
+cutout_debug = False
+padargs = {}
 
 def sinc(x):
     return torch.where(x != 0, torch.sin(math.pi * x) / (math.pi * x), x.new_ones([]))
@@ -48,7 +50,6 @@ def resample(input, size, align_corners=True):
     return F.interpolate(input, size, mode='bicubic', align_corners=align_corners)
 
 class MakeCutouts(nn.Module):
-    
     def __init__(self, cut_size, cutn, skip_augs=False):
         super().__init__()
         self.cut_size = cut_size
@@ -88,10 +89,10 @@ class MakeCutouts(nn.Module):
 
         cutouts = torch.cat(cutouts, dim=0)
         return cutouts
-      
+
 class MakeCutoutsDango(nn.Module):
     
-    def __init__(self, args, cut_size,
+    def __init__(self, cut_size,
                  Overview=4, 
                  InnerCrop = 0, IC_Size_Pow=0.5, IC_Grey_P = 0.2
                  ):
@@ -101,40 +102,42 @@ class MakeCutoutsDango(nn.Module):
         self.InnerCrop = InnerCrop
         self.IC_Size_Pow = IC_Size_Pow
         self.IC_Grey_P = IC_Grey_P
-        if args.animation_mode == 'None':
-          self.augs = T.Compose([
-              T.RandomHorizontalFlip(p=0.5),
-              T.Lambda(lambda x: x + torch.randn_like(x) * 0.01),
-              T.RandomAffine(degrees=10, translate=(0.05, 0.05),  interpolation = T.InterpolationMode.BILINEAR),
-              T.Lambda(lambda x: x + torch.randn_like(x) * 0.01),
-              T.RandomGrayscale(p=0.1),
-              T.Lambda(lambda x: x + torch.randn_like(x) * 0.01),
-              T.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),
-          ])
-        elif args.animation_mode == 'Video Input':
-          self.augs = T.Compose([
-              T.RandomHorizontalFlip(p=0.5),
-              T.Lambda(lambda x: x + torch.randn_like(x) * 0.01),
-              T.RandomAffine(degrees=15, translate=(0.1, 0.1)),
-              T.Lambda(lambda x: x + torch.randn_like(x) * 0.01),
-              T.RandomPerspective(distortion_scale=0.4, p=0.7),
-              T.Lambda(lambda x: x + torch.randn_like(x) * 0.01),
-              T.RandomGrayscale(p=0.15),
-              T.Lambda(lambda x: x + torch.randn_like(x) * 0.01),
-              # T.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),
-          ])
-        elif  args.animation_mode == '2D' or args.animation_mode == '3D':
-          self.augs = T.Compose([
-              T.RandomHorizontalFlip(p=0.4),
-              T.Lambda(lambda x: x + torch.randn_like(x) * 0.01),
-              T.RandomAffine(degrees=10, translate=(0.05, 0.05),  interpolation = T.InterpolationMode.BILINEAR),
-              T.Lambda(lambda x: x + torch.randn_like(x) * 0.01),
-              T.RandomGrayscale(p=0.1),
-              T.Lambda(lambda x: x + torch.randn_like(x) * 0.01),
-              T.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.3),
-          ])
+        #TODO
+        #if self.args.animation_mode == 'None':
+        self.augs = T.Compose([
+            T.RandomHorizontalFlip(p=0.5),
+            T.Lambda(lambda x: x + torch.randn_like(x) * 0.01),
+            T.RandomAffine(degrees=10, translate=(0.05, 0.05),  interpolation = T.InterpolationMode.BILINEAR),
+            T.Lambda(lambda x: x + torch.randn_like(x) * 0.01),
+            T.RandomGrayscale(p=0.1),
+            T.Lambda(lambda x: x + torch.randn_like(x) * 0.01),
+            T.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),
+        ])
+        # elif self.args.animation_mode == 'Video Input':
+        #   self.augs = T.Compose([
+        #       T.RandomHorizontalFlip(p=0.5),
+        #       T.Lambda(lambda x: x + torch.randn_like(x) * 0.01),
+        #       T.RandomAffine(degrees=15, translate=(0.1, 0.1)),
+        #       T.Lambda(lambda x: x + torch.randn_like(x) * 0.01),
+        #       T.RandomPerspective(distortion_scale=0.4, p=0.7),
+        #       T.Lambda(lambda x: x + torch.randn_like(x) * 0.01),
+        #       T.RandomGrayscale(p=0.15),
+        #       T.Lambda(lambda x: x + torch.randn_like(x) * 0.01),
+        #       # T.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),
+        #   ])
+        # elif  self.args.animation_mode == '2D' or self.args.animation_mode == '3D':
+        #   self.augs = T.Compose([
+        #       T.RandomHorizontalFlip(p=0.4),
+        #       T.Lambda(lambda x: x + torch.randn_like(x) * 0.01),
+        #       T.RandomAffine(degrees=10, translate=(0.05, 0.05),  interpolation = T.InterpolationMode.BILINEAR),
+        #       T.Lambda(lambda x: x + torch.randn_like(x) * 0.01),
+        #       T.RandomGrayscale(p=0.1),
+        #       T.Lambda(lambda x: x + torch.randn_like(x) * 0.01),
+        #       T.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.3),
+        #   ])
           
-    def forward(self, input,cutout_debug,skip_augs,padargs):
+
+    def forward(self, input):
         cutouts = []
         gray = T.Grayscale(3)
         sideY, sideX = input.shape[2:4]
@@ -163,6 +166,10 @@ class MakeCutoutsDango(nn.Module):
 
             if cutout_debug:
                 TF.to_pil_image(cutouts[0].clamp(0, 1).squeeze(0)).save("cutout_overview0.jpg",quality=99)
+                # if is_colab:
+                #     TF.to_pil_image(cutouts[0].clamp(0, 1).squeeze(0)).save("/content/cutout_overview0.jpg",quality=99)
+                # else:
+                #     TF.to_pil_image(cutouts[0].clamp(0, 1).squeeze(0)).save("cutout_overview0.jpg",quality=99)
 
                               
         if self.InnerCrop >0:
@@ -177,6 +184,11 @@ class MakeCutoutsDango(nn.Module):
                 cutouts.append(cutout)
             if cutout_debug:
                 TF.to_pil_image(cutouts[-1].clamp(0, 1).squeeze(0)).save("cutout_InnerCrop.jpg",quality=99)
+                # if is_colab:
+                #     TF.to_pil_image(cutouts[-1].clamp(0, 1).squeeze(0)).save("/content/cutout_InnerCrop.jpg",quality=99)
+                # else:
+                #     TF.to_pil_image(cutouts[-1].clamp(0, 1).squeeze(0)).save("cutout_InnerCrop.jpg",quality=99)
         cutouts = torch.cat(cutouts)
-        if skip_augs is not True: cutouts=self.augs(cutouts)
+        #if skip_augs is not True: cutouts=self.augs(cutouts)
+        cutouts=self.augs(cutouts)
         return cutouts

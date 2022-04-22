@@ -1,12 +1,12 @@
-from generator.generator import Generator
+# from generator_disco.generator import Generator
 
-gen = None
+# gen = None
 
-def load_gen():
-    global gen
-    if (gen==None): gen = Generator()
+# def load_gen():
+#     global gen
+#     if (gen==None): gen = Generator()
     
-if __name__ == '__main__':
-    print("running")
-    load_gen()
-    #app.run(debug=False,host = "0.0.0.0")
+# if __name__ == '__main__':
+#     print("running")
+#     load_gen()
+#     #app.run(debug=False,host = "0.0.0.0")

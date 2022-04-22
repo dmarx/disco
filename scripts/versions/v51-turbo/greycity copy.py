@@ -54,7 +54,7 @@ settings = {
             [
                 #"A scenic view of trees in a jungle, by David Noton and Asher Brown Durand, detailed render, I can't believe how detailed this is, matte painting trending on artstation artstation HQ:10",
                 #"A beautiful wilderness in which a lonely jungle temple glowing, by Felix Kahn and Asher Brown Durand, matte painting trending on artstation HQ.",
-                "A scenic view of a lonely modernist building in a misty forest, warm unreal engine 3, by Felix Kahn, matte painting trending on artstation",
+                "A scenic view of a dystopian cityscape, warm unreal engine 3, by Felix Kahn, matte painting trending on artstation",
                                #"A scenic view across a mystical place, by David Noton and by Asher Brown Durand, detailed render, I can't believe how detailed this is, matte painting trending on artstation artstation HQ.",
                 #"A view of a galaxy nebula, astrophotography,  trending on artstation HQ.",
                 #"A scenic view of trees in a jungle, by David Noton and Asher Brown Durand, detailed render, I can't believe how detailed this is, matte painting trending on artstation artstation HQ.",
@@ -1132,7 +1132,6 @@ def do_run():
                         if args.animation_mode != "None":
                           image.save('prevFrame.png')
                         image.save(f'{batchFolder}/{filename}')
-                        
                         if args.animation_mode == "3D":
                           # If turbo, save a blended image
                           if turbo_mode and frame_num > 0:

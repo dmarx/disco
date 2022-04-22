@@ -14,12 +14,12 @@ import cv2
 from torch.nn import functional as F
 import torchvision.transforms.functional as TF
 import numpy as np
-from PIL import Image, ImageOps
+from PIL import ImageOps
 import pandas as pd
 import torchvision.transforms as T
 
 
-def init_midas_depth_model(default_models,DEVICE,midas_model_type="dpt_large", optimize=True):
+def init_midas_depth_model(midas_model_type="dpt_large", optimize=True,DEVICE = None,default_models=None):
     midas_model = None
     net_w = None
     net_h = None

@@ -1,8 +1,10 @@
 
-import datetime
+import gc
+import requests, sys, os
 
-import requests
-from generator.generator import Generator
+import torch
+from generator_disco.generator import GeneratorDisco
+from generator_ld.generator import GeneratorLatentDiffusion
 
 from flask import Flask, flash, request, redirect, url_for, render_template,make_response,send_file,Response
 from werkzeug.utils import secure_filename
@@ -10,9 +12,12 @@ from twilio.twiml.messaging_response import MessagingResponse, Message, Redirect
 from twilio.rest import Client 
 
 from random import randint, seed
-from random import random
+
+from manager.chain.chain import Chain
 
 UPLOAD_FOLDER = 'static/uploads/'
+
+os.system("export TOKENIZERS_PARALLELISM=false")
 
 app = Flask(__name__)
 
@@ -21,52 +26,34 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 ALLOWED_EXTENSIONS = set(['mp4', 'mp3', 'wav','.mov'])
 
-gen = None
+chain = None
+
+@app.route('/make/<prompt>', methods=['GET', 'POST'])
+def make(prompt):
+    filename = chain.run_chain(prompt)
+    return send_file("static/output/" + filename, mimetype='image/png')
 
 @app.route('/bot', methods=['POST'])
 def bot():
-    #add webhook logic here and return a response
     incoming_msg = request.values.get('Body', '').lower()
     print(incoming_msg)
     resp = MessagingResponse()
     msg = resp.message()
-    
     responded = False
-    if 'quote' in incoming_msg:
-        # return a quote
-        r = requests.get('https://api.quotable.io/random')
-        if r.status_code == 200:
-            data = r.json()
-            quote = f'{data["content"]} ({data["author"]})'
-        else:
-            quote = 'I could not retrieve a quote at this time, sorry.'
-        print("quote",quote)
-        msg.body(quote)
-        responded = True
-    # if 'cat' in incoming_msg:
-    #     # return a cat pic
-    #     msg.media('https://cataas.com/cat')
+   
+    # if 'make' in incoming_msg:
+    #     input_seed = "" #str(100)
+    #     prefix = str(randint(0,1000000))#--steps 50
+    #     prompt = incoming_msg.replace("make ","")
+    #     #print("making", prompt,prefix,input_seed)
+    #     path_to_image = gen.do_run(prompt,prefix,input_seed)
+    #     #print("finished", prompt,prefix,input_seed)
+    #     msg.body(prompt)
+    #     msg.media("https://ce1c-86-170-32-104.eu.ngrok.io/static/output/" + path_to_image)
     #     responded = True
-
-    if 'make' in incoming_msg:
-        #print("making")
-        #np.random.seed(seed)
-        #random.seed(1000)
-        input_seed = "" #str(100)
-        prefix = str(randint(0,1000000))#--steps 50
-        prompt = incoming_msg.replace("make ","")
-        #print("making", prompt,prefix,input_seed)
-        path_to_image = gen.do_run(prompt,prefix,input_seed)
-        #print("finished", prompt,prefix,input_seed)
-        msg.body(prompt)
-        msg.media("https://ce1c-86-170-32-104.eu.ngrok.io/static/output/" + path_to_image)
-        responded = True
-        print ("constructed message")
-    if not responded:
-        msg.body('I only know about famous quotes and cats, sorry!')
-
-    #msg.body('this is the response text')
-    #return make_response(str(resp))
+    #     print ("constructed message")
+    # if not responded:
+    #     msg.body('I only know about famous quotes and cats, sorry!')
 
     response_string = str(resp)
     print ("response", response_string)
@@ -80,28 +67,15 @@ def bot():
     response.headers["Content-Type"] = "text/xml"
     return response
 
-@app.route('/makefast/<prompt>', methods=['GET', 'POST'])
-def makefast(prompt):
 
-    seed(1)
-    input_seed = str(100)
-    prefix = str(randint(0,1000000))#--steps 50
-    filename = gen.do_run(prompt,prefix,input_seed)
+def load_chain():
+    global chain
+    chain = Chain()
+    # global generator_ld
+    # if (generator_disco==None): generator_disco = GeneratorDisco()
+    # if (generator_ld==None): generator_ld =  GeneratorLatentDiffusion()
     
-    # filename = run_gen(prompt)
-    #os.system("python glid-3-xl/sample.py --model_path glid-3-xl/finetune.pt --kl_path glid-3-xl/kl-f8.pt --bert_path glid-3-xl/bert.pt --prefix " + prefix +" --batch_size 1 --num_batches 1 --text \"" + prompt + "\"")
-    #os.system("cp output/" + prefix + "00000.png static/output")
-    return send_file("static/output/" + filename, mimetype='image/png')
-    #return make_response("/static/output/" + prefix + "00000.png")
-
-def load_gen():
-    global gen
-    if (gen==None): gen = Generator()
-    gen.init_variables()
-    gen.init_run()
-    gen.do_run()
-
 if __name__ == '__main__':
     print("running")
-    load_gen()
+    load_chain()
     app.run(debug=False,host = "0.0.0.0")

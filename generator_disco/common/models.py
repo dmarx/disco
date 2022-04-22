@@ -3,12 +3,8 @@ import math
 import torch
 
 from torch import nn
-from torch.nn import functional as F
-import torchvision.transforms as T
-import torchvision.transforms.functional as TF
 
-from generator.common import utils
-
+from generator_disco.common import utils
 
 @dataclass
 class DiffusionOutput:
@@ -16,14 +12,12 @@ class DiffusionOutput:
     pred: torch.Tensor
     eps: torch.Tensor
 
-
 class ConvBlock(nn.Sequential):
     def __init__(self, c_in, c_out):
         super().__init__(
             nn.Conv2d(c_in, c_out, 3, padding=1),
             nn.ReLU(inplace=True),
         )
-
 
 class SkipBlock(nn.Module):
     def __init__(self, main, skip=None):
@@ -34,7 +28,6 @@ class SkipBlock(nn.Module):
     def forward(self, input):
         return torch.cat([self.main(input), self.skip(input)], dim=1)
 
-
 class FourierFeatures(nn.Module):
     def __init__(self, in_features, out_features, std=1.):
         super().__init__()
@@ -44,7 +37,6 @@ class FourierFeatures(nn.Module):
     def forward(self, input):
         f = 2 * math.pi * input @ self.weight.T
         return torch.cat([f.cos(), f.sin()], dim=-1)
-
 
 class SecondaryDiffusionImageNet(nn.Module):
     def __init__(self):
@@ -89,7 +81,6 @@ class SecondaryDiffusionImageNet(nn.Module):
         pred = input * alphas - v * sigmas
         eps = input * sigmas + v * alphas
         return DiffusionOutput(v, pred, eps)
-
 
 class SecondaryDiffusionImageNet2(nn.Module):
     def __init__(self):
