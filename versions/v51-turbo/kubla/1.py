@@ -84,11 +84,11 @@ settings = {
     'path':os.getcwd(),
     'ViTB32': True,
     'ViTB16': True,
-    'ViTL14': True, # True
+    'ViTL14': False, # True
     'RN101': False,
     'RN50': False,
     'RN50x4': False,
-    'RN50x16': True,
+    'RN50x16': False,
     'RN50x64': False,
     'use_secondary_model':False,
     'skip_augs':False,
@@ -106,7 +106,7 @@ settings = {
     'vr_eye_angle':0.5,
     'vr_ipd':5.0,
     #'wh':[1280, 768],
-    #'wh':[512, 512],
+    #'wh':[512, 512],qq
     'intermediate_saves': 10,
     
     #'cutn_batches':4,
@@ -115,8 +115,8 @@ settings = {
     #'wh':[512, 512],  
        #'wh':[1024, 576],  
     #'wh':[1024,1024],
-    'wh':[1024, 614],  
-
+    #'wh':[1024, 614],  
+ 'wh':[640,384],
      #'wh':[1024,1024],
    # 'wh':[512,512],
    #      'wh':[1024,1024],

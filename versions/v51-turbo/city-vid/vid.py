@@ -70,9 +70,9 @@ settings = {
                 #"crucifix:-5"
             ],
     'clip_guidance_scale':5000,
-    'steps':100,
+    'steps':250,
     'cut_ic_pow':1,
-    'range_scale':150,
+    'range_scale':250,
     'n_batches':5,
     'eta' : 0.8,
     'diffusion_steps':1000,
@@ -80,18 +80,18 @@ settings = {
     'sat_scale':0,
     'clamp_max':0.05,
     'rand_mag':0.05,
-    'cutn_batches':1, #2
+    'cutn_batches':4, #2
     'path':os.getcwd(),
     'ViTB32': True,
-    'ViTB16': False,
-    'ViTL14': False, # True
+    'ViTB16': True,
+    'ViTL14': True, # True
     'RN101': False,
     'RN50': False,
     'RN50x4': False,
-    'RN50x16': False,
-    'RN50x64': False,
+    'RN50x16': True,
+    'RN50x64': True,
     'use_secondary_model':False,
-    'skip_augs':True,
+    'skip_augs':False,
     'frames_scale': 1500, #@param{type: 'integer'}
     'frames_skip_steps':'65%',
     'turbo_mode':True,
@@ -111,8 +111,8 @@ settings = {
        # 'wh':[1024, 576],  
 
      #'wh':[1024,1024],
-        #'wh':[1280,768],
-            'wh':[640,384],
+       'wh':[1280,768],
+           # 'wh':[640,384],
 
    #      'wh':[1024,1024],
 
@@ -1657,6 +1657,10 @@ r=7.0
 px = 0.0
 pz = 0.0
 
+x=0
+y=0
+r=0
+
 frame=360
 theta = -(math.pi*2) / (frame) #  -(math.pi / 180)
 for i in range(settings['max_frames']):
@@ -1674,16 +1678,17 @@ for i in range(settings['max_frames']):
     # sz = str(i) +": (" + str(v[1]) + "),"
     # sr = str(i) +": (" + str((theta)) + "),"
     
-    if i>0: #(i%50)>20 and (i%50)<30:
+   # if i>0: #(i%50)>20 and (i%50)<30:
       #f = ((i-20)/10) * (math.pi*2) / 10.0
-      f = ((i/10.0) * (math.pi*2) / 10.0)
-      sx += str(i) +": (" + str(-2.0 * cubic_sin(f) ) + "),"
-      sy += str(i) +": (" + str(-2.0 * cubic_sin(f+math.pi)) + "),"
-      rz += str(i) +": (" + str(0.5 * cubic_sin(f+math.pi)) + "),"
-    else:
-      sx += str(i) +": (" + str(0.0) + "),"
-      sy += str(i) +": (" + str(0.0) + "),"
-      rz += str(i) +": (" + str(0.0) + "),"
+      #f = ((i/10.0) * (math.pi*2) / 10.0)
+     
+      #sx += str(i) +": (" + str(-2.0 * cubic_sin(f) ) + "),"
+      #sy += str(i) +": (" + str(-2.0 * cubic_sin(f+math.pi)) + "),"
+      #rz += str(i) +": (" + str(0.5 * cubic_sin(f+math.pi)) + "),"
+   # else:
+     # sx += str(i) +": (" + str(0.0) + "),"
+      #sy += str(i) +": (" + str(0.0) + "),"
+      #rz += str(i) +": (" + str(0.0) + "),"
         
     sz += str(i) +": (" + str(2.0) + "),"
     
@@ -1692,12 +1697,12 @@ interp_spline = 'Linear' #Do not change, currently will not look good. param ['L
 angle = "0:(0.0)" #sa #@param {type:"string"}
 zoom = "0:(1.0)"#", 50: (1.05)"#@param {type:"string"} # was 10
 
-translation_x = sx #"0: (0.0)" #"0: (0)"#@param {type:"string"}
-translation_y = sy #"0: (0.0)" #"#@param {type:"string"}
+translation_x ="0: (0.0)" #"0: (0)"#@param {type:"string"}
+translation_y = "0: (0.0)" #"#@param {type:"string"}
 translation_z = sz #"0: (0.0)" #sz #"0: (0.0)" #0: (-10.0), 360: (-10)" #"0: (0.0)" #0: (1.0),360: (1.0)" # #"0: (10.0)"#@param {type:"string"}
 rotation_3d_x = "0: (0)"#@param {type:"string"}
 rotation_3d_y = "0: (0)" ##@param {type:"string"}
-rotation_3d_z = rz #"0: (0)"#@param {type:"string"}
+rotation_3d_z = "0: (0)"#@param {type:"string"}
 
 print (sx)
 print (sy)

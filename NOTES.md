@@ -19,6 +19,10 @@ Festival of Hats by Justin Blume
 Rosette Nebula - Neptunes Trident r astrophotography
 opposed symmetrical hexagonal lens flare of light complex fractal
 
+apt update
+apt install ffmpeg
+ffmpeg -framerate 15 -i "TimeToDisco(0)_%4d.png" main.mp4
+
 git clone https://github.com/facebookresearch/pytorch3d.git
 
 pip install piq
@@ -143,3 +147,56 @@ unsmudge
 
 
 idyllic ancient castle national geographic artstation rendered
+
+
+
+
+----------POEMS-------------
+Ozymandias
+
+Invictus (cynically, you might if you play your cards right get endorsed by the games, and I know their CEO v well)
+
+The Road not taken 
+
+I wondered lonely as a cloud 
+
+Lady of shallot?
+
+Charge of the Light Parade?? Or a bit too colonial?
+
+Endymion
+
+The Tyger
+
+Uyleses 
+
+I think you’re missing out limiting yourself to just ‘poems’ when much of ‘verse’ can be found in other fiction…
+
+You’d need to read the books. Or I could help. These have a MASSIVE social media following:
+
+Eg.
+
+Rebecca - daphne d M
+
+I capture the castle - dodie smith
+
+Count of monte cristo 
+
+Fire and ice 
+
+FAIRY TALES AND SONGS
+
+A fox went out of a starlet night
+
+Hansel and gretal 
+
+Brothers Grimm 
+
+
+
+
+
+
+Sent from my iPhone
+
+
