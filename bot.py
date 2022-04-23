@@ -9,9 +9,11 @@ from random import randint
 from discord.ext import commands
 import discord
 import torch
-from generator_disco.generator import GeneratorDisco
-from generator_ld.generator import GeneratorLatentDiffusion
-from manager.chain.chain import Chain
+
+from modules.manager.chain.chain import Chain
+# from generator_disco.generator import GeneratorDisco
+# from generator_ld.generator import GeneratorLatentDiffusion
+# from manager.chain.chain import Chain
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')

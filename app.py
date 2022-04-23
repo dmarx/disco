@@ -10,6 +10,7 @@ from twilio.twiml.messaging_response import MessagingResponse, Message, Redirect
 from twilio.rest import Client 
 
 from modules.manager.chain.chain import Chain
+from modules.manager.projects.api import api
 
 from random import randint, seed
 
@@ -64,6 +65,12 @@ def bot():
     response = make_response(response_string)
     response.headers["Content-Type"] = "text/xml"
     return response
+
+
+
+@app.route('/fetch_projects', methods=['POST'])
+def fetch_projects():
+    projects = api.fetch_all()
 
 
 def load_chain():

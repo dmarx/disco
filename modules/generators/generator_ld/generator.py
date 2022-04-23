@@ -19,7 +19,7 @@ from math import log2, sqrt
 import argparse
 import pickle
 import os
-# from ge encoders.modules import BERTEmbedder
+from encoders.modules import BERTEmbedder
 import clip
 from modules.generators.base.generator import GeneratorBase
 
@@ -415,7 +415,7 @@ class GeneratorLatentDiffusion(GeneratorBase):
                                               0.26862954, 0.26130258, 0.27577711])
 
 
-    def __init__(self,chain):
+    def __init__(self,chain, load_models=True):
         super().__init__(chain)
         self.title = "Latent Diffusion"
         
@@ -514,3 +514,5 @@ class GeneratorLatentDiffusion(GeneratorBase):
         #     torch.cuda.is_available() and not self.args.cpu) else 'cpu')
         # print('Using device:', self.device)
 
+        if load_models:
+            self.load_models()

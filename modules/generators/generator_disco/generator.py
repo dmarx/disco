@@ -693,8 +693,6 @@ class GeneratorDisco(GeneratorBase):
 
         self.args = SimpleNamespace(**self.args)
 
-        # self.load_models()
-        
         filename = ""
         gc.collect()
         torch.cuda.empty_cache()
@@ -1417,7 +1415,7 @@ class GeneratorDisco(GeneratorBase):
         else:
             print("The video is ready and saved to the images folder")
             
-    def __init__(self,chain,steps,wh,load_models):
+    def __init__(self,chain,steps,wh,load_models = True):
         super().__init__(chain)
         self.title = "Disco Diffusion"
         
@@ -1454,5 +1452,8 @@ class GeneratorDisco(GeneratorBase):
             "dpt_large": f"{self.model_path}/dpt_large-midas-2f21e586.pt",
             "dpt_hybrid": f"{self.model_path}/dpt_hybrid-midas-501f0c75.pt",
             "dpt_hybrid_nyu": f"{self.model_path}/dpt_hybrid_nyu-2ce69ec7.pt",}
+        
+        if load_models:
+            self.load_models()
         
 

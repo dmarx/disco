@@ -101,8 +101,7 @@
 
           <div class="card-body" style="">
             <div class="row">
-              <div class="col-6" style="max-height:500px">
-
+              <div class="col-6" style="max-height: 500px">
                 <VueFlow
                   v-model="elements"
                   class="vue-flow-basic-example"
@@ -261,6 +260,39 @@ export default defineComponent({
     //   // this.model contains the valid data according your JSON Schema.
     //   // You can submit your model to the server here
     // },
+    loadProjects() {
+      fetch("/status").then((response) => {
+        response.json().then(function (data) {
+          console.log("status response", data);
+          // if (data.busy) {
+          //   isBusy = true;
+          //   //showLoading();
+          //   setTimeout((x) => {
+          //     updateStatus();
+          //   }, 5000);
+          // } else {
+          //   //showReady();
+          // }
+
+          //updateCurrentMash();
+
+          // $("#logs").html(
+          //   data.logs.reverse().map((x) => {
+          //     return "<div>" + x + "</div>";
+          //   })
+          // );
+          // $("#logs").scrollTop($("#logs")[0].scrollHeight);
+          // // console.log('updated logs');
+
+          // $(".queue-info").hide();
+          // if (parseInt(data.queued) > 0) {
+          //   $(".queue-info").show();
+          //   $(".queue-info-body").html(data.queued);
+          // }
+        });
+      });
+    },
+
     logToObject() {
       console.log(this.instance?.toObject());
     },
