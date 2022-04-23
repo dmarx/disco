@@ -19,7 +19,8 @@ class GeneratorBase:
 
     def __init__(self,chain):
         self.chain = chain
-
+        self.DEVICE = self.chain.DEVICE
+        self.device = self.chain.device
 
     # gc.collect()
     # do_run()

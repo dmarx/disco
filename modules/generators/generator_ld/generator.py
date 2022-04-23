@@ -29,6 +29,8 @@ class GeneratorLatentDiffusion(GeneratorBase):
     args = None
     normalize = None
 
+    ldm = None
+    
     # argument parsing
 
     def fetch(url_or_path):
