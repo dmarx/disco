@@ -4,7 +4,7 @@ import requests, sys, os
 
 import torch
 
-from flask import Flask, flash, request, redirect, url_for, render_template,make_response,send_file,Response
+from flask import Flask, flash, jsonify, request, redirect, url_for, render_template,make_response,send_file,Response
 from werkzeug.utils import secure_filename
 from twilio.twiml.messaging_response import MessagingResponse, Message, Redirect, Body
 from twilio.rest import Client 
@@ -70,7 +70,12 @@ def bot():
 
 @app.route('/fetch_projects', methods=['POST'])
 def fetch_projects():
-    projects = api.fetch_all()
+    project_names = api.fetch_all()
+    projects=[]
+    for project_name in project_names:
+        project = api.fetch_project(project_name)
+        projects.append(project)
+    return jsonify(projects)
 
 
 def load_chain():

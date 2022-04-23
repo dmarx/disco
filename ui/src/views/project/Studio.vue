@@ -226,7 +226,50 @@ export default defineComponent({
     onMounted(() => {
       // setCurrentPageTitle("Studio");
       state.mounted = true;
+
+      axios
+        .get('http://localhost:5000/fetch_projects')
+        .then(response => {
+          this.info = response;
+        }
+
+
     });
+
+    
+    // const loadProjects = () => {
+    //   fetch("http://localhost:5000/status").then((response) => {
+    //     response.json().then(function (data) {
+    //       console.log("status response", data);
+    //       // if (data.busy) {
+    //       //   isBusy = true;
+    //       //   //showLoading();
+    //       //   setTimeout((x) => {
+    //       //     updateStatus();
+    //       //   }, 5000);
+    //       // } else {
+    //       //   //showReady();
+    //       // }
+
+    //       //updateCurrentMash();
+
+    //       // $("#logs").html(
+    //       //   data.logs.reverse().map((x) => {
+    //       //     return "<div>" + x + "</div>";
+    //       //   })
+    //       // );
+    //       // $("#logs").scrollTop($("#logs")[0].scrollHeight);
+    //       // // console.log('updated logs');
+
+    //       // $(".queue-info").hide();
+    //       // if (parseInt(data.queued) > 0) {
+    //       //   $(".queue-info").show();
+    //       //   $(".queue-info-body").html(data.queued);
+    //       // }
+    //     });
+    //   });
+    // };
+
 
     return {
       // status,
@@ -235,6 +278,8 @@ export default defineComponent({
       schema,
       model,
 
+      loadProjects,
+      
       instance: null as FlowInstance | null,
       elements: [
         { id: "1", type: "input", label: "Grid-3-ML", position: { x: 250, y: 5 } },
@@ -260,38 +305,6 @@ export default defineComponent({
     //   // this.model contains the valid data according your JSON Schema.
     //   // You can submit your model to the server here
     // },
-    loadProjects() {
-      fetch("/status").then((response) => {
-        response.json().then(function (data) {
-          console.log("status response", data);
-          // if (data.busy) {
-          //   isBusy = true;
-          //   //showLoading();
-          //   setTimeout((x) => {
-          //     updateStatus();
-          //   }, 5000);
-          // } else {
-          //   //showReady();
-          // }
-
-          //updateCurrentMash();
-
-          // $("#logs").html(
-          //   data.logs.reverse().map((x) => {
-          //     return "<div>" + x + "</div>";
-          //   })
-          // );
-          // $("#logs").scrollTop($("#logs")[0].scrollHeight);
-          // // console.log('updated logs');
-
-          // $(".queue-info").hide();
-          // if (parseInt(data.queued) > 0) {
-          //   $(".queue-info").show();
-          //   $(".queue-info-body").html(data.queued);
-          // }
-        });
-      });
-    },
 
     logToObject() {
       console.log(this.instance?.toObject());
