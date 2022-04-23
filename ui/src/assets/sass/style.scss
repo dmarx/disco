@@ -1,17 +1,39 @@
-//
-// Theme style
-//
-// Mode
-$mode: default;
-// Initialize
-@import "init";
-// Components
-@import "./core/components/components";
-@import "components/components";
-// Layout
-@import "layout/layout";
-@import "./core/layout/docs/layout";
-@import "./overrides/style.scss";
-.card .fv-row {
-    color: #FFF
-}
+    //
+    // Theme style
+    //
+    // Mode
+    $mode: default;
+    // Initialize
+    @import "init";
+    // Components
+    @import "./core/components/components";
+    @import "components/components";
+    // Layout
+    @import "layout/layout";
+    @import "./core/layout/docs/layout";
+    @import "./overrides/style.scss";
+    /* main.css */
+    
+    .card .fv-row {
+        color: #FFF
+    }
+    .sf-container .sf-row .sf-row-label {
+        color: #FFF;
+    }
+    .sf-container .sf-row input[type=text], .sf-container .sf-row input[type=password], .sf-container .sf-row input[type=date], .sf-container .sf-row input[type=number], .sf-container .sf-row textarea, .sf-container .sf-row select {
+        flex: 1;
+        border: none;
+        background-color: #FFF !important;
+        padding: 8px;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 0.9em;
+    }
+    .vue-flow__node-default {
+        background: #02d9ad !important;
+        border-color: #02d9ad !important;
+    }
+    .vue-flow__node-input {
+        background: #02d9ad !important;
+        border-color: #02d9ad !important;
+    }

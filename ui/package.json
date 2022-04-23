@@ -9,6 +9,8 @@
         "serve": "vue-cli-service serve"
     },
     "dependencies": {
+        "@braks/vue-flow": "^0.4.7",
+        "@formschema/native": "^2.0.0-beta.7",
         "@fortawesome/fontawesome-free": "^5.15.4",
         "@fullcalendar/core": "^5.9.0",
         "@fullcalendar/daygrid": "^5.9.0",
@@ -53,6 +55,8 @@
         "vue-loader": "^17.0.0",
         "vue-router": "^4.0.0-0",
         "vue3-apexcharts": "^1.4.1",
+        "vue3-json-editor": "^1.1.5",
+        "vue3-live-form": "^0.1.3",
         "vuex": "^4.0.0-0",
         "wrld.js": "^1.1.0",
         "yup": "^0.32.8"

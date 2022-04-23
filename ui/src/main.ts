@@ -19,7 +19,16 @@ import "@/core/plugins/prismjs";
 import "bootstrap";
 
 
+/* import the required styles */
+
+import "@braks/vue-flow/dist/style.css";
+
+/* import the default theme (optional) */
+
+import "@braks/vue-flow/dist/theme-default.css";
+
 import Vue from 'vue'
+
 
 
 const app = createApp(App);
@@ -34,5 +43,6 @@ initInlineSvg(app);
 initVeeValidate();
 
 app.use(i18n);
+// app.use(FlowyPlugin);
 
 app.mount("#app");

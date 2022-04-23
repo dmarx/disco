@@ -2,8 +2,10 @@
 # from generator_ld.generator import GeneratorLatentDiffusion
 # from manager.chain.chain import Chain
 
-from generators.generator_disco.generator import GeneratorDisco
-from generators.manager.chain.chain import Chain
+
+from modules.generators.generator_disco.generator import GeneratorDisco
+from modules.manager.chain.chain import Chain
+
 
 chain = Chain()
 chain.run_ld = False

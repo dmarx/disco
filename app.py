@@ -3,17 +3,15 @@ import gc
 import requests, sys, os
 
 import torch
-from generator_disco.generator import GeneratorDisco
-from generator_ld.generator import GeneratorLatentDiffusion
 
 from flask import Flask, flash, request, redirect, url_for, render_template,make_response,send_file,Response
 from werkzeug.utils import secure_filename
 from twilio.twiml.messaging_response import MessagingResponse, Message, Redirect, Body
 from twilio.rest import Client 
 
-from random import randint, seed
+from modules.manager.chain.chain import Chain
 
-from manager.chain.chain import Chain
+from random import randint, seed
 
 UPLOAD_FOLDER = 'static/uploads/'
 
