@@ -1,0 +1,16 @@
+<svg x="0" y="0" width="512" height="512" version="1.1"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512">
+    <title>central bank icon</title>
+    <desc>central bank icon from the IconExperience.com G-Collection. Copyright by INCORS GmbH (www.incors.com).</desc>
+    <g>
+        <path d="M80,192l48,0l0,-96l32,0l0,-64l192,0l0,64l32,0l0,96l48,0c8.8,0 16,7.2 16,16l0,288l-384,0l0,-288c0,-8.8 7.2,-16 16,-16z" fill="#546e7a"/>
+        <path d="M384,192l48,0c8.8,0 16,7.2 16,16l0,288l-192,0l0,-448l-96,0l0,-16l192,0l0,64l32,0z M64,224l64,0l0,16l-64,0z M128,128l32,0l0,16l-32,0z" fill="#445a64"/>
+        <polygon points="32,480 480,480 480,512 32,512" fill="#8fa3ad"/>
+        <polygon points="256,480 480,480 480,512 256,512" fill="#788f9b"/>
+        <path d="M144,240l32,0l0,192l-32,0z M400,240l32,0l0,192l-32,0z M336,240l32,0l0,192l-32,0z M176,64l32,0l0,144l-32,0z M208,240l32,0l0,80l-32,0z M304,64l32,0l0,144l-32,0z M272,240l32,0l0,80l-32,0z M80,240l32,0l0,192l-32,0z M240,64l32,0l0,144l-32,0z M208,384l96,0l0,96l-96,0z" fill="#28b5f5"/>
+        <path d="M400,240l32,0l0,192l-32,0z M208,384l96,0l0,96l-48,0l0,-80l-48,0z M336,240l32,0l0,192l-32,0z M272,240l32,0l0,80l-32,0z M256,208l0,-144l16,0l0,144z M304,64l32,0l0,144l-32,0z" fill="#0299e3"/>
+        <path d="M192,352l128,0l0,16l-16,16l-96,0l-16,-16z M48,192l80,0l0,32l-64,0l-16,-16z M384,192l80,0l0,16l-16,16l-64,0z M112,96l48,0l0,32l-32,0l-16,-16z M352,96l48,0l0,16l-16,16l-32,0z M144,0l224,0l0,16l-16,16l-192,0l-16,-16z" fill="#cdd7db"/>
+        <path d="M256,352l64,0l0,16l-16,16l-48,0z M384,192l80,0l0,16l-16,16l-64,0z M352,96l48,0l0,16l-16,16l-32,0z M256,0l112,0l0,16l-16,16l-96,0z" fill="#afbdc3"/>
+    </g>
+</svg>

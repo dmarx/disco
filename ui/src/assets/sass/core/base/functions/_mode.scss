@@ -1,0 +1,30 @@
+//
+// Get Mode
+//
+@function getMode() {
+    // @return dark;
+    @if (variable-exists(mode)) {
+        @return $mode;
+    }
+    @else {
+        @return default;
+    }
+}
+
+@function isDarkMode() {
+    @if (getMode()==dark) {
+        @return true;
+    }
+    @else {
+        @return false;
+    }
+}
+
+@function isDefaultMode() {
+    @if (getMode()==default) {
+        @return true;
+    }
+    @else {
+        @return false;
+    }
+}

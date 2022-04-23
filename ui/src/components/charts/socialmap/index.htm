@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" style="background-color: #2d383f;">
+  <head>
+    <meta charset="UTF-8">
+    <title>Social Network Analysis</title>
+    <link rel="stylesheet" type="text/css" href="css/keylines.css">
+    <link rel="stylesheet" type="text/css" href="css/minimalsdk.css">
+    <link rel="stylesheet" type="text/css" href="css/sdk-layout.css">
+    <link rel="stylesheet" type="text/css" href="css/demo.css">
+    <link rel="stylesheet" type="text/css" href="enron.css">
+    <link rel="stylesheet" type="text/css" href="css/font-awesome.css">
+    <script src="vendor/jquery.js" defer type="text/javascript"></script>
+    <script src="js/keylines.js" defer type="text/javascript"></script>
+    <script src="js/demo.js" defer type="text/javascript"></script>
+    <script src="enron.js" crossorigin="use-credentials" defer type="module"></script>
+  </head>
+  <body>
+    <div class="chart-wrapper demo-cols">
+      <div class="tab-content-panel flex1" id="lhs" data-tab-group="rhs">
+        <div class="toggle-content is-visible" id="lhsVisual" style="width:100%; height: 100%;">
+          <div class="klchart" id="klchart">
+            <div class="controloverlay">
+              <ul>
+                <li><a id="home" rel="tooltip" title="Home"><i class="fa fa-home"></i></a></li>
+                <li><a id="layout" rel="tooltip" title="Layout chart"><i class="fa fa-random"></i></a></li>
+                <li><a id="changeMode" rel="tooltip" title="Drag mode"><i class="fa fa-arrows-alt" id="iconMode"></i></a></li>
+                <li><a id="zoomIn" rel="tooltip" title="Zoom in"><i class="fa fa-plus-square"></i></a></li>
+                <li><a id="zoomOut" rel="tooltip" title="Zoom out"><i class="fa fa-minus-square"></i></a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="rhs citext closed" id="demorhscontent">
+        <div class="title-bar">
+          <svg viewBox="0 0 360 60" style="max-width: 360px; max-height: 60px; font-size: 24px; font-family: Raleway; flex: 1;">
+            <text x="0" y="38" style="width: 100%;">Social Network Analysis</text>
+          </svg>
+        </div>
+        <div class="tab-content-panel" data-tab-group="rhs">
+          <div class="toggle-content is-visible tabcontent" id="controlsTab">
+            <p>Click a node to see its neighbours. Select size strategy below.</p>
+            <form autocomplete="off" onsubmit="return false" id="rhsForm">
+              <div id="miniParent">
+                <div id="miniContainer">
+                  <div id="minikl"></div>
+                </div>
+              </div>
+              <div id="analysisParent"> 
+                <div class="cicontent" id="analysisBox" style="margin-bottom:10px">
+                  <div class="form-inline">
+                    <div class="btn-row">
+                      <div class="pull-left" style="width: fit-content; height: 0px;">
+                        <p>Email Volumes:</p>
+                      </div>
+                      <div class="btn-group pull-right">
+                        <button class="volume btn pull-left active" type="button" value="off" id="volumeOff">Off</button>
+                        <button class="volume btn pull-left" type="button" value="on" id="volumeOn">On</button>
+                      </div>
+                    </div>
+                    <div class="btn-row" style="margin-top:10px;">
+                      <div class="pull-left">
+                        <p>Size:</p>
+                      </div>
+                      <div class="btn-group size-btn pull-right">
+                        <button class="size btn btn-kl pull-left active" type="button" value="same" id="same">Same</button>
+                        <button class="size btn pull-left" type="button" value="degrees" id="degree">Degree</button>
+                        <button class="size btn pull-left" type="button" value="closeness" id="closeness">Closeness</button>
+                        <button class="size btn pull-left" type="button" value="betweenness" id="betweenness">Betweenness</button>
+                        <button class="size btn pull-left" type="button" value="pageRank" id="pagerank">PageRank</button>
+                        <button class="size btn pull-left" type="button" value="eigenCentrality" id="eigenvector">EigenCentrality</button>
+                      </div>
+                    </div>
+                    <div class="btn-row" id="analysis-control">
+                      <div class="pull-left">
+                        <p>Analyse:</p>
+                      </div>
+                      <div class="btn-group pull-right">
+                        <button class="direction btn pull-left" type="button" value="from" id="sending">Sent</button>
+                        <button class="direction btn pull-left" type="button" value="to" id="receiving">Received</button>
+                        <button class="direction btn btn-kl pull-left active" type="button" value="any" id="any">All</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="moreParent">
+      <div id="moreContainer">
+      </div>
+    </div>
+    <div id="lazyScripts">
+    </div>
+  </body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "name": "keylines",
+  "version": "6.8.0",
+  "author": "Cambridge Intelligence",
+  "main": "js/keylines.js",
+  "types": "ts/keylines.d.ts",
+  "private": true,
+  "license": "See headers in js/keylines.js."
+}

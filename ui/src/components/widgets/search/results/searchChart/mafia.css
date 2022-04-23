@@ -1,0 +1,35 @@
+.sliderContainer {
+    width: 100%;
+}
+dl {
+    margin: 0px;
+}
+dl dt {
+    color: #fff;
+    float: left;
+    font-weight: bold;
+    margin-left: 0px;
+    margin-right: 10px;
+    margin-block-start: 0em;
+    padding: 3px;
+    width: 22px;
+    height: 22px;
+    border-radius: 22px;
+    line-height: 12px;
+    border: 0;
+}
+dl dd {
+    margin: 2px 0;
+    padding: 5px 0;
+    line-height: 12px;
+    font-size: 12px;
+}
+.batanesi dt {
+    background-color: #03d8ae;
+}
+.mistretta dt {
+    background-color: #0e0e0e;
+}
+.none dt {
+    background-color: white;
+}

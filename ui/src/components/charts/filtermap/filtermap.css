@@ -1,0 +1,68 @@
+span.circle {
+  padding: 3px;
+  -webkit-border-radius:5px;
+  -moz-border-radius:5px;
+  border-radius:5px;
+  color: white;
+  width: 29px;
+  text-align: center;
+  display: inline-block;
+}
+label.checkbox {
+  padding-bottom: 2px;
+}
+.circleAA {
+  background: #4481ba;
+}
+.circleAS {
+  background: #1f405f;
+}
+.circleB6 {
+  background: #9e4817;
+}
+.circleDL {
+  background: #ff9651;
+}
+.circleEV {
+  background: #98bb60;
+}
+.circleF9 {
+  background: #4d622c;
+}
+.circleFL {
+  background: #31acc4;
+}
+.circleHA {
+  background: #115967;
+}
+.circleMQ {
+  background: #413151;
+}
+.circleOO {
+  background: #8263a0;
+}
+.circleUA {
+  background: #808080;
+}
+.circleUS {
+  background: #404040;
+}
+.circleVX {
+  background: #672525;
+}
+.circleWN {
+  background: #c85150;
+}
+
+#slider-container {
+  width: 100%;
+  margin: 0px;
+}
+
+#flightVolumeSlider {
+  width: calc(100% - 20px);
+  margin: 10px;
+}
+.checkbox span {
+  margin-left: 5px;
+}

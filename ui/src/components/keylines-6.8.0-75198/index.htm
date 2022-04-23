@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel='stylesheet' type='text/css' href='css/keylines.css'/>
+    <script type="text/javascript" src="js/keylines.js"></script>
+
+    <script type="text/javascript">
+
+      window.onload = function () {
+        KeyLines.create({ container: 'kl' }, function(err, chart) {
+          chart.load({
+            type: 'LinkChart',
+            items: [{id:'id1', type: 'node', x:150, y: 150, t:'Hello World!'}]
+          });
+        });
+
+      };
+
+    </script>
+
+  </head>
+  
+  <body>
+
+    <!-- This is the HTML element that will contain the KeyLines component -->
+    <div id="kl" style="width: 818px; height: 586px;" ></div>
+
+  </body>
+
+</html>

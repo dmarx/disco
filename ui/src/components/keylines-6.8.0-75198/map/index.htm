@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel='stylesheet' type='text/css' href='../css/keylines.css'/>
+    <link rel='stylesheet' type='text/css' href='leaflet.css'/>
+    <script type="text/javascript" src="../js/keylines.js"></script>
+    <script type="text/javascript" src="leaflet.js"></script>
+
+    <script type="text/javascript">
+
+      var chart, kllayer;
+
+      var chartData = {
+        type: 'LinkChart',
+        items: [
+          {
+            type: 'node',
+            id: 'a',
+            c: 'blue',
+            t: 'Hello',
+            pos: { lat: 42.360082, lng: -71.058880 }
+          },
+          {
+            type: 'node',
+            id: 'b',
+            c: 'blue',
+            t: 'World',
+            pos: { lat: 52.2009, lng: 0.126198 }
+          },
+          {
+            type: 'link',
+            id: 'a-b',
+            id1: 'a',
+            id2: 'b'
+          }
+        ]
+      };
+
+      window.onload = function () {
+        KeyLines.create({ container: 'kl' }, function(err, loadedChart) {
+          chart = loadedChart;
+
+          chart.load(chartData, chart.map().show);
+        });
+      };
+
+    </script>
+  </head>
+  <body>
+    <div id="kl" style="width: 818px; height: 586px;" ></div>
+  </body>
+</html>
