@@ -3,8 +3,6 @@
 /content
 /env
 /v-diffusion-pytorch
-/guided-diffusion
-/guided_diffusion_disco
 /guided-diffusion-plms
 /CLIP
 /ResizeRight
