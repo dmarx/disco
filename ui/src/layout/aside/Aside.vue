@@ -18,14 +18,14 @@
     <!--begin::Brand-->
     <div class="aside-logo flex-column-auto" id="kt_aside_logo">
       <!--begin::Logo-->
-      <a href="#/cases" v-if="asideTheme === 'dark'">
+      <a href="#/projects" v-if="asideTheme === 'dark'">
         <img alt="Logo" :src="darkLogo" class=" logo" style="width: 110px;
     z-index: 10000;
     position: absolute;
     left: 70px;
     top: 5px;" />
       </a>
-      <a href="#/cases" v-if="asideTheme === 'light'">
+      <a href="#/projects" v-if="asideTheme === 'light'">
         <img alt="Logo" :src="lightLogo" class=" logo" style="width: 110px;
     z-index: 10000;
     position: absolute;

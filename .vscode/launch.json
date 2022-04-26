@@ -1,12 +1,10 @@
 {
     "configurations": [
         {
-            "name": "Python: Current File",
-            "type": "python",
-            "request": "launch",
-            "program": "gen.py",
+           
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": true,
+            "args" :  ["run" ,"--host=0.0.0.0"] 
         },
     ]
 }

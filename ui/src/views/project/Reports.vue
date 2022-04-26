@@ -41,33 +41,7 @@
         </span>
       </div>
 
-      <div
-        class="menu-item menu-accordion"
-        data-kt-menu-sub="accordion"
-        data-kt-menu-trigger="click"
-      >
-        <div class="menu-content pt-8 pb-2">
-          <span class="menu-section text-muted text-uppercase fs-8 ls-1">Investigation tools</span>
-        </div>
-        <span class="menu-link">
-          <span class="menu-icon">
-            <i class="bi bi-file-earmark-pdf-fill fs-2x"></i>
-          </span>
-          <span class="menu-title">Case reports &amp; evidence</span>
-        </span>
-        <span class="menu-link">
-          <span class="menu-icon">
-            <i class="bi bi-people-fill fs-2x"></i>
-          </span>
-          <span class="menu-title">People of interest</span>
-        </span>
-        <span class="menu-link">
-          <span class="menu-icon">
-            <i class="bi bi-briefcase-fill fs-2x"></i>
-          </span>
-          <span class="menu-title">Case log</span>
-        </span>
-      </div>
+    
     </Teleport>
   </div>
   <div class="row g-5 g-xl-8">

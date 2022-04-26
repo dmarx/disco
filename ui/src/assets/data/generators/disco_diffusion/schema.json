@@ -1,0 +1,172 @@
+{
+    "labelWidth": "130px",
+  "rows": [
+    {
+      "field": "textarea",
+      "type": "prompt",
+      "label": "Prompt"
+    },
+    {
+      "type": "number",
+      "field": "width",
+      "label": "Width"
+    },
+    {
+      "type": "number",
+      "field": "height",
+      "label": "Height"
+    },
+    {
+      "type": "number",
+      "field": "cgs",
+      "label": "Clip Guidance Scale"
+    },
+    {
+      "type": "number",
+      "field": "tvs",
+      "label": "tv Scale"
+    },
+    {
+      "type": "number",
+      "field": "cut_ic_pow",
+      "label": "Cut Pow"
+    },
+    {
+      "type": "number",
+      "field": "clamp_max",
+      "label": "Clamp max"
+    },
+    {
+      "type": "checkbox",
+      "field": "clamp",
+      "label": "Use clamp"
+    },
+    {
+      "field": "number",
+      "type": "steps",
+      "label": "Steps"
+    },
+    {
+      "field": "number",
+      "type": "eta",
+      "label": "ETA"
+    },
+    {
+      "field": "number",
+      "type": "sat",
+      "label": "Saturation"
+    },
+    {
+      "field": "number",
+      "type": "range_scale",
+      "label": "Range scale"
+    },
+    {
+      "field": "text",
+      "type": "intermediate_save",
+      "label": "Intermediate saves"
+    },
+    {
+      "field": "number",
+      "type": "display_rate",
+      "label": "Display rate"
+    },
+    {
+      "field": "number",
+      "type": "n_batches",
+      "label": "Batches"
+    },
+    {
+      "type": "checkbox",
+      "field": "skip_augs",
+      "label": "Skip Augs"
+    },
+    {
+      "type": "text",
+      "field": "init_image",
+      "label": "Init image"
+    },
+    {
+      "field": "number",
+      "type": "init_scale",
+      "label": "Init scale"
+    },
+    {
+      "type": "text",
+      "field": "set_seed",
+      "label": "random_seed"
+    },
+    {
+      "type": "text",
+      "field": "cut_overview",
+      "label": "Cut Overview"
+    },
+    {
+      "type": "text",
+      "field": "cut_innercut",
+      "label": "Cut innercut"
+    },
+    {
+      "type": "text",
+      "field": "cut_icgray_p",
+      "label": "Cut gray"
+    },
+
+    {
+      "type": "checkbox",
+      "field": "use_secondary_model",
+      "label": "secondary model"
+    },
+    {
+      "type": "checkbox",
+      "field": "use_checkpoint",
+      "label": "Checkpoint"
+    },
+    {
+      "type": "checkbox",
+      "field": "VitB32",
+      "label": "VitB32"
+    },
+    {
+      "type": "checkbox",
+      "field": "VitB16",
+      "label": "VitB16"
+    },
+    {
+      "type": "checkbox",
+      "field": "VitL14",
+      "label": "VitL14"
+    },
+    {
+      "type": "checkbox",
+      "field": "VitL14_336",
+      "label": "VitL14@336px"
+    },
+    {
+      "type": "checkbox",
+      "field": "RN101",
+      "label": "RN101"
+    },
+    {
+      "type": "checkbox",
+      "field": "RN50",
+      "label": "RN50"
+    },
+    {
+      "type": "checkbox",
+      "field": "RN50x4",
+      "label": "RN50x4"
+    },
+    {
+      "type": "checkbox",
+      "field": "RN50x16",
+      "label": "RN50x16"
+    },
+    {
+      "type": "checkbox",
+      "field": "RN50x64",
+      "label": "RN50x64"
+    }
+
+  ]
+}

@@ -31,8 +31,6 @@ class GeneratorLatentDiffusion(GeneratorBase):
 
     ldm = None
     
-    # argument parsing
-
     def fetch(url_or_path):
         if str(url_or_path).startswith('http://') or str(url_or_path).startswith('https://'):
             r = requests.get(url_or_path)

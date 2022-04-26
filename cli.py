@@ -26,8 +26,17 @@
 # from manager.chain.chain import Chain
 
 
+# from modules.manager.chain.chain import Chain
+
+# prompt = "A scenic view underwater of large sea monsters and volumetric light, by David Noton and Asher Brown Durand, matte painting trending on artstation HQ."
+# chain = Chain()
+# filename = chain.run_chain(prompt)
+
+# from modules.generators.generator_disco.generator import GeneratorDisco
 from modules.manager.chain.chain import Chain
 
 prompt = "A scenic view underwater of large sea monsters and volumetric light, by David Noton and Asher Brown Durand, matte painting trending on artstation HQ."
 chain = Chain()
+
+# chain.run_ld = False
 filename = chain.run_chain(prompt)

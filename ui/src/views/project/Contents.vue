@@ -59,6 +59,7 @@ import Contents from "@/components/widgets/tables/Contents.vue";
 import { setCurrentPageTitle } from "@/core/helpers/breadcrumb";
 import { reactive } from 'vue';
 import AsideDefaultMenu from "@/components/widgets/menus/AsideDefaultMenu.vue";
+import { useRoute } from 'vue-router';
 
 export default defineComponent({
   name: "contents",

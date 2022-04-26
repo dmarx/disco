@@ -1,39 +1,64 @@
 
 import os
 from random import seed
+from random import randint
 
 from modules.manager.projects.project import Project
 
+class Api:
 
-class api:
-
-    root_path = os.getcwd()
-    projects_path = root_path + "/static/data/projects"
-    
-    def fetch_all(self):
+    def fetch_all():
         
+        
+        root_path = os.getcwd()
+        projects_path = root_path + "/static/data/projects"
         results = []
         
-        try: lst = os.listdir(self.projects_path)
+        try: lst = os.listdir(projects_path)
         except OSError:
             pass #ignore errors
         else:
-            for name in lst:
-                fn = os.path.join(self.projects_path, name)
+            for id in lst:
+                fn = os.path.join(projects_path, id)
                 if os.path.isdir(fn):
-                    # tree['children'].append(make_tree(fn))
-                    results.append(fn)
-                # else:
-                    #tree['children'].append(dict(name=name))
-        return results
+                    results.append(id)
+                    
+                     
+        projects=[]
+        for id in results:
+            project = Project(id)
+            project.load_data()
+            projects.append(project)
+            
+        return projects
     
-    def fetch(self,name):
-        item = Project.fetch_by_name(name)
-        return item
+    def fetch(id):
+        project = Project(id)
+        project.load_data()
+        return project
 
-    def __init__(self):
-        seed(1)
-        self.load_cuda()
+    def add():
+        id = str(randint(0,1000000))
+        item = Project(id )
+        item.title = "New Project"
+        item.save()
+        return item
+    
+    def save(project):
+        project.save()
+        #item = Project(self.id)
+        #item.save()
+        return project
+    
+    def delete(id):
+        item = Project(id)
+        os.rmdir(item.dir())
+        return True
+
+    # @staticmethod
+    # def __init__(self):
+    #     seed(1)
+    #     #self.load_cuda()
         
         
         

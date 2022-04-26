@@ -11,8 +11,8 @@
             background-image: url('/metronic8/demo1/assets/media/illustrations/sketchy-1/4.png');
           "
         >
-          <div class="card-header pt-10">
-            <div class="d-flex align-items-center">
+          <div class="card-header pt-10" style="width: 100%">
+            <div class="d-flex align-items-center" style="width: 100%">
               <div class="symbol symbol-circle me-5">
                 <div
                   class="symbol-label bg-transparent text-primary border border-secondary border-dashed"
@@ -39,9 +39,32 @@
                 </div>
               </div>
 
-              <div class="d-flex flex-column" style="margin-top: -21px">
+              <div
+                class="d-flex flex-column"
+                style="margin-top: -21px; width: 100%"
+                v-if="state.project"
+              >
                 <h2 class="mb-1">Settings</h2>
                 <div class="text-muted fw-bolder" style="line-height: 2px">
+                  <div style="float: right">
+                    <button class="btn btn-primary" @click="saveProject()">
+                      Save Project</button
+                    ><!-- <router-link to="item.id"> Launch </router-link> -->
+                  </div>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="title"
+                    placeholder="Title..."
+                    v-model="state.project.title"
+                    style="
+                      display: inline-block;
+                      width: 200px;
+                      color: white;
+                      margin-right: 15px;
+                      background: transparent;
+                    "
+                  />
                   <a href="#">Disco Studio</a>
                   <!-- <span class="mx-3">|</span> -->
                   <!-- <a href="#">Studio</a> -->
@@ -101,9 +124,14 @@
 
           <div class="card-body" style="">
             <div class="row">
-              <div class="col-6" style="max-height: 500px">
+              <div
+                class="col-6"
+                style="max-height: 500px; min-height: 500px"
+                @drop="onDrop"
+              >
                 <VueFlow
-                  v-model="elements"
+                  v-if="state.project"
+                  v-model="state.project.chain"
                   class="vue-flow-basic-example"
                   :default-zoom="1.0"
                   :min-zoom="1.0"
@@ -112,6 +140,7 @@
                   @connect="onConnect"
                   @pane-ready="onPaneReady"
                   @node-drag-stop="onNodeDragStop"
+                  @dragover="onDragOver"
                 >
                   <Background />
                   <!-- <MiniMap /> -->
@@ -128,15 +157,88 @@
               </div> -->
                 </VueFlow>
               </div>
-              <div class="col-6">
-                <Vue3LiveForm :schema="schema" v-model="model" />
-              </div>
+              <div class="col-6"></div>
             </div>
           </div>
-
           <div v-if="state.mounted">
             <Teleport to="#aside-context">
-              <AsideDefaultMenu></AsideDefaultMenu>
+              <!-- <AsideDefaultMenu></AsideDefaultMenu> -->
+              <div
+                class="menu-item menu-accordion"
+                data-kt-menu-sub="accordion"
+                data-kt-menu-trigger="click"
+              >
+                <div class="menu-content pt-8 pb-2">
+                  <span class="menu-section text-muted text-uppercase fs-8 ls-1"
+                    >Projects</span
+                  >
+                </div>
+                <router-link to="/projects">
+                  <span class="menu-link">
+                    <span class="menu-icon">
+                      <i class="bi bi-bag-check-fill fs-2x"></i>
+                    </span>
+                    <span class="menu-title">My Projects</span>
+                  </span>
+                </router-link>
+                <router-link to="/projects">
+                  <span class="menu-link">
+                    <span class="menu-icon">
+                      <i class="bi bi-card-list fs-2x"></i>
+                    </span>
+                    <span class="menu-title">Shared Projects</span>
+                  </span>
+                </router-link>
+                <router-link to="/projects">
+                  <span class="menu-link">
+                    <span class="menu-icon">
+                      <i class="bi bi-link-45deg fs-2x"></i>
+                    </span>
+                    <span class="menu-title">Closed Projects</span>
+                  </span>
+                </router-link>
+              </div>
+
+              <div
+                class="menu-item menu-accordion"
+                data-kt-menu-sub="accordion"
+                data-kt-menu-trigger="click"
+              >
+                <div class="menu-content pt-8 pb-2">
+                  <span class="menu-section text-muted text-uppercase fs-8 ls-1"
+                    >Generators</span
+                  >
+                </div>
+                <!-- <router-link to="/projects">
+                  <span class="menu-link">
+                    <span class="menu-icon">
+                      <i class="bi bi-bag-check-fill fs-2x"></i>
+                    </span>
+                    <span class="menu-title">My Projects</span>
+                  </span>
+                </router-link> -->
+                <div
+                  class="vue-flow__node-input"
+                  :draggable="true"
+                  @dragstart="(event: DragEvent) => onDragStart(event, 'input')"
+                >
+                  Input Node
+                </div>
+                <div
+                  class="vue-flow__node-default"
+                  :draggable="true"
+                  @dragstart="(event: DragEvent) => onDragStart(event, 'default')"
+                >
+                  Default Node
+                </div>
+                <div
+                  class="vue-flow__node-output"
+                  :draggable="true"
+                  @dragstart="(event: DragEvent) => onDragStart(event, 'output')"
+                >
+                  Output Node
+                </div>
+              </div>
             </Teleport>
           </div>
         </div>
@@ -147,32 +249,45 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, ref, reactive } from "vue";
-import {
-  VueFlow,
-  Background,
-  MiniMap,
-  Controls,
-  Elements,
-  FlowEvents,
-  FlowInstance,
-  isNode,
-  addEdge,
-} from "@braks/vue-flow";
-
+// import {
+//   VueFlow,
+//   Background,
+//   MiniMap,
+//   Controls,
+//   Elements,
+//   FlowEvents,
+//   FlowInstance,
+//   isNode,
+//   addEdge,
+// } from "@braks/vue-flow";
+import { inject } from "vue";
 // import { setCurrentPageTitle } from "@core/helpers/breadcrumb";
 import { Vue3LiveForm } from "vue3-live-form";
-
-// import Dropdown2 from "@/components/dropdown/Dropdown2.vue";
-// var window : any;
-// const KeyLines = window.KeyLines;
-// KeyLines.promisify();
 import FilterTimeline from "../../components/filters/FilterTimeline.vue";
 import test_data from "../../assets/data/generators/test/defaults.json";
 import test_schema from "../../assets/data/generators/test/schema.json";
 import AsideDefaultMenu from "@/components/widgets/menus/AsideDefaultMenu.vue";
+import ApiService from "@/core/services/ApiService";
+import { AxiosResponse, AxiosRequestConfig } from "axios";
+import { useRoute } from "vue-router";
+import {
+  VueFlow,
+  MiniMap,
+  Controls,
+  Background,
+  isNode,
+  useVueFlow,
+  Elements,
+  Node,
+  addEdge,
+  FlowInstance,
+  FlowElements,
+  FlowEvents,
+} from "@braks/vue-flow";
 
 export default defineComponent({
   name: "studio",
+
   components: {
     FilterTimeline,
     AsideDefaultMenu,
@@ -182,94 +297,35 @@ export default defineComponent({
     MiniMap,
     Controls,
   },
+
   setup() {
+    //const a$roxios: any = inject("axios"); // inject axios
+
     const state = reactive({
       count: 0,
       mounted: false,
+      project: null,
     });
     const schema = test_schema; // = reactive (news_schema);
     const model = test_data; // = reactive ({});
 
-    // const elements = ref([
-    //   {
-    //     id: "1",
-    //     label: "node 1",
-    //     position: { x: 100, y: 100 },
-    //   },
-    //   {
-    //     id: "2",
-    //     label: "node 2",
-    //     position: { x: 100, y: 200 },
-    //   },
-    //   {
-    //     id: "e1-2",
-    //     target: "2",
-    //     source: "1",
-    //   },
-    // ]);
+    //console.log(schema);
 
-    console.log(schema);
-
-    // const currentStatus = reactive({
-    //   busy: false,
-    //   text: "Idle",
-    //   mounted: false,
-    // });
-
-    // const currentProject = reactive({
-    //   busy: false,
-    //   text: "",
-    //   steps: 50,
-    //   resolution: "1280,768",
-    // });
-
-    onMounted(() => {
-      // setCurrentPageTitle("Studio");
-      state.mounted = true;
-
-      axios
-        .get('http://localhost:5000/fetch_projects')
-        .then(response => {
-          this.info = response;
-        }
-
-
+    const {
+      onPaneReady,
+      onNodeDragStop,
+      onNodeDragStart,
+      instance,
+      addEdges,
+      addNodes,
+    } = useVueFlow({
+      defaultZoom: 1.5,
+      minZoom: 0.2,
+      maxZoom: 4,
     });
 
-    
-    // const loadProjects = () => {
-    //   fetch("http://localhost:5000/status").then((response) => {
-    //     response.json().then(function (data) {
-    //       console.log("status response", data);
-    //       // if (data.busy) {
-    //       //   isBusy = true;
-    //       //   //showLoading();
-    //       //   setTimeout((x) => {
-    //       //     updateStatus();
-    //       //   }, 5000);
-    //       // } else {
-    //       //   //showReady();
-    //       // }
-
-    //       //updateCurrentMash();
-
-    //       // $("#logs").html(
-    //       //   data.logs.reverse().map((x) => {
-    //       //     return "<div>" + x + "</div>";
-    //       //   })
-    //       // );
-    //       // $("#logs").scrollTop($("#logs")[0].scrollHeight);
-    //       // // console.log('updated logs');
-
-    //       // $(".queue-info").hide();
-    //       // if (parseInt(data.queued) > 0) {
-    //       //   $(".queue-info").show();
-    //       //   $(".queue-info-body").html(data.queued);
-    //       // }
-    //     });
-    //   });
-    // };
-
+    let id = 0;
+    const getId = () => `dndnode_${id++}`;
 
     return {
       // status,
@@ -278,64 +334,113 @@ export default defineComponent({
       schema,
       model,
 
-      loadProjects,
-      
       instance: null as FlowInstance | null,
-      elements: [
-        { id: "1", type: "input", label: "Grid-3-ML", position: { x: 250, y: 5 } },
-        { id: "2", label: "Superres", position: { x: 100, y: 100 } },
-        { id: "3", label: "Disco Diffusion", position: { x: 400, y: 100 } },
-        { id: "4", label: "Superres", position: { x: 400, y: 200 } },
-        { id: "e1-2", source: "1", target: "2", animated: true },
-        { id: "e1-3", source: "1", target: "3" },
-        { id: "e1-3", source: "3", target: "4" },
-        { id: "e1-4", source: "4", target: "5" },
-      ] as Elements,
+      onNodeDragStop,
+      onNodeDragStart,
+      getId,
+      addNodes,
+      addEdges,
     };
   },
 
-  methods: {
-    // iconSize() {
-    //   return [this.iconWidth, this.iconHeight];
-    // },
-    // iconUrl() {
-    //   return `https://placekitten.com/${this.iconWidth}/${this.iconHeight}`;
-    // },
-    // submit(e) {
-    //   // this.model contains the valid data according your JSON Schema.
-    //   // You can submit your model to the server here
-    // },
+  mounted() {
+    // setCurrentPageTitle("Studio");
+    this.state.mounted = true;
+    const route = useRoute();
 
-    logToObject() {
-      console.log(this.instance?.toObject());
+    this.getProject(route.params.id);
+  },
+
+  methods: {
+    getProject(id) {
+      ApiService.post("http://localhost:5000/api/project/" + id.toString(), {})
+        .then(({ data }) => {
+          this.state.project = data;
+
+          // (this.state.project as any).chain = [
+          //   { id: "1", type: "input", label: "Grid-3-ML", position: { x: 250, y: 5 } },
+          //   { id: "2", label: "Superres", position: { x: 100, y: 100 } },
+          //   { id: "3", label: "Disco Diffusion", position: { x: 400, y: 100 } },
+          //   { id: "4", label: "Superres", position: { x: 400, y: 200 } },
+          //   { id: "e1-2", source: "1", target: "2", animated: true },
+          //   { id: "e1-3", source: "1", target: "3" },
+          //   { id: "e1-3", source: "3", target: "4" },
+          //   // { id: "e1-4", source: "4", target: "5" },
+          // ] as Elements;
+          console.log(data);
+          //console.log(this.state.project);
+          // if (this.state.project !=null){
+          //let p = (this.state.project as any);
+          //p.title = "New Project";
+
+          // }
+
+          // this.getProjects();
+        })
+        .catch(({ response }) => {});
     },
-    resetTransform() {
-      this.instance?.setTransform({ x: 0, y: 0, zoom: 1 });
+    saveProject() {
+      console.log("save");
+      (this.state.project as any).chain = (this.instance as any).toObject();
+      ApiService.post(
+        "http://localhost:5000/api/project/save/" +
+          (this.state.project as any).id.toString(),
+        this.state.project as any
+      )
+        .then(({ data }) => {
+          console.log("saved");
+        })
+        .catch(({ response }) => {});
     },
-    toggleclass() {
-      this.elements.forEach((el) => (el.class = el.class === "light" ? "dark" : "light"));
+    deleteProject(id) {
+      console.log("delete");
+      ApiService.delete("http://localhost:5000/api/project/" + id.toString())
+        .then(({ data }) => {
+          //this.state.projects = data;
+          // this.getProjects();
+        })
+        .catch(({ response }) => {});
     },
-    updatePos() {
-      this.elements.forEach((el) => {
-        if (isNode(el)) {
-          el.position = {
-            x: Math.random() * 400,
-            y: Math.random() * 400,
-          };
-        }
-      });
+
+    onDragStart(event: DragEvent, nodeType: string) {
+      if (event.dataTransfer) {
+        event.dataTransfer.setData("application/vueflow", nodeType);
+        event.dataTransfer.effectAllowed = "move";
+      }
     },
-    onNodeDragStop(e: FlowEvents["nodeDragStop"]) {
-      console.log("drag stop", e);
+    onDragOver(event: DragEvent) {
+      event.preventDefault();
+      if (event.dataTransfer) {
+        event.dataTransfer.dropEffect = "move";
+      }
     },
     onPaneReady(instance: FlowEvents["paneReady"]) {
-      instance.fitView();
+      //instance.fitView();
       this.instance = instance;
     },
     onConnect(params: FlowEvents["connect"]) {
-      addEdge(params, this.elements);
+      console.log('on connect', params)
+      this.addEdges([params]);//, (this.state.project as any).chain);
+    },
+    onDrop(event: DragEvent) {
+      console.log("dropped", event);
+      if (this.instance as any) {
+        console.log("dropped2", event);
+        const type = event.dataTransfer?.getData("application/vueflow");
+        const position = (this.instance as any).project({
+          x: event.clientX - 240,
+          y: event.clientY - 280,
+        });
+        const newNode = {
+          id: this.getId(),
+          type,
+          position,
+          label: `${type} node`,
+        } as Node;
+        this.addNodes([newNode]);
+      }
     },
   },
-  watch: {},
+  // watch: {},
 });
 </script>

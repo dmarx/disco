@@ -1,44 +1,134 @@
 
-import gc
-import requests, sys, os
-
-import torch
-
-from flask import Flask, flash, jsonify, request, redirect, url_for, render_template,make_response,send_file,Response
-from werkzeug.utils import secure_filename
-from twilio.twiml.messaging_response import MessagingResponse, Message, Redirect, Body
-from twilio.rest import Client 
-
+import json
+import os
+from flask import Flask, jsonify, request,make_response,send_file,Response
+from flask_cors import CORS, cross_origin
+import pandas as pd
+from twilio.twiml.messaging_response import MessagingResponse
 from modules.manager.chain.chain import Chain
-from modules.manager.projects.api import api
-
-from random import randint, seed
+from modules.manager.projects.api import Api
+# from modules.manager.projects.api import api
 
 UPLOAD_FOLDER = 'static/uploads/'
+ALLOWED_EXTENSIONS = set(['mp4', 'mp3', 'wav','.mov'])
+
+apiURL = "http://localhost:5000"
+chain = None
 
 os.system("export TOKENIZERS_PARALLELISM=false")
 
-app = Flask(__name__)
+from flask_cors import CORS
 
+app = Flask(__name__)
+CORS(app)
+cors = CORS(app, resource={
+    r"/*":{
+        "origins":"*"
+    }
+})
+
+# cors = CORS(app,    resources={r"/api/*": {"origins": "*"}})
+# cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 app.secret_key = "1923493493"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['CORS_HEADERS']='Content-Type'
+app.run(debug=False,host = "0.0.0.0")
 
-ALLOWED_EXTENSIONS = set(['mp4', 'mp3', 'wav','.mov'])
 
-chain = None
 
-@app.route('/make/<prompt>', methods=['GET', 'POST'])
-def make(prompt):
-    filename = chain.run_chain(prompt)
-    return send_file("static/output/" + filename, mimetype='image/png')
+@app.route('/api/projects', methods=['POST'])
+@cross_origin()
+def projects_get():
+    items = Api.fetch_all()
+    obj = json.dumps(items, default=lambda obj: obj.__dict__)
+    return Response(obj, status=200, mimetype='application/json')
 
-@app.route('/bot', methods=['POST'])
-def bot():
-    incoming_msg = request.values.get('Body', '').lower()
-    print(incoming_msg)
-    resp = MessagingResponse()
-    msg = resp.message()
-    responded = False
+@app.route('/api/project/add', methods=['POST'])
+@cross_origin()
+def project_add():
+    project = Api.add()
+    #dill.dump(project, file=open(project.project_dir, "wb"))
+    
+    # json.dumps(project, default=lambda obj: obj.__dict__)
+    # return json.dumps(, default=lambda obj: obj.__dict__)
+    # return jsonify(project)
+    # return jso
+    obj = json.dumps(project, default=lambda obj: obj.__dict__)
+    return Response(obj, status=200, mimetype='application/json')
+    
+
+@app.route('/api/project/save/<int:id>', methods=['POST'])
+@cross_origin()
+def project_update(id):
+    project =Api.fetch(id)
+    data = request.get_json()
+    print(data)
+    project.title = data['title']
+    Api.save(project)
+    # return jsonify(project)
+    obj = json.dumps(project, default=lambda obj: obj.__dict__)
+    return Response(obj, status=200, mimetype='application/json')
+    # , default=lambda obj: obj.__dict__) #, default=lambda obj: obj.__dict__)
+
+
+@app.route('/api/project/<int:id>', methods=['POST'])
+@cross_origin()
+def project_get(id):
+    print("get project",id)
+    project =Api.fetch(id)
+    #Api.save(project)
+    # return jsonify(project)
+    obj = json.dumps(project, default=lambda obj: obj.__dict__)
+    return Response(obj, status=200, mimetype='application/json')
+    # , default=lambda obj: obj.__dict__) #, default=lambda obj: obj.__dict__)
+
+
+@app.route('/api/project/<int:id>', methods=['DELETE'])
+@cross_origin()
+def project_delete(id):
+    Api.delete(id)
+    return jsonify(None)
+
+def load_chain():
+    global chain
+    chain = Chain()
+    # global generator_ld
+    # if (generator_disco==None): generator_disco = GeneratorDisco()
+    # if (generator_ld==None): generator_ld =  GeneratorLatentDiffusion()
+
+
+# def flat_dict(data: dict, prefix=''):
+#     result = dict()
+#     for key in data:
+#         if len(prefix):
+#             field = prefix + '_' + key
+#         else:
+#             field = key
+#         if isinstance(data[key], dict):
+#             result.update(
+#                 flat_dict(data[key], key)
+#             )
+#         else:
+#             result[field] = data[key]
+#     return result
+    
+if __name__ == '__main__':
+    load_chain()
+    print("running")
+
+
+# @app.route('/make/<prompt>', methods=['GET', 'POST'])
+# def make(prompt):
+#     filename = chain.run_chain(prompt)
+#     return send_file("static/output/" + filename, mimetype='image/png')
+
+# @app.route('/bot', methods=['POST'])
+# def bot():
+#     incoming_msg = request.values.get('Body', '').lower()
+#     print(incoming_msg)
+#     resp = MessagingResponse()
+#     msg = resp.message()
+#     responded = False
    
     # if 'make' in incoming_msg:
     #     input_seed = "" #str(100)
@@ -54,38 +144,15 @@ def bot():
     # if not responded:
     #     msg.body('I only know about famous quotes and cats, sorry!')
 
-    response_string = str(resp)
-    print ("response", response_string)
-    # response = MessagingResponse()
-    # message = Message()
-    # message.body('Hello World!')
-    # response.append(message)
-    # # return make_response(str(response))
+    # response_string = str(resp)
+    # print ("response", response_string)
+    # # response = MessagingResponse()
+    # # message = Message()
+    # # message.body('Hello World!')
+    # # response.append(message)
+    # # # return make_response(str(response))
 
-    response = make_response(response_string)
-    response.headers["Content-Type"] = "text/xml"
-    return response
+    # response = make_response(response_string)
+    # response.headers["Content-Type"] = "text/xml"   
+    # return response
 
-
-
-@app.route('/fetch_projects', methods=['POST'])
-def fetch_projects():
-    project_names = api.fetch_all()
-    projects=[]
-    for project_name in project_names:
-        project = api.fetch_project(project_name)
-        projects.append(project)
-    return jsonify(projects)
-
-
-def load_chain():
-    global chain
-    chain = Chain()
-    # global generator_ld
-    # if (generator_disco==None): generator_disco = GeneratorDisco()
-    # if (generator_ld==None): generator_ld =  GeneratorLatentDiffusion()
-    
-if __name__ == '__main__':
-    print("running")
-    load_chain()
-    app.run(debug=False,host = "0.0.0.0")

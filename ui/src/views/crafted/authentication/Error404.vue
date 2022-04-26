@@ -15,7 +15,7 @@
     <!--end::Message-->
 
     <!--begin::Link-->
-    <router-link to="/cases" class="btn btn-primary"
+    <router-link to="/projects" class="btn btn-primary"
       >Return Home</router-link
     >
     <!--end::Link-->
