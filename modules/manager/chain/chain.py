@@ -56,7 +56,7 @@ class Chain:
             
             if generator['type'] == 2:
                 if self.generator_disco == None: self.generator_disco = GeneratorDisco(self,50,[512,512])
-                self.generator_disco.settings["prompt"] = [generator.['model']['prompt']]
+                self.generator_disco.settings["prompt"] = generator['model']['prompt']
                 if len(self.output_filename) > 0: 
                     self.generator_disco.settings["skip_steps"] = 25
                     self.generator_disco.settings["init_image"] = os.getcwd() + "/static/output/" + self.output_filename
