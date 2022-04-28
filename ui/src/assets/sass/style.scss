@@ -40,3 +40,35 @@
     .card .card-body h3 {
         color: #FFF
     }
+    .card-generator {
+        background: transparent;
+        border-radius: 8px;
+        padding: 8px;
+        margin: 30px;
+        margin-bottom: 15px;
+        margin-top: 15px;
+        border: 1px solid #333
+    }
+    .card-generator h3 {
+        color: #FFF;
+        line-height: 38px;
+        font-size: 14px;
+    }
+    .card-generator p {
+        color: #999
+    }
+    .item-generator {
+        background: transparent !important;
+        border: 1px solid #333;
+        color: #FFF;
+        text-align: left !important;
+    }
+    .item-generator h3 {
+        padding: 8px;
+        border-bottom: 1px solid #666;
+        padding-bottom: 15px;
+        line-height: 30px;
+    }
+    .item-generator p {
+        padding: 8px;
+    }

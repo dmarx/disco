@@ -1,4 +1,5 @@
 
+from datetime import datetime
 import os
 from random import seed
 from random import randint
@@ -41,6 +42,8 @@ class Api:
         id = str(randint(0,1000000))
         item = Project(id )
         item.title = "New Project"
+        item.created = str(datetime.now())
+        item.generators= []
         item.save()
         return item
     

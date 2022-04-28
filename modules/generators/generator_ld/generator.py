@@ -106,6 +106,8 @@ class GeneratorLatentDiffusion(GeneratorBase):
 
         image_embed = None
 
+
+
         print("1")
         # image context
         # if args.edit:

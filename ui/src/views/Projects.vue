@@ -1,44 +1,44 @@
 <template>
   <div class="row">
-
-    <template  v-for="(item, k) in state.projects" :key="k">
-      <div class="col-3" style="margin-bottom:15px">
+    <template v-for="(item, k) in state.projects" :key="k">
+      <div class="col-3" style="margin-bottom: 15px">
         <div class="card" style="text-align: center">
           <div class="card-body">
             <br />
             <br />
             <br />
-            <h3 v-if="item?.ength==0">Unnamd Project</h3>
+            <h3 v-if="item?.title.length == 0">Unnamed Project</h3>
+            <h3 v-if="item?.title.length >= 0">{{ item.title }}</h3>
             <!-- <buttom  v-iftitleitem.length>0">{{ item.tietle }}</h3> -->
             <br />
             <br />
-            <button class="btn btn-primary" @click="showProject(item.id)">View</button><!-- <router-link to="item.id"> Launch </router-link> -->
+            <button class="btn btn-primary" @click="showProject(item.id)">View</button
+            ><!-- <router-link to="item.id"> Launch </router-link> -->
           </div>
           <br />
-        <span style="color:#FFF !important">{{item.id}}</span>
-          <br />
+          <!-- <span style="color: #fff !important">{{ item.id }}</span>
+          <br /> -->
           <br />
         </div>
       </div>
     </template>
-    
+
     <div class="col-3">
       <div class="card" style="text-align: center">
         <div class="card-body">
           <br />
           <br />
           <br />
-            <h3 >Start Project</h3>
+          <h3>Start Project</h3>
           <br />
           <br />
-
           <button class="btn btn-primary" @click="addProject()">
             <i class="bi bi-plus fs-3"></i>
           </button>
           <br />
           <br />
-          <span>nbsp;</span>
-          <br />
+          <!-- <span>&nbsp;</span> -->
+          <!-- <br /> -->
           <br />
         </div>
       </div>
@@ -92,7 +92,6 @@
           </span>
         </router-link>
       </div>
-
     </Teleport>
   </div>
 </template>
@@ -122,20 +121,20 @@ export default defineComponent({
     this.getProjects();
   },
   methods: {
-    showProject(id){
-      this.$router.push("/project/"+id+"/studio");
+    showProject(id) {
+      this.$router.push("/project/" + id + "/studio");
     },
     getProjects() {
-      console.log("get")
+      console.log("get");
       ApiService.post("http://localhost:5000/api/projects", {})
         .then(({ data }) => {
           this.state.projects = data;
-          console.log("get projects" ,data);
+          console.log("get projects", data);
         })
         .catch(({ response }) => {});
     },
     addProject() {
-      console.log("add")
+      console.log("add");
       ApiService.post("http://localhost:5000/api/project/add", {})
         .then(({ data }) => {
           //this.state.projects = data;
@@ -144,7 +143,7 @@ export default defineComponent({
         .catch(({ response }) => {});
     },
     saveProject(id) {
-      console.log("save")
+      console.log("save");
       ApiService.post("http://localhost:5000/api/project/" + id.toString(), {})
         .then(({ data }) => {
           //this.state.projects = data;
@@ -153,7 +152,7 @@ export default defineComponent({
         .catch(({ response }) => {});
     },
     deleteProject(id) {
-      console.log("delete")
+      console.log("delete");
       ApiService.delete("http://localhost:5000/api/project/" + id.toString())
         .then(({ data }) => {
           //this.state.projects = data;

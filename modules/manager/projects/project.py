@@ -1,5 +1,6 @@
 
 from genericpath import exists
+import json
 import os
 import dill
 # from flask import jsonify
@@ -13,28 +14,34 @@ class Project:
     title = ""
     created = ""
     
-    chain = None
-    
     generators= None
     generators_json = None
         
     def load_data(self):
         self.generators = []
-        self.chain = []
         self.title = ""
         if exists(self.project_dir()):
-            file_data = dill.load(open(self.project_dir() + "/data.obj", "rb"))
-            self.title = file_data.title
-            self.created = file_data.created
-            self.chain = file_data.chain
+            with open(self.project_dir() + "/data.json") as json_file:
+                data = json.load(json_file)
+                print(data)
+                self.title = data['title']
+                self.created = data['created']
+                self.generators = data['generators']
+                
+                
+            # file_data = dill.load(open(self.project_dir() + "/data.obj", "rb"))
+            # file_data = json.loads(open(self.project_dir() + "/data.obj", "rb"))
+            # self.title = file_data.title
+            # self.created = file_data.created
+            # self.chain = file_data.chain
             
-            generator_data = dill.load(open(self.project_dir() + "/generators.obj", "rb"))
-            if generator_data != None:
-                self.generators = generator_data
-                for name in filter(lambda x: len(x.get("label")>0),self.generators):
-                    generator = self.fetch_by_name(name)
-                    generator.settings = dill.load(open(self.project_path + "/generators/" + str.lower(name).replace(" ","_")) + "settings.json" , "rb")
-                    #json.loads(generator_data.json)
+            # generator_data = dill.load(open(self.project_dir() + "/generators.obj", "rb"))
+            # if generator_data != None:
+            #     self.generators = generator_data
+            #     for name in filter(lambda x: len(x.get("label")>0),self.generators):
+            #         generator = self.fetch_by_name(name)
+            #         generator.settings = dill.load(open(self.project_path + "/generators/" + str.lower(name).replace(" ","_")) + "settings.json" , "rb")
+            #         #json.loads(generator_data.json)
         else:
             self.created = str(date.today())          
               
@@ -49,16 +56,27 @@ class Project:
         
         updated = Project(self.id)
         updated.title = self.title
-        updated.chain = self.chain
+        updated.generators = self.generators
         updated.created = self.created
-        print("saviing updated",updated)
+        print("Saving Updated",updated.generators)
         
-        dill.dump(updated, file=open(updated.project_dir() + "/data.obj", "wb"))
+        
+        jsonStr = json.dumps(updated.__dict__)
+        with open(updated.project_dir() + "/data.json", "w") as outfile:
+            outfile.write(jsonStr)
+    
+        # updated.generators = []
+        # jsonStr = json.dumps(updated.generators.__dict__)
+        # with open(updated.project_dir() + "/generators.json", "w") as outfile:
+        #     outfile.write(jsonStr)
+    
+    
+        ##dill.dump(updated, file=open(updated.project_dir() + "/data.obj", "wb"))
         
         #self.data_path = 
         
         # self.generators_json = jsonify(self.generators)
-        dill.dump(updated.generators, file=open(updated.project_dir() + "/generators.obj", "wb"))
+        #/dill.dump(updated.generators, file=open(updated.project_dir() + "/generators.obj", "wb"))
         # self.generators_json = generator_data.json
         
         

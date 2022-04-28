@@ -610,8 +610,8 @@ class GeneratorDisco(GeneratorBase):
 
         self.args = {
             'batchNum': self.batchNum,
-            'prompts_series': utils.split_prompts(self.text_prompts) if self.text_prompts else None,
-            'image_prompts_series':utils.split_prompts(self.image_prompts) if self.image_prompts else None,
+            'prompts_series': utils.split_prompts(self.text_prompts,self.max_frames) if self.text_prompts else None,
+            'image_prompts_series':utils.split_prompts(self.image_prompts,self.max_frames) if self.image_prompts else None,
             'seed': seed,
             'display_rate':self.display_rate,
             'n_batches':self.n_batches if self.animation_mode == 'None' else 1,
@@ -814,7 +814,7 @@ class GeneratorDisco(GeneratorBase):
 
         if self.key_frames:
             try:
-                self.angle_series = utils.get_inbetweens(utils.parse_key_frames(self.angle),max_frames=self.max_frames,interp_spline = self.interp_spline)
+                self.angle_series = utils.get_inbetweens(key_frames = utils.parse_key_frames(self.angle),max_frames=self.max_frames,interp_spline = self.interp_spline)
             except RuntimeError as e:
                 print(
                     "WARNING: You have selected to use key frames, but you have not "
@@ -825,10 +825,10 @@ class GeneratorDisco(GeneratorBase):
                     "correctly.\n"
                 )
                 self.angle = f"0: ({self.angle})"
-                self.angle_series = utils.get_inbetweens(utils.parse_key_frames(self.angle),max_frames=self.max_frames,interp_spline = self.interp_spline)
+                self.angle_series = utils.get_inbetweens(key_frames = utils.parse_key_frames(self.angle),max_frames=self.max_frames,interp_spline = self.interp_spline)
 
             try:
-                self.zoom_series = utils.get_inbetweens(utils.parse_key_frames(self.zoom),max_frames=self.max_frames,interp_spline = self.interp_spline)
+                self.zoom_series = utils.get_inbetweens(key_frames = utils.parse_key_frames(self.zoom),max_frames=self.max_frames,interp_spline = self.interp_spline)
             except RuntimeError as e:
                 print(
                     "WARNING: You have selected to use key frames, but you have not "
@@ -839,10 +839,10 @@ class GeneratorDisco(GeneratorBase):
                     "correctly.\n"
                 )
                 self.zoom = f"0: ({self.zoom})"
-                self.zoom_series = utils.get_inbetweens(utils.parse_key_frames(self.zoom),max_frames=self.max_frames,interp_spline = self.interp_spline)
+                self.zoom_series = utils.get_inbetweens(key_frames = utils.parse_key_frames(self.zoom),max_frames=self.max_frames,interp_spline = self.interp_spline)
 
             try:
-                self.translation_x_series = utils.get_inbetweens(utils.parse_key_frames(self.translation_x),max_frames=self.max_frames,interp_spline = self.interp_spline)
+                self.translation_x_series = utils.get_inbetweens(key_frames = utils.parse_key_frames(self.translation_x),max_frames=self.max_frames,interp_spline = self.interp_spline)
             except RuntimeError as e:
                 print(
                     "WARNING: You have selected to use key frames, but you have not "
@@ -853,10 +853,10 @@ class GeneratorDisco(GeneratorBase):
                     "correctly.\n"
                 )
                 self.translation_x = f"0: ({self.translation_x})"
-                self.translation_x_series = utils.get_inbetweens(utils.parse_key_frames(self.translation_x),max_frames=self.max_frames,interp_spline = self.interp_spline)
+                self.translation_x_series = utils.get_inbetweens(key_frames = utils.parse_key_frames(self.translation_x),max_frames=self.max_frames,interp_spline = self.interp_spline)
 
             try:
-                self.translation_y_series = utils.get_inbetweens(utils.parse_key_frames(self.translation_y),max_frames=self.max_frames,interp_spline = self.interp_spline)
+                self.translation_y_series = utils.get_inbetweens(key_frames = utils.parse_key_frames(self.translation_y),max_frames=self.max_frames,interp_spline = self.interp_spline)
             except RuntimeError as e:
                 print(
                     "WARNING: You have selected to use key frames, but you have not "
@@ -867,10 +867,10 @@ class GeneratorDisco(GeneratorBase):
                     "correctly.\n"
                 )
                 self.translation_y = f"0: ({self.translation_y})"
-                self.translation_y_series = utils.get_inbetweens(utils.parse_key_frames(self.translation_y),max_frames=self.max_frames,interp_spline = self.interp_spline)
+                self.translation_y_series = utils.get_inbetweens(key_frames = utils.parse_key_frames(self.translation_y),max_frames=self.max_frames,interp_spline = self.interp_spline)
 
             try:
-                self.translation_z_series = utils.get_inbetweens(utils.parse_key_frames(self.translation_z),max_frames=self.max_frames,interp_spline = self.interp_spline)
+                self.translation_z_series = utils.get_inbetweens(key_frames = utils.parse_key_frames(self.translation_z),max_frames=self.max_frames,interp_spline = self.interp_spline)
             except RuntimeError as e:
                 print(
                     "WARNING: You have selected to use key frames, but you have not "
@@ -881,10 +881,10 @@ class GeneratorDisco(GeneratorBase):
                     "correctly.\n"
                 )
                 self.translation_z = f"0: ({self.translation_z})"
-                self.translation_z_series = utils.get_inbetweens(utils.parse_key_frames(self.translation_z),max_frames=self.max_frames,interp_spline = self.interp_spline)
+                self.translation_z_series = utils.get_inbetweens(key_frames = utils.parse_key_frames(self.translation_z),max_frames=self.max_frames,interp_spline = self.interp_spline)
 
             try:
-                self.rotation_3d_x_series = utils.get_inbetweens(utils.parse_key_frames(self.rotation_3d_x),max_frames=self.max_frames,interp_spline = self.interp_spline)
+                self.rotation_3d_x_series = utils.get_inbetweens(key_frames = utils.parse_key_frames(self.rotation_3d_x),max_frames=self.max_frames,interp_spline = self.interp_spline)
             except RuntimeError as e:
                 print(
                     "WARNING: You have selected to use key frames, but you have not "
@@ -895,10 +895,10 @@ class GeneratorDisco(GeneratorBase):
                     "correctly.\n"
                 )
                 self.rotation_3d_x = f"0: ({self.rotation_3d_x})"
-                self.rotation_3d_x_series = utils.get_inbetweens(utils.parse_key_frames(self.rotation_3d_x),max_frames=self.max_frames,interp_spline = self.interp_spline)
+                self.rotation_3d_x_series = utils.get_inbetweens(key_frames = utils.parse_key_frames(self.rotation_3d_x),max_frames=self.max_frames,interp_spline = self.interp_spline)
 
             try:
-                self.rotation_3d_y_series = utils.get_inbetweens(utils.parse_key_frames(self.rotation_3d_y),max_frames=self.max_frames,interp_spline = self.interp_spline)
+                self.rotation_3d_y_series = utils.get_inbetweens(key_frames = utils.parse_key_frames(self.rotation_3d_y),max_frames=self.max_frames,interp_spline = self.interp_spline)
             except RuntimeError as e:
                 print(
                     "WARNING: You have selected to use key frames, but you have not "
@@ -909,10 +909,10 @@ class GeneratorDisco(GeneratorBase):
                     "correctly.\n"
                 )
                 self.rotation_3d_y = f"0: ({self.rotation_3d_y})"
-                self.rotation_3d_y_series = utils.get_inbetweens(utils.parse_key_frames(self.rotation_3d_y),max_frames=self.max_frames,interp_spline = self.interp_spline)
+                self.rotation_3d_y_series = utils.get_inbetweens(key_frames = utils.parse_key_frames(self.rotation_3d_y),max_frames=self.max_frames,interp_spline = self.interp_spline)
 
             try:
-                self.rotation_3d_z_series = utils.get_inbetweens(utils.parse_key_frames(self.rotation_3d_z),max_frames=self.max_frames,interp_spline = self.interp_spline)
+                self.rotation_3d_z_series = utils.get_inbetweens(key_frames = utils.parse_key_frames(self.rotation_3d_z),max_frames=self.max_frames,interp_spline = self.interp_spline)
             except RuntimeError as e:
                 print(
                     "WARNING: You have selected to use key frames, but you have not "
@@ -923,7 +923,7 @@ class GeneratorDisco(GeneratorBase):
                     "correctly.\n"
                 )
                 self.rotation_3d_z = f"0: ({self.rotation_3d_z})"
-                self.rotation_3d_z_series = utils.get_inbetweens(utils.parse_key_frames(self.rotation_3d_z),max_frames=self.max_frames,interp_spline = self.interp_spline)
+                self.rotation_3d_z_series = utils.get_inbetweens(key_frames = utils.parse_key_frames(self.rotation_3d_z),max_frames=self.max_frames,interp_spline = self.interp_spline)
 
         else:
             self.angle = float(self.angle)
@@ -1454,6 +1454,6 @@ class GeneratorDisco(GeneratorBase):
             "dpt_hybrid_nyu": f"{self.model_path}/dpt_hybrid_nyu-2ce69ec7.pt",}
         
         if load_models:
-            self.load_models()
+            self.load_models(self.settings)
         
 
