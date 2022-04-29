@@ -2,6 +2,7 @@
 from genericpath import exists
 import json
 import os
+from types import SimpleNamespace
 import dill
 # from flask import jsonify
 # from modules.generators.generator_disco.generator import GeneratorDisco
@@ -22,11 +23,13 @@ class Project:
         self.title = ""
         if exists(self.project_dir()):
             with open(self.project_dir() + "/data.json") as json_file:
-                data = json.load(json_file)
-                print(data)
-                self.title = data['title']
-                self.created = data['created']
-                self.generators = data['generators']
+                #data = json.load(json_file)
+                data = json.load(json_file, object_hook=lambda d: SimpleNamespace(**d))
+                
+                # print(data)
+                self.title = data.title
+                self.created = data.created
+                self.generators = data.generators
                 
                 
             # file_data = dill.load(open(self.project_dir() + "/data.obj", "rb"))
@@ -45,11 +48,6 @@ class Project:
         else:
             self.created = str(date.today())          
               
-        # else:
-            # data_obj = AudioData(tempo,beats,onsets_hfc,downbeat_times)
-            # s =json.dumps(data_obj, indent=4, cls=AudioDataEncoder)
-            # pickle.dump(s, file = open(file, "wb"))
-
     def save(self):
         # self.project_path = 
         if not exists(self.project_dir()): os.makedirs(self.project_dir())
@@ -61,29 +59,9 @@ class Project:
         print("Saving Updated",updated.generators)
         
         
-        jsonStr = json.dumps(updated.__dict__)
+        jsonStr = json.dumps(updated.__dict__, default=lambda obj: obj.__dict__)
         with open(updated.project_dir() + "/data.json", "w") as outfile:
             outfile.write(jsonStr)
-    
-        # updated.generators = []
-        # jsonStr = json.dumps(updated.generators.__dict__)
-        # with open(updated.project_dir() + "/generators.json", "w") as outfile:
-        #     outfile.write(jsonStr)
-    
-    
-        ##dill.dump(updated, file=open(updated.project_dir() + "/data.obj", "wb"))
-        
-        #self.data_path = 
-        
-        # self.generators_json = jsonify(self.generators)
-        #/dill.dump(updated.generators, file=open(updated.project_dir() + "/generators.obj", "wb"))
-        # self.generators_json = generator_data.json
-        
-        
-        # for name in self.generators.items.filter(lambda x: len(x.get("label"))>0):
-        #     generator = self.fetch_by_name(name)
-        #     generator.settings = dill.load(open(self.project_path + "/generators/" + str.lower(name).replace(" ","_")) + "settings.json" , "rb")
-        #     #json.loads(generator_data.json)
     
 
     def project_dir(self):
@@ -94,31 +72,3 @@ class Project:
     def __init__(self,id):
         self.id = id
     
-    
-    # # def get(self):
-    # #     return {}
-    # def load(self):
-        
-    # def fetch_generator(self):
-    #     if self.name == "Latent Diffusion":
-    #         return GeneratorLatentDiffusion(None)
-    #     if name == "Disco Diffusion":
-    #         return GeneratorDisco(None)
-        
-    #     return None
-    
-        # if name == "Superres":
-        #         break
-        
-        
-    #           elements: [
-    #     { id: "1", type: "input", label: "Grid-3-ML", position: { x: 250, y: 5 } },
-    #     { id: "2", label: "Superres", position: { x: 100, y: 100 } },
-    #     { id: "3", label: "Disco Diffusion", position: { x: 400, y: 100 } },
-    #     { id: "4", label: "Superres", position: { x: 400, y: 200 } },
-    #     { id: "e1-2", source: "1", target: "2", animated: true },
-    #     { id: "e1-3", source: "1", target: "3" },
-    #     { id: "e1-3", source: "3", target: "4" },
-    #     { id: "e1-4", source: "4", target: "5" },
-    #   ] as Elements,
-      

@@ -10,6 +10,7 @@ class GeneratorBase:
     title = None
     settings = None
     output_filename = None
+    output_path = None
 
     def load_models(self):
         return None

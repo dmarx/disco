@@ -1,7 +1,9 @@
 import gc
 import io
+import json
 import math
 import sys
+from types import SimpleNamespace
 from PIL import Image, ImageOps
 import requests
 import torch
@@ -31,6 +33,8 @@ class GeneratorLatentDiffusion(GeneratorBase):
 
     ldm = None
     
+    default_settings= '{"model_path": "glid-3-xl/finetune.pt", "kl_path": "glid-3-xl/kl-f8.pt", "bert_path": "glid-3-xl/bert.pt", "text": "", "edit": null, "edit_x": 0, "edit_y": 0, "edit_width": 0, "edit_height": 0, "mask": null, "negative": "", "init_image": null, "skip_timesteps": 0, "prefix": "", "num_batches": 1, "batch_size": 1, "width": 256, "height": 256, "seed": -1, "guidance_scale": 5.0, "steps": 0, "cpu": false, "clip_score": false, "clip_guidance": false, "clip_guidance_scale": 150, "cutn": 16, "ddim": false, "ddpm": false}'
+
     def fetch(url_or_path):
         if str(url_or_path).startswith('http://') or str(url_or_path).startswith('https://'):
             r = requests.get(url_or_path)
@@ -108,7 +112,6 @@ class GeneratorLatentDiffusion(GeneratorBase):
 
 
 
-        print("1")
         # image context
         # if args.edit:
         #     if args.edit.endswith('.npy'):
@@ -297,8 +300,6 @@ class GeneratorLatentDiffusion(GeneratorBase):
         else:
             init = None
 
-        print("2")
-
         for i in range(self.args.num_batches):
             cur_t = self.diffusion.num_timesteps - 1
 
@@ -322,14 +323,11 @@ class GeneratorLatentDiffusion(GeneratorBase):
 
             save_sample(i, sample, self.args.clip_score)
 
-        print("3")
-
         filename_gen = self.args.prefix + "00000.png"
         filename_out = self.args.prefix + "_" + str(self.args.seed) + "_00000.png"
         os.system("cp content/output/" + filename_gen +
                   " static/output/" + filename_out)
 
-        print ("return " ,filename_out)
         return filename_out
 
     # gc.collect()
@@ -421,96 +419,99 @@ class GeneratorLatentDiffusion(GeneratorBase):
         super().__init__(chain)
         self.title = "Latent Diffusion"
         
-        parser = argparse.ArgumentParser()
+        # parser = argparse.ArgumentParser()
+        
+        # parser.add_argument('--model_path', type=str, default='glid-3-xl/finetune.pt',
+        #                     help='path to the diffusion model')
 
-        parser.add_argument('--model_path', type=str, default='glid-3-xl/finetune.pt',
-                            help='path to the diffusion model')
+        # parser.add_argument('--kl_path', type=str, default='glid-3-xl/kl-f8.pt',
+        #                     help='path to the LDM first stage model')
 
-        parser.add_argument('--kl_path', type=str, default='glid-3-xl/kl-f8.pt',
-                            help='path to the LDM first stage model')
+        # parser.add_argument('--bert_path', type=str, default='glid-3-xl/bert.pt',
+        #                     help='path to the LDM first stage model')
 
-        parser.add_argument('--bert_path', type=str, default='glid-3-xl/bert.pt',
-                            help='path to the LDM first stage model')
+        # parser.add_argument('--text', type=str, required=False, default='',
+        #                     help='your text prompt')
 
-        parser.add_argument('--text', type=str, required=False, default='',
-                            help='your text prompt')
+        # parser.add_argument('--edit', type=str, required=False,
+        #                     help='path to the image you want to edit (either an image file or .npy containing a numpy array of the image embeddings)')
 
-        parser.add_argument('--edit', type=str, required=False,
-                            help='path to the image you want to edit (either an image file or .npy containing a numpy array of the image embeddings)')
+        # parser.add_argument('--edit_x', type=int, required=False, default=0,
+        #                     help='x position of the edit image in the generation frame (need to be multiple of 8)')
 
-        parser.add_argument('--edit_x', type=int, required=False, default=0,
-                            help='x position of the edit image in the generation frame (need to be multiple of 8)')
+        # parser.add_argument('--edit_y', type=int, required=False, default=0,
+        #                     help='y position of the edit image in the generation frame (need to be multiple of 8)')
 
-        parser.add_argument('--edit_y', type=int, required=False, default=0,
-                            help='y position of the edit image in the generation frame (need to be multiple of 8)')
+        # parser.add_argument('--edit_width', type=int, required=False, default=0,
+        #                     help='width of the edit image in the generation frame (need to be multiple of 8)')
 
-        parser.add_argument('--edit_width', type=int, required=False, default=0,
-                            help='width of the edit image in the generation frame (need to be multiple of 8)')
+        # parser.add_argument('--edit_height', type=int, required=False, default=0,
+        #                     help='height of the edit image in the generation frame (need to be multiple of 8)')
 
-        parser.add_argument('--edit_height', type=int, required=False, default=0,
-                            help='height of the edit image in the generation frame (need to be multiple of 8)')
+        # parser.add_argument('--mask', type=str, required=False,
+        #                     help='path to a mask image. white pixels = keep, black pixels = discard. width = image width/8, height = image height/8')
 
-        parser.add_argument('--mask', type=str, required=False,
-                            help='path to a mask image. white pixels = keep, black pixels = discard. width = image width/8, height = image height/8')
+        # parser.add_argument('--negative', type=str, required=False, default='',
+        #                     help='negative text prompt')
 
-        parser.add_argument('--negative', type=str, required=False, default='',
-                            help='negative text prompt')
+        # parser.add_argument('--init_image', type=str, required=False, default=None,
+        #                     help='init image to use')
 
-        parser.add_argument('--init_image', type=str, required=False, default=None,
-                            help='init image to use')
+        # parser.add_argument('--skip_timesteps', type=int, required=False, default=0,
+        #                     help='how many diffusion steps are gonna be skipped')
 
-        parser.add_argument('--skip_timesteps', type=int, required=False, default=0,
-                            help='how many diffusion steps are gonna be skipped')
+        # parser.add_argument('--prefix', type=str, required=False, default='',
+        #                     help='prefix for output files')
 
-        parser.add_argument('--prefix', type=str, required=False, default='',
-                            help='prefix for output files')
+        # parser.add_argument('--num_batches', type=int, default=1, required=False,
+        #                     help='number of batches')
 
-        parser.add_argument('--num_batches', type=int, default=1, required=False,
-                            help='number of batches')
+        # parser.add_argument('--batch_size', type=int, default=1, required=False,
+        #                     help='batch size')
 
-        parser.add_argument('--batch_size', type=int, default=1, required=False,
-                            help='batch size')
+        # parser.add_argument('--width', type=int, default=256, required=False,
+        #                     help='image size of output (multiple of 8)')
 
-        parser.add_argument('--width', type=int, default=256, required=False,
-                            help='image size of output (multiple of 8)')
+        # parser.add_argument('--height', type=int, default=256, required=False,
+        #                     help='image size of output (multiple of 8)')
 
-        parser.add_argument('--height', type=int, default=256, required=False,
-                            help='image size of output (multiple of 8)')
+        # parser.add_argument('--seed', type=int, default=-1, required=False,
+        #                     help='random seed')
 
-        parser.add_argument('--seed', type=int, default=-1, required=False,
-                            help='random seed')
+        # parser.add_argument('--guidance_scale', type=float, default=5.0, required=False,
+        #                     help='classifier-free guidance scale')
 
-        parser.add_argument('--guidance_scale', type=float, default=5.0, required=False,
-                            help='classifier-free guidance scale')
+        # parser.add_argument('--steps', type=int, default=0, required=False,
+        #                     help='number of diffusion steps')
 
-        parser.add_argument('--steps', type=int, default=0, required=False,
-                            help='number of diffusion steps')
+        # parser.add_argument('--cpu', dest='cpu', action='store_true')
 
-        parser.add_argument('--cpu', dest='cpu', action='store_true')
+        # parser.add_argument(
+        #     '--clip_score', dest='clip_score', action='store_true')
 
-        parser.add_argument(
-            '--clip_score', dest='clip_score', action='store_true')
+        # parser.add_argument('--clip_guidance',
+        #                     dest='clip_guidance', action='store_true')
 
-        parser.add_argument('--clip_guidance',
-                            dest='clip_guidance', action='store_true')
+        # parser.add_argument('--clip_guidance_scale', type=float, default=150, required=False,
+        #                     help='Controls how much the image should look like the prompt')  # may need to use lower value for ddim
 
-        parser.add_argument('--clip_guidance_scale', type=float, default=150, required=False,
-                            help='Controls how much the image should look like the prompt')  # may need to use lower value for ddim
+        # parser.add_argument('--cutn', type=int, default=16, required=False,
+        #                     help='Number of cuts')
 
-        parser.add_argument('--cutn', type=int, default=16, required=False,
-                            help='Number of cuts')
+        # # turn on to use 50 step ddim
+        # parser.add_argument('--ddim', dest='ddim', action='store_true')
 
-        # turn on to use 50 step ddim
-        parser.add_argument('--ddim', dest='ddim', action='store_true')
+        # # turn on to use 50 step ddim
+        # parser.add_argument('--ddpm', dest='ddpm', action='store_true')
 
-        # turn on to use 50 step ddim
-        parser.add_argument('--ddpm', dest='ddpm', action='store_true')
 
-        self.args = parser.parse_args()
-
+        # self.args = parser.parse_args(args = [],namespace=None)
+        # strj = json.dumps(self.args, default=lambda obj: obj.__dict__)
+        self.args = json.loads(self.default_settings, object_hook=lambda d: SimpleNamespace(**d))
+        
         self.args.width = 256
         self.args.height = 256
-        self.args.clip_guidance = True
+        self.args.clip_guidance = False
 
         # self.device = torch.device('cuda:0' if (
         #     torch.cuda.is_available() and not self.args.cpu) else 'cpu')

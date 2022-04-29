@@ -44,7 +44,7 @@
         background: transparent;
         border-radius: 8px;
         padding: 8px;
-        margin: 30px;
+        margin: 30px 20px;
         margin-bottom: 15px;
         margin-top: 15px;
         border: 1px solid #333
@@ -71,4 +71,14 @@
     }
     .item-generator p {
         padding: 8px;
+    }
+    .sf-container .sf-row input[type=text], .sf-container .sf-row input[type=password], .sf-container .sf-row input[type=date], .sf-container .sf-row input[type=number], .sf-container .sf-row textarea, .sf-container .sf-row select {
+        flex: 1;
+        border: none;
+        background-color: #111 !important;
+        padding: 8px;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 0.9em;
+        color: #FFF;
     }
