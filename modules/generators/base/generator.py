@@ -23,5 +23,14 @@ class GeneratorBase:
         self.DEVICE = self.chain.DEVICE
         self.device = self.chain.device
 
+    def json_override(self,base, new):
+        if isinstance(base, dict):
+            for k, v in new.items():
+                if k in base:
+                    base[k] = v
+            return {k: self.json_override(v, new) for k, v in base.items()}
+        else:
+            return base
+        
     # gc.collect()
     # do_run()

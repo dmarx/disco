@@ -57,7 +57,6 @@ proc = None
 def run_base(id):
     global chain 
     project =Api.fetch(id)
-    #prompt = "A scenic view underwater of large sea monsters and volumetric light, by David Noton and Asher Brown Durand, matte painting trending on artstation HQ."
     if chain == None: chain = Chain()
     chain.output = ""
     filename = chain.run_project(project)
@@ -65,31 +64,9 @@ def run_base(id):
 @asyncio.coroutine
 async def run_project(id):
     global proc
-    # proc = yield from asyncio.create_subprocess_exec(
-    #     "python", 'job.py', "--id " + str(id), # python --help | grep '\-u'
-    #     stdin=asyncio.subprocess.PIPE,
-    #     stdout=asyncio.subprocess.PIPE)
-    
     proc = asyncio.create_task(run_base(id))
     await proc
-
-    # try:
-    #     while True:
-    #         line = (yield from proc.stdout.readline()).decode()
-    #         # print((yield from proc.stdout.readline()).decode())
-    #         print(line)
-    #         output += line + "<br />"
-    #         # note what sign of new line is required
-    #         #proc.stdin.write(b'test\n')
-    #         drain = proc.stdin.drain()
-    #         if drain != ():
-    #             yield from drain
-    # except ConnectionResetError:
-    #     pass
-    
-    # print("fin open")
     proc = None
-        
 
 @app.route('/api/task/start/<int:id>', methods=['POST'])
 @cross_origin()
@@ -109,12 +86,24 @@ def api_task_start(id):
 @app.route('/api/task/update', methods=['POST'])
 @cross_origin()
 def api_task_update():
-    global proc
+    global proc, chain
     global session,stdout,stderr
    
-    res =""
-    if proc!=None:
-        res = chain.output #.replace("\\n","<br />") + "_" +  str(proc!=None)
+    res = {
+            'output':chain.output.replace("\n","<br />") if chain != None else "",
+            'busy':chain.busy if chain != None else False,
+            'progress':chain.progress if chain != None else 0,
+            }
+    
+    # if proc!=None and chain != None:
+    #     res = {
+    #         'output':chain.output,
+    #         'busy':chain.busy,
+    #         'progress':chain.progress
+    #         } 
+        
+    
+    #.replace("\\n","<br />") + "_" +  str(proc!=None)
     #command = shlex.split("python cli_test.py")
     #stdout = check_output(command).decode('utf-8')
     return res

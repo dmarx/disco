@@ -180,7 +180,9 @@
                 <div class="row">
                   <div class="col-6">
                     <h2 style="color: #fff">Status</h2>
-                    <p style="color: #fff">Currently: {{ state.status }}</p>
+                    <p style="color: #fff">Currently: <span v-if="state.busy">Running {{state.progressPercentage}}</span><span v-if="!state.busy">Idle</span></p>
+                    <br />
+                   <h3 style="color: #fff">Output</h3>
                     <div style="color: #fff" v-html="state.output"></div>
                     <br />
                     <p>
@@ -344,9 +346,11 @@ export default defineComponent({
       list: [],
       generators: generator_options,
       selectedGenerator: null,
-      status: "Idle",
+      busy: false,
       output: "",
-      autoUpdate: false,
+      progress:0,
+      progressPercentage :"",
+      autoUpdate: true,
     });
 
     return {
@@ -432,8 +436,11 @@ export default defineComponent({
       ApiService.post("http://localhost:5000/api/task/update", {})
         .then(({ data }) => {
           console.log(data);
-          this.state.output = data;
-          this.state.status = data.length > 0 ? "Running" : "Idle"; // if ("_False" in data) else "Running";
+          this.state.output = data['output'];
+          this.state.progress = data['progress'];
+          this.state.busy = data['busy'];
+          this.state.progressPercentage = Math.round(this.state.progress * 100) + "%";
+          // this.state.status = data.length > 0 ? "Running" : "Idle"; // if ("_False" in data) else "Running";
         })
         .catch(({ response }) => {});
     },

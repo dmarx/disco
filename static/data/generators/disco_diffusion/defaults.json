@@ -26,7 +26,7 @@
     "VitB32": true,
     "VitB16": true,
     "VitL14": true,
-    "VitL14_336": false,
+    "VitL14_336px": false,
     "RN101": false,
     "RN50": true,
     "RN50x4": false,

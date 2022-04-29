@@ -38,7 +38,7 @@ import hashlib
 from IPython.display import Image as ipyimg
 import torch
 import warnings
-warnings.filterwarnings("ignore", category=UserWarning)
+# warnings.filterwarnings("ignore", category=UserWarning)
 
 class GeneratorDisco(GeneratorBase):
 
@@ -64,6 +64,7 @@ class GeneratorDisco(GeneratorBase):
         'ViTB32': True,
         'ViTB16': True,
         'ViTL14': True, # True
+        'ViTL14_336px':False,
         'RN101': False,
         'RN50': False,
         'RN50x4': False,
@@ -105,75 +106,76 @@ class GeneratorDisco(GeneratorBase):
     trans_scale = 1.0/200.0
     MAX_ADABINS_AREA = 500000
 
-    text_prompts = None
-    image_prompts = None
-    clip_guidance_scale = None
-    tv_scale = None
-    range_scale = None
-    sat_scale = None
-    cutn_batches = None
-    max_frames = None
-    interp_spline = None
-    init_image = None
-    init_scale = None
-    skip_steps = None
-    frames_scale = None
-    frames_skip_steps = None
-    perlin_init = None
-    perlin_mode = None
-    skip_augs = None
-    randomize_class = None
-    clip_denoised = None
-    clamp_grad = None
-    clamp_max = None
-    seed = None
-    fuzzy_prompt = None
-    rand_mag = None
-    eta = None
-    width_height = None
-    diffusion_model = None
-    use_secondary_model = None
-    steps = None
-    diffusion_steps = None
-    diffusion_sampling_mode = None
-    ViTB32 = None
-    ViTB16 = None
-    ViTL14 = None
-    RN101 = None
-    RN50 = None
-    RN50x4 = None
-    RN50x16 = None
-    RN50x64 = None
-    cut_overview = None
-    cut_innercut = None
-    cut_ic_pow = None
-    cut_icgray_p = None
-    key_frames = None
-    max_frames = None
-    animation_mode = None
-    angle = None
-    zoom = None
-    translation_x = None
-    translation_y = None
-    translation_z = None
-    rotation_3d_x = None
-    rotation_3d_y = None
-    rotation_3d_z = None
-    midas_depth_model = None
-    midas_weight = None
-    near_plane = None
-    far_plane = None
-    fov = None
-    padding_mode = None
-    sampling_mode = None
-    resume_run = None
-    video_init_path = None
-    extract_nth_frame = None
-    video_init_seed_continuity = None
-    turbo_mode = None
-    turbo_steps = None
-    turbo_preroll = None
-    batchNum = None
+    # text_prompts = None
+    # image_prompts = None
+    # clip_guidance_scale = None
+    # tv_scale = None
+    # range_scale = None
+    # sat_scale = None
+    # cutn_batches = None
+    # max_frames = None
+    # interp_spline = None
+    # init_image = None
+    # init_scale = None
+    # skip_steps = None
+    # frames_scale = None
+    # frames_skip_steps = None
+    # perlin_init = None
+    # perlin_mode = None
+    # skip_augs = None
+    # randomize_class = None
+    # clip_denoised = None
+    # clamp_grad = None
+    # clamp_max = None
+    # seed = None
+    # fuzzy_prompt = None
+    # rand_mag = None
+    # eta = None
+    # width_height = None
+    # diffusion_model = None
+    # use_secondary_model = None
+    # steps = None
+    # diffusion_steps = None
+    # diffusion_sampling_mode = None
+    # ViTB32 = None
+    # ViTB16 = None
+    # ViTL14 = None
+    # ViTL14_336px=None
+    # RN101 = None
+    # RN50 = None
+    # RN50x4 = None
+    # RN50x16 = None
+    # RN50x64 = None
+    # cut_overview = None
+    # cut_innercut = None
+    # cut_ic_pow = None
+    # cut_icgray_p = None
+    # key_frames = None
+    # max_frames = None
+    # animation_mode = None
+    # angle = None
+    # zoom = None
+    # translation_x = None
+    # translation_y = None
+    # translation_z = None
+    # rotation_3d_x = None
+    # rotation_3d_y = None
+    # rotation_3d_z = None
+    # midas_depth_model = None
+    # midas_weight = None
+    # near_plane = None
+    # far_plane = None
+    # fov = None
+    # padding_mode = None
+    # sampling_mode = None
+    # resume_run = None
+    # video_init_path = None
+    # extract_nth_frame = None
+    # video_init_seed_continuity = None
+    # turbo_mode = None
+    # turbo_steps = None
+    # turbo_preroll = None
+    # batchNum = None
     
     def render_frames(self):
         args = self.args
@@ -208,7 +210,7 @@ class GeneratorDisco(GeneratorBase):
                     zoom = args.zoom_series[self.frame_num]
                     translation_x = args.translation_x_series[self.frame_num]
                     translation_y = args.translation_y_series[self.frame_num]
-                    print(
+                    self.chain.output_message(
                         f'angle: {angle}',
                         f'zoom: {zoom}',
                         f'translation_x: {translation_x}',
@@ -264,10 +266,10 @@ class GeneratorDisco(GeneratorBase):
                             old_frame = utils.do_3d_step('content/oldFrameScaled.png', self.frame_num, midas_model, midas_transform,args,trans_scale=self.trans_scale,device=self.device,DEVICE=self.DEVICE)
                             old_frame.save('content/oldFrameScaled.png')
                             if self.frame_num % int(self.turbo_steps) != 0: 
-                                print('turbo skip this frame: skipping clip diffusion steps')
+                                self.chain.output_message('turbo skip this frame: skipping clip diffusion steps')
                                 filename = f'{args.batch_name}({args.batchNum})_{self.frame_num:04}.png'
                                 blend_factor = ((self.frame_num % int(self.turbo_steps))+1)/int(self.turbo_steps)
-                                print('turbo skip this frame: skipping clip diffusion steps and saving blended frame')
+                                self.chain.output_message('turbo skip this frame: skipping clip diffusion steps and saving blended frame')
                                 newWarpedImg = cv2.imread('content/prevFrameScaled.png')#this is already updated..
                                 oldWarpedImg = cv2.imread('content/oldFrameScaled.png')
                                 blendedImage = cv2.addWeighted(newWarpedImg, blend_factor, oldWarpedImg,1-blend_factor, 0.0)
@@ -278,7 +280,7 @@ class GeneratorDisco(GeneratorBase):
                                 #if not a skip frame, will run diffusion and need to blend.
                                 oldWarpedImg = cv2.imread('prevFrameScaled.png')
                                 cv2.imwrite(f'oldFrameScaled.png',oldWarpedImg)#swap in for blending later 
-                                print('clip/diff this frame - generate clip diff image')
+                                self.chain.output_message('clip/diff this frame - generate clip diff image')
 
                     init_image = 'content/prevFrameScaled.png'
                     self.init_scale = args.frames_scale
@@ -309,7 +311,7 @@ class GeneratorDisco(GeneratorBase):
             else:
                 frame_prompt = []
             
-            print(args.image_prompts_series)
+            self.chain.output_message(args.image_prompts_series)
             if args.image_prompts_series is not None and self.frame_num >= len(args.image_prompts_series):
                 image_prompt = args.image_prompts_series[-1]
             elif args.image_prompts_series is not None:
@@ -317,7 +319,7 @@ class GeneratorDisco(GeneratorBase):
             else:
                 image_prompt = []
 
-            print(f'Frame {self.frame_num} Prompt: {frame_prompt}')
+            self.chain.output_message(f'Frame {self.frame_num} Prompt: {frame_prompt}')
 
             model_stats = []
             for clip_model in self.clip_models:
@@ -437,7 +439,7 @@ class GeneratorDisco(GeneratorBase):
                     if torch.isnan(x_in_grad).any()==False:
                         grad = -torch.autograd.grad(x_in, x, x_in_grad)[0]
                     else:
-                        # print("NaN'd")
+                        # self.chain.output_message("NaN'd")
                         x_is_NaN = True
                         grad = torch.zeros_like(x)
                 if args.clamp_grad and x_is_NaN == False:
@@ -456,7 +458,7 @@ class GeneratorDisco(GeneratorBase):
                     batchBar = tqdm(range(args.n_batches), desc ="Batches")
                     batchBar.n = i
                     batchBar.refresh()
-                print('')
+                self.chain.output_message('')
                 gc.collect()
                 torch.cuda.empty_cache()
                 cur_t = self.diffusion.num_timesteps - self.skip_steps - 1
@@ -493,6 +495,7 @@ class GeneratorDisco(GeneratorBase):
                     )
                 
                 for j, sample in enumerate(samples):    
+                    self.chain.progress += (1.0 / self.steps) / len(self.chain.project.generators)
                     cur_t -= 1
                     intermediateStep = False
                     if args.steps_per_checkpoint is not None:
@@ -591,7 +594,7 @@ class GeneratorDisco(GeneratorBase):
                 if retain_overwritten_frames is True:
                     existing_frames = len(glob(self.batchFolder+f"/{self.batch_name}({self.batchNum})_*.png"))
                     frames_to_save = existing_frames - self.start_frame
-                    print(f'Moving {frames_to_save} frames to the Retained folder')
+                    self.chain.output_message(f'Moving {frames_to_save} frames to the Retained folder')
                     self.move_files(self.start_frame, existing_frames, self.batchFolder, retainFolder)
         else:
             self.start_frame = 0
@@ -599,12 +602,12 @@ class GeneratorDisco(GeneratorBase):
             while os.path.isfile(f"{self.batchFolder}/{self.batch_name}({self.batchNum})_settings.txt") is True or os.path.isfile(f"{self.batchFolder}/{self.batch_name}-{self.batchNum}_settings.txt") is True:
                 self.batchNum += 1
 
-        print(f'Init Run: {self.batch_name}({self.batchNum}) at frame {self.start_frame}')
+        self.chain.output_message(f'Init Run: {self.batch_name}({self.batchNum}) at frame {self.start_frame}')
 
         if self.set_seed == 'random_seed':
             random.seed()
             seed = random.randint(0, 2**32)
-            print(f'Using seed: {seed}')
+            self.chain.output_message(f'Using seed: {seed}')
         else:
             seed = int(self.set_seed)
 
@@ -701,17 +704,21 @@ class GeneratorDisco(GeneratorBase):
         except KeyboardInterrupt:
             pass
         finally:
-            print('Seed used:', seed)
+            self.chain.output_message('Seed used:', seed)
             gc.collect()
             torch.cuda.empty_cache()
         return filename
 
-    def init_settings(self):
+    def init_settings(self, override_settings=None):
                 
         settings = self.settings
 
+        if override_settings!=None:
+            settings = self.json_override(settings, json.loads(override_settings))
+            
         """# 3. Settings"""
-
+        self.steps = settings["steps"]
+        
         #@markdown ####**Basic Settings:**
         self.batch_name = 'TimeToDisco' #@param{type: 'string'}
         self.clip_guidance_scale = settings['clip_guidance_scale'] #@param{type: 'number'}
@@ -727,7 +734,7 @@ class GeneratorDisco(GeneratorBase):
         self.soft_limiter_knee = settings['soft_limiter_knee'] #@param{type: 'number'}\n",
         if self.soft_limiter_knee < 0.5 or self.soft_limiter_knee > .999:
             self.soft_limiter_knee = .98
-            print('soft_limiter_knee out of range. Automatically reset to 0.98')
+            self.chain.output_message('soft_limiter_knee out of range. Automatically reset to 0.98')
                 
                     
         #@markdown ---
@@ -759,12 +766,12 @@ class GeneratorDisco(GeneratorBase):
         if self.animation_mode == "Video Input":
             self.videoFramesFolder = f'videoFrames'
             envutils.createPath(self.videoFramesFolder)
-            print(f"Exporting Video Frames (1 every {self.extract_nth_frame})...")
+            self.chain.output_message(f"Exporting Video Frames (1 every {self.extract_nth_frame})...")
             try:
                 for f in pathlib.Path(f'{self.videoFramesFolder}').glob('*.jpg'):
                     f.unlink()
             except:
-                print('')
+                self.chain.output_message('')
             vf = f'"select=not(mod(n\,{self.extract_nth_frame}))"'
             subprocess.run(['ffmpeg', '-i', f'{self.video_init_path}', '-vf', f'{vf}', '-vsync', 'vfr', '-q:v', '2', '-loglevel', 'error', '-stats', f'{self.videoFramesFolder}/%04d.jpg'], stdout=subprocess.PIPE).stdout.decode('utf-8')
             #!ffmpeg -i {video_init_path} -vf {vf} -vsync vfr -q:v 2 -loglevel error -stats {videoFramesFolder}/%04d.jpg
@@ -797,9 +804,9 @@ class GeneratorDisco(GeneratorBase):
 
         #insist turbo be used only w 3d anim.
         if self.turbo_mode and self.animation_mode != '3D':
-            print('=====')
-            print('Turbo mode only available with 3D animations. Disabling Turbo.')
-            print('=====')
+            self.chain.output_message('=====')
+            self.chain.output_message('Turbo mode only available with 3D animations. Disabling Turbo.')
+            self.chain.output_message('=====')
             self.turbo_mode = False
 
         #@markdown ---
@@ -816,7 +823,7 @@ class GeneratorDisco(GeneratorBase):
             try:
                 self.angle_series = utils.get_inbetweens(key_frames = utils.parse_key_frames(self.angle),max_frames=self.max_frames,interp_spline = self.interp_spline)
             except RuntimeError as e:
-                print(
+                self.chain.output_message(
                     "WARNING: You have selected to use key frames, but you have not "
                     "formatted `angle` correctly for key frames.\n"
                     "Attempting to interpret `angle` as "
@@ -830,7 +837,7 @@ class GeneratorDisco(GeneratorBase):
             try:
                 self.zoom_series = utils.get_inbetweens(key_frames = utils.parse_key_frames(self.zoom),max_frames=self.max_frames,interp_spline = self.interp_spline)
             except RuntimeError as e:
-                print(
+                self.chain.output_message(
                     "WARNING: You have selected to use key frames, but you have not "
                     "formatted `zoom` correctly for key frames.\n"
                     "Attempting to interpret `zoom` as "
@@ -844,7 +851,7 @@ class GeneratorDisco(GeneratorBase):
             try:
                 self.translation_x_series = utils.get_inbetweens(key_frames = utils.parse_key_frames(self.translation_x),max_frames=self.max_frames,interp_spline = self.interp_spline)
             except RuntimeError as e:
-                print(
+                self.chain.output_message(
                     "WARNING: You have selected to use key frames, but you have not "
                     "formatted `translation_x` correctly for key frames.\n"
                     "Attempting to interpret `translation_x` as "
@@ -858,7 +865,7 @@ class GeneratorDisco(GeneratorBase):
             try:
                 self.translation_y_series = utils.get_inbetweens(key_frames = utils.parse_key_frames(self.translation_y),max_frames=self.max_frames,interp_spline = self.interp_spline)
             except RuntimeError as e:
-                print(
+                self.chain.output_message(
                     "WARNING: You have selected to use key frames, but you have not "
                     "formatted `translation_y` correctly for key frames.\n"
                     "Attempting to interpret `translation_y` as "
@@ -872,7 +879,7 @@ class GeneratorDisco(GeneratorBase):
             try:
                 self.translation_z_series = utils.get_inbetweens(key_frames = utils.parse_key_frames(self.translation_z),max_frames=self.max_frames,interp_spline = self.interp_spline)
             except RuntimeError as e:
-                print(
+                self.chain.output_message(
                     "WARNING: You have selected to use key frames, but you have not "
                     "formatted `translation_z` correctly for key frames.\n"
                     "Attempting to interpret `translation_z` as "
@@ -886,7 +893,7 @@ class GeneratorDisco(GeneratorBase):
             try:
                 self.rotation_3d_x_series = utils.get_inbetweens(key_frames = utils.parse_key_frames(self.rotation_3d_x),max_frames=self.max_frames,interp_spline = self.interp_spline)
             except RuntimeError as e:
-                print(
+                self.chain.output_message(
                     "WARNING: You have selected to use key frames, but you have not "
                     "formatted `rotation_3d_x` correctly for key frames.\n"
                     "Attempting to interpret `rotation_3d_x` as "
@@ -900,7 +907,7 @@ class GeneratorDisco(GeneratorBase):
             try:
                 self.rotation_3d_y_series = utils.get_inbetweens(key_frames = utils.parse_key_frames(self.rotation_3d_y),max_frames=self.max_frames,interp_spline = self.interp_spline)
             except RuntimeError as e:
-                print(
+                self.chain.output_message(
                     "WARNING: You have selected to use key frames, but you have not "
                     "formatted `rotation_3d_y` correctly for key frames.\n"
                     "Attempting to interpret `rotation_3d_y` as "
@@ -914,7 +921,7 @@ class GeneratorDisco(GeneratorBase):
             try:
                 self.rotation_3d_z_series = utils.get_inbetweens(key_frames = utils.parse_key_frames(self.rotation_3d_z),max_frames=self.max_frames,interp_spline = self.interp_spline)
             except RuntimeError as e:
-                print(
+                self.chain.output_message(
                     "WARNING: You have selected to use key frames, but you have not "
                     "formatted `rotation_3d_z` correctly for key frames.\n"
                     "Attempting to interpret `rotation_3d_z` as "
@@ -954,7 +961,7 @@ class GeneratorDisco(GeneratorBase):
             if self.intermediate_saves:
                 self.steps_per_checkpoint = math.floor((self.steps - self.skip_steps - 1) // (self.intermediate_saves+1))
                 self.steps_per_checkpoint = self.steps_per_checkpoint if self.steps_per_checkpoint > 0 else 1
-                print(f'Will save every {self.steps_per_checkpoint} steps')
+                self.chain.output_message(f'Will save every {self.steps_per_checkpoint} steps')
             else:
                 self.steps_per_checkpoint = self.steps+10
         else:
@@ -1035,7 +1042,7 @@ class GeneratorDisco(GeneratorBase):
         model_secondary_downloaded = False
 
         multipip_res = subprocess.run(['pip', 'install', 'lpips', 'datetime', 'timm', 'ftfy', 'einops', 'pytorch-lightning', 'omegaconf'], stdout=subprocess.PIPE).stdout.decode('utf-8')
-        print(multipip_res)
+        self.chain.output_message(multipip_res)
 
 
         """# 2. Diffusion and CLIP model settings"""
@@ -1050,6 +1057,7 @@ class GeneratorDisco(GeneratorBase):
         self.ViTB32 = settings['ViTB32'] #@param{type:"boolean"}
         self.ViTB16 = settings['ViTB16'] #@param{type:"boolean"}
         self.ViTL14 = settings['ViTL14'] #@param{type:"boolean"}
+        self.ViTL14_336 = settings['ViTL14_336px'] #@param{type:"boolean"}
         self.RN101 = settings['RN101'] #@param{type:"boolean"}
         self.RN50 = settings['RN50'] #@param{type:"boolean"}
         self.RN50x4 = settings['RN50x4'] #@param{type:"boolean"}
@@ -1074,37 +1082,37 @@ class GeneratorDisco(GeneratorBase):
         # Download the diffusion model
         if self.diffusion_model == '256x256_diffusion_uncond':
             if os.path.exists(model_256_path) and check_model_SHA:
-                print('Checking 256 Diffusion File')
+                self.chain.output_message('Checking 256 Diffusion File')
                 with open(model_256_path,"rb") as f:
                     bytes = f.read() 
                     hash = hashlib.sha256(bytes).hexdigest();
                 if hash == model_256_SHA:
-                    print('256 Model SHA matches')
+                    self.chain.output_message('256 Model SHA matches')
                     model_256_downloaded = True
                 else: 
-                    print("256 Model SHA doesn't match, redownloading...")
+                    self.chain.output_message("256 Model SHA doesn't match, redownloading...")
                     envutils.wget(model_256_link, self.model_path)
                     model_256_downloaded = True
             elif os.path.exists(model_256_path) and not check_model_SHA or model_256_downloaded == True:
-                print('256 Model already downloaded, check check_model_SHA if the file is corrupt')
+                self.chain.output_message('256 Model already downloaded, check check_model_SHA if the file is corrupt')
             else:  
                 envutils.wget(model_256_link, self.model_path)
                 model_256_downloaded = True
         elif self.diffusion_model == '512x512_diffusion_uncond_finetune_008100':
             if os.path.exists(model_512_path) and check_model_SHA:
-                print('Checking 512 Diffusion File')
+                self.chain.output_message('Checking 512 Diffusion File')
                 with open(model_512_path,"rb") as f:
                     bytes = f.read() 
                     hash = hashlib.sha256(bytes).hexdigest();
                 if hash == model_512_SHA:
-                    print('512 Model SHA matches')
+                    self.chain.output_message('512 Model SHA matches')
                     model_512_downloaded = True
                 else:  
-                    print("512 Model SHA doesn't match, redownloading...")
+                    self.chain.output_message("512 Model SHA doesn't match, redownloading...")
                     envutils.wget(model_512_link, envutils.model_path)
                     model_512_downloaded = True
             elif os.path.exists(model_512_path) and not check_model_SHA or model_512_downloaded == True:
-                print('512 Model already downloaded, check check_model_SHA if the file is corrupt')
+                self.chain.output_message('512 Model already downloaded, check check_model_SHA if the file is corrupt')
             else:  
                 envutils.wget(model_512_link, self.model_path)
                 model_512_downloaded = True
@@ -1113,19 +1121,19 @@ class GeneratorDisco(GeneratorBase):
         # Download the secondary diffusion model v2
         if self.use_secondary_model == True:
             if os.path.exists(model_secondary_path) and check_model_SHA:
-                print('Checking Secondary Diffusion File')
+                self.chain.output_message('Checking Secondary Diffusion File')
                 with open(model_secondary_path,"rb") as f:
                     bytes = f.read() 
                     hash = hashlib.sha256(bytes).hexdigest();
                 if hash == model_secondary_SHA:
-                    print('Secondary Model SHA matches')
+                    self.chain.output_message('Secondary Model SHA matches')
                     model_secondary_downloaded = True
                 else:  
-                    print("Secondary Model SHA doesn't match, redownloading...")
+                    self.chain.output_message("Secondary Model SHA doesn't match, redownloading...")
                     envutils.wget(model_secondary_link, self.model_path)
                     model_secondary_downloaded = True
             elif os.path.exists(model_secondary_path) and not check_model_SHA or model_secondary_downloaded == True:
-                print('Secondary Model already downloaded, check check_model_SHA if the file is corrupt')
+                self.chain.output_message('Secondary Model already downloaded, check check_model_SHA if the file is corrupt')
             else:  
                 envutils.wget(model_secondary_link, self.model_path)
                 model_secondary_downloaded = True
@@ -1179,6 +1187,7 @@ class GeneratorDisco(GeneratorBase):
         if self.ViTB32 is True: self.clip_models.append(clip.load('ViT-B/32', jit=False)[0].eval().requires_grad_(False).to(self.device)) 
         if self.ViTB16 is True: self.clip_models.append(clip.load('ViT-B/16', jit=False)[0].eval().requires_grad_(False).to(self.device) ) 
         if self.ViTL14 is True: self.clip_models.append(clip.load('ViT-L/14', jit=False)[0].eval().requires_grad_(False).to(self.device) ) 
+        if self.ViTL14_336px is True: self.clip_models.append(clip.load('ViTL14@336px', jit=False)[0].eval().requires_grad_(False).to(self.device) ) 
         if self.RN50 is True: self.clip_models.append(clip.load('RN50', jit=False)[0].eval().requires_grad_(False).to(self.device))
         if self.RN50x4 is True: self.clip_models.append(clip.load('RN50x4', jit=False)[0].eval().requires_grad_(False).to(self.device)) 
         if self.RN50x16 is True: self.clip_models.append(clip.load('RN50x16', jit=False)[0].eval().requires_grad_(False).to(self.device)) 
@@ -1197,7 +1206,7 @@ class GeneratorDisco(GeneratorBase):
         self.side_x = (self.width_height[0]//64)*64
         self.side_y = (self.width_height[1]//64)*64
         if self.side_x != self.width_height[0] or self.side_y != self.width_height[1]:
-            print(f'Changing output size to {self.side_x}x{self.side_y}. Dimensions must by multiples of 64.')
+            self.chain.output_message(f'Changing output size to {self.side_x}x{self.side_y}. Dimensions must by multiples of 64.')
 
         #Update Model Settings
         self.timestep_respacing = f'ddim{self.steps}'
@@ -1209,7 +1218,7 @@ class GeneratorDisco(GeneratorBase):
 
         
         
-        print('Prepping model...')
+        self.chain.output_message('Prepping model...')
         self.model, self.diffusion = create_model_and_diffusion(**self.model_config)
         self.model.load_state_dict(torch.load(f'{self.model_path}/{self.diffusion_model}.pt', map_location='cpu'))
         self.model.requires_grad_(False).eval().to(self.device)
@@ -1259,6 +1268,7 @@ class GeneratorDisco(GeneratorBase):
             'ViTB32': self.ViTB32,
             'ViTB16': self.ViTB16,
             'ViTL14': self.ViTL14,
+            'ViTL14_336px': self.ViTL14_336px,
             'RN101': self.RN101,
             'RN50': self.RN50,
             'RN50x4': self.RN50x4,
@@ -1292,7 +1302,7 @@ class GeneratorDisco(GeneratorBase):
             'turbo_steps':self.turbo_steps,
             'turbo_preroll':self.turbo_preroll,
         }
-        # print('Settings:', setting_list)
+        # self.chain.output_message('Settings:', setting_list)
         with open(f"{self.batchFolder}/{self.batch_name}({self.batchNum})_settings.txt", "w+") as f:   #save settings
             json.dump(setting_list, f, ensure_ascii=False, indent=4)
 
@@ -1351,7 +1361,7 @@ class GeneratorDisco(GeneratorBase):
         skip_video_for_run_all = True #@param {type: 'boolean'}
 
         if skip_video_for_run_all == True:
-            print('Skipping video creation, uncheck skip_video_for_run_all if you want to run it')
+            self.chain.output_message('Skipping video creation, uncheck skip_video_for_run_all if you want to run it')
 
         else:
             # import subprocess in case this cell is run without the above cells
@@ -1375,7 +1385,7 @@ class GeneratorDisco(GeneratorBase):
 
         if last_frame == 'final_frame':
             last_frame = len(glob(self.batchFolder+f"/{folder}({run})_*.png"))
-            print(f'Total frames: {last_frame}')
+            self.chain.output_message(f'Total frames: {last_frame}')
 
         image_path = f"{self.outDirPath}/{folder}/{folder}({run})_%04d.png"
         filepath = f"{self.outDirPath}/{folder}/{folder}({run}).mp4"
@@ -1410,10 +1420,10 @@ class GeneratorDisco(GeneratorBase):
         process = subprocess.Popen(cmd, cwd=f'{self.batchFolder}', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
         if process.returncode != 0:
-            print(stderr)
+            self.chain.output_message(stderr)
             raise RuntimeError(stderr)
         else:
-            print("The video is ready and saved to the images folder")
+            self.chain.output_message("The video is ready and saved to the images folder")
             
     def __init__(self,chain,steps,wh,load_models = True):
         super().__init__(chain)

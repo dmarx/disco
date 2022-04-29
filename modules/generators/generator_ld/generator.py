@@ -34,7 +34,37 @@ class GeneratorLatentDiffusion(GeneratorBase):
     ldm = None
     
     default_settings= '{"model_path": "glid-3-xl/finetune.pt", "kl_path": "glid-3-xl/kl-f8.pt", "bert_path": "glid-3-xl/bert.pt", "text": "", "edit": null, "edit_x": 0, "edit_y": 0, "edit_width": 0, "edit_height": 0, "mask": null, "negative": "", "init_image": null, "skip_timesteps": 0, "prefix": "", "num_batches": 1, "batch_size": 1, "width": 256, "height": 256, "seed": -1, "guidance_scale": 5.0, "steps": 0, "cpu": false, "clip_score": false, "clip_guidance": false, "clip_guidance_scale": 150, "cutn": 16, "ddim": false, "ddpm": false}'
-
+    settings = {
+        "model_path":"glid-3-xl/finetune.pt",
+        "kl_path":"glid-3-xl/kl-f8.pt",
+        "bert_path":"glid-3-xl/bert.pt",
+        "text":"",
+        "edit":None,
+        "edit_x":0,
+        "edit_y":0,
+        "edit_width":0,
+        "edit_height":0,
+        "mask":None,
+        "negative":"",
+        "init_image":None,
+        "skip_timesteps":0,
+        "prefix":"",
+        "num_batches":1,
+        "batch_size":1,
+        "width":256,
+        "height":256,
+        "seed":-1,
+        "guidance_scale":5.0,
+        "steps":0,
+        "cpu":False,
+        "clip_score":False,
+        "clip_guidance":False,
+        "clip_guidance_scale":150,
+        "cutn":16,
+        "ddim":False,
+        "ddpm":False
+        }
+    
     def fetch(url_or_path):
         if str(url_or_path).startswith('http://') or str(url_or_path).startswith('https://'):
             r = requests.get(url_or_path)
@@ -76,7 +106,7 @@ class GeneratorLatentDiffusion(GeneratorBase):
         return (x_diff**2 + y_diff**2).mean([1, 2, 3])
 
     def do_run(self, prompt, prefix="", input_seed=""):
-        print("doing run", prompt, prefix, input_seed)
+        #self.chain.output_message("doing run", prompt, prefix, input_seed)
 
         self.args.text = prompt
         #if len(input_seed) > 0: self.args.seed = int(input_seed)
@@ -172,7 +202,7 @@ class GeneratorLatentDiffusion(GeneratorBase):
         #         mask_image = mask_image.resize((args.width//8,args.height//8), Image.ANTIALIAS)
         #         mask = transforms.ToTensor()(mask_image).unsqueeze(0).to(device)
         #     else:
-        #         print('draw the area for inpainting, then close the window')
+        #         self.chain.output_message('draw the area for inpainting, then close the window')
         #         app = QApplication(sys.argv)
         #         d = Draw(args.width, args.height, input_image_pil)
         #         app.exec_()
@@ -317,6 +347,7 @@ class GeneratorLatentDiffusion(GeneratorBase):
             )
 
             for j, sample in enumerate(samples):
+                self.chain.progress += (1.0 / self.diffusion.num_timesteps) / len(self.chain.project.generators)
                 cur_t -= 1
                 if j % 5 == 0 and j != self.diffusion.num_timesteps - 1:
                     save_sample(i, sample)
@@ -338,40 +369,7 @@ class GeneratorLatentDiffusion(GeneratorBase):
         self.model_state_dict = torch.load(
             self.args.model_path, map_location='cuda')
 
-        self.model_params = {
-            'attention_resolutions': '32,16,8',
-            'class_cond': False,
-            'diffusion_steps': 1000,
-            'rescale_timesteps': True,
-            'timestep_respacing': '27',  # Modify this value to decrease the number of
-            # timesteps.
-            'image_size': 32,
-            'learn_sigma': False,
-            'noise_schedule': 'linear',
-            'num_channels': 320,
-            'num_heads': 8,
-            'num_res_blocks': 2,
-            'resblock_updown': False,
-            'use_fp16': False,
-            'use_scale_shift_norm': False,
-            'clip_embed_dim': 768 if 'clip_proj.weight' in self.model_state_dict else None,
-            'image_condition': True if self.model_state_dict['input_blocks.0.0.weight'].shape[1] == 8 else False,
-            'super_res_condition': True if 'external_block.0.0.weight' in self.model_state_dict else False,
-        }
-
-        if self.args.ddpm:
-            self.model_params['timestep_respacing'] = 1000
-        if self.args.ddim:
-            if self.args.steps:
-                self.model_params['timestep_respacing'] = 'ddim' + \
-                    str(self.args.steps)
-            else:
-                self.model_params['timestep_respacing'] = 'ddim50'
-        elif self.args.steps:
-            self.model_params['timestep_respacing'] = str(self.args.steps)
-
-        self.model_config = model_and_diffusion_defaults()
-        self.model_config.update(self.model_params)
+        self.update_model_params()
 
         if self.args.cpu:
             self.model_config['use_fp16'] = False
@@ -409,10 +407,59 @@ class GeneratorLatentDiffusion(GeneratorBase):
 
         # clip
         self.clip_model, self.clip_preprocess = clip.load(
-            'ViT-L/14', device=self.device, jit=False)
+            'ViT-L/14@336px', device=self.device, jit=False)
         self.clip_model.eval().requires_grad_(False)
         self.normalize = transforms.Normalize(mean=[0.48145466, 0.4578275, 0.40821073], std=[
                                               0.26862954, 0.26130258, 0.27577711])
+
+
+    def update_model_params(self):
+        self.model_params = {
+            'attention_resolutions': '32,16,8',
+            'class_cond': False,
+            'diffusion_steps': 1000,
+            'rescale_timesteps': True,
+            'timestep_respacing': '27',  # Modify this value to decrease the number of
+            # timesteps.
+            'image_size': 32,
+            'learn_sigma': False,
+            'noise_schedule': 'linear',
+            'num_channels': 320,
+            'num_heads': 8,
+            'num_res_blocks': 2,
+            'resblock_updown': False,
+            'use_fp16': False,
+            'use_scale_shift_norm': False,
+            'clip_embed_dim': 768 if 'clip_proj.weight' in self.model_state_dict else None,
+            'image_condition': True if self.model_state_dict['input_blocks.0.0.weight'].shape[1] == 8 else False,
+            'super_res_condition': True if 'external_block.0.0.weight' in self.model_state_dict else False,
+        }
+
+        if self.args.ddpm:
+            self.model_params['timestep_respacing'] = 1000
+        if self.args.ddim:
+            if self.args.steps:
+                self.model_params['timestep_respacing'] = 'ddim' + \
+                    str(self.args.steps)
+            else:
+                self.model_params['timestep_respacing'] = 'ddim50'
+        elif self.args.steps:
+            self.model_params['timestep_respacing'] = str(self.args.steps)
+
+        self.model_config = model_and_diffusion_defaults()
+        self.model_config.update(self.model_params)
+
+    def init_settings(self, override_settings=None):
+                
+        settings = self.settings
+
+        if override_settings!=None:
+            settings = self.json_override(settings, json.loads(override_settings))
+            
+        self.args.steps = settings["steps"]
+        
+        self.update_model_params()
+        
 
 
     def __init__(self,chain, load_models=True):
@@ -515,7 +562,7 @@ class GeneratorLatentDiffusion(GeneratorBase):
 
         # self.device = torch.device('cuda:0' if (
         #     torch.cuda.is_available() and not self.args.cpu) else 'cpu')
-        # print('Using device:', self.device)
+        # self.chain.output_message('Using device:', self.device)
 
         if load_models:
             self.load_models()
