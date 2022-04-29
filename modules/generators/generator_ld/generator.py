@@ -347,7 +347,7 @@ class GeneratorLatentDiffusion(GeneratorBase):
             )
 
             for j, sample in enumerate(samples):
-                self.chain.progress += (1.0 / self.diffusion.num_timesteps) / len(self.chain.project.generators)
+                if self.chain.project != None: self.chain.progress += (1.0 / self.diffusion.num_timesteps) / len(self.chain.project.generators)
                 cur_t -= 1
                 if j % 5 == 0 and j != self.diffusion.num_timesteps - 1:
                     save_sample(i, sample)
@@ -454,7 +454,7 @@ class GeneratorLatentDiffusion(GeneratorBase):
         settings = self.settings
 
         if override_settings!=None:
-            settings = self.json_override(settings, json.loads(override_settings))
+            settings = self.json_override(settings, override_settings)
             
         self.args.steps = settings["steps"]
         

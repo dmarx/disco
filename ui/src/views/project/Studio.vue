@@ -42,8 +42,9 @@
               <div class="d-flex flex-column" style="width: 100%" v-if="state.project">
                 <div class="text-muted fw-bolder" style="line-height: 2px">
                   <div style="float: right">
-                    <button class="btn btn-primary" @click="saveProject()">
-                      Save Project</button
+                    <button class="btn btn-primary" @click="startProject()">Run</button
+                    >&nbsp;&nbsp;&nbsp;
+                    <button class="btn btn-primary" @click="saveProject()">Save</button
                     ><!-- <router-link to="item.id"> Launch </router-link> -->
                   </div>
                   <input
@@ -65,7 +66,10 @@
                   <!-- <span class="mx-3">|</span> -->
                   <!-- <a href="#">Studio</a> -->
                   <span class="mx-3">|</span>Status
-                  <span class="mx-3">Idle</span>
+                  <span class="mx-3"
+                    ><span v-if="state.busy">Running {{ state.progressPercentage }}</span
+                    ><span v-if="!state.busy">Idle</span></span
+                  >
                 </div>
               </div>
             </div>
@@ -85,6 +89,17 @@
                     href="#kt_scenes_tab_content"
                   >
                     Scenes
+                  </a>
+                </li>
+
+                <li class="nav-item" role="presentation">
+                  <a
+                    class="nav-link text-active-primary ms-3"
+                    data-bs-toggle="tab"
+                    role="tab"
+                    href="#kt_animation_tab_content"
+                  >
+                    Animation
                   </a>
                 </li>
 
@@ -147,6 +162,47 @@
                         </div>
                       </draggable>
                     </div>
+
+                    <br />
+
+                    <div v-if="state.project">
+                      <h2 style="color: #fff">Preview</h2>
+
+                      <div
+                        v-for="element in state.project.generators"
+                        :key="element.title"
+                      >
+                        <div
+                          v-if="element.type == 2 && state.busy"
+                          class="card-generator"
+                          style="margin: 15px 0 0 0; display: inline-block; width: 100%"
+                        >
+                          <img
+                            style="width: 100%"
+                            v-bind:src="apiUrl + '/output/progress.png'"
+                            alt=""
+                          />
+                        </div>
+                        <div
+                          v-if="element.output_path?.length > 0"
+                          class="card-generator"
+                          style="margin: 15px 0 0 0; display: inline-block; width: 100%"
+                        >
+                          <img
+                            style="width: 100%"
+                            v-bind:src="apiUrl + '/' + element.output_path"
+                            alt=""
+                          />
+                        </div>
+                        <div
+                          v-if="element.output_path == null"
+                          class="card-generator"
+                          style="margin: 15px 0 0 0; color: #fff"
+                        >
+                          No preview available.
+                        </div>
+                      </div>
+                    </div>
                   </div>
                   <div class="col-6">
                     <div v-if="state.selectedGenerator != null">
@@ -164,11 +220,32 @@
                       <div class="item-generator">
                         <Vue3LiveForm
                           :schema="state.selectedGenerator.schema"
-                          v-model="state.selectedGenerator.model"
+                          v-model="state.selectedGenerator.settings"
                         />
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              <div
+                id="kt_animation_tab_content"
+                class="py-0 tab-pane fade active show"
+                role="tabpanel"
+              >
+                <!--  <div style="position: relative; width: 100%; height: 600px">
+               <Renderer ref="renderer" :resize="true">
+                    <Camera ref="camera" fov="70" :near="1" :far="10000" />
+                    <Scene ref="scene">
+                    </Scene>
+                  </Renderer>
+                </div> -->
+
+                <div style="width: 100%; height: 600px; position: relative" class="threejs">
+                  <Renderer ref="renderer" :resize="true" style="width:100%;height:600px">
+                    <Camera ref="camera" :fov="70" :near="1" :far="10000" />
+                    <Scene ref="scene"> </Scene>
+                  </Renderer>
                 </div>
               </div>
 
@@ -180,9 +257,13 @@
                 <div class="row">
                   <div class="col-6">
                     <h2 style="color: #fff">Status</h2>
-                    <p style="color: #fff">Currently: <span v-if="state.busy">Running {{state.progressPercentage}}</span><span v-if="!state.busy">Idle</span></p>
+                    <p style="color: #fff">
+                      Currently:
+                      <span v-if="state.busy">Running {{ state.progressPercentage }}</span
+                      ><span v-if="!state.busy">Idle</span>
+                    </p>
                     <br />
-                   <h3 style="color: #fff">Output</h3>
+                    <h3 style="color: #fff">Output</h3>
                     <div style="color: #fff" v-html="state.output"></div>
                     <br />
                     <p>
@@ -201,14 +282,18 @@
 
                     <div v-for="element in state.project.generators" :key="element.title">
                       <div
+                        v-if="element.type == 2 && state.busy"
+                        class="card-generator"
+                        style="margin: 15px 0 0 0; display: inline-block"
+                      >
+                        <img v-bind:src="apiUrl + '/output/progress.png'" alt="" />
+                      </div>
+                      <div
                         v-if="element.output_path?.length > 0"
                         class="card-generator"
                         style="margin: 15px 0 0 0; display: inline-block"
                       >
-                        <img
-                          v-bind:src="'http://localhost:5000/' + element.output_path"
-                          alt=""
-                        />
+                        <img v-bind:src="apiUrl + '/' + element.output_path" alt="" />
                       </div>
                       <div
                         v-if="element.output_path == null"
@@ -300,6 +385,8 @@
 </template>
 
 <script lang="ts">
+import * as THREE from "three";
+
 import { defineComponent, onMounted, ref, reactive } from "vue";
 import Flow from "../../views/project/flow/Flow.vue";
 import { inject } from "vue";
@@ -311,6 +398,27 @@ import { AxiosResponse, AxiosRequestConfig } from "axios";
 import { useRoute } from "vue-router";
 import { VueDraggableNext } from "vue-draggable-next";
 
+import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { TransformControls } from "three/examples/jsm/controls/TransformControls";
+import {
+  AmbientLight,
+  Scene,
+  SpotLight,
+  Mesh,
+  BufferAttribute,
+  BufferGeometry,
+  Line,
+  CatmullRomCurve3,
+  LineBasicMaterial,
+  MeshLambertMaterial,
+  Vector3,
+  Camera,
+  Renderer,
+  GridHelper,
+  ShadowMaterial,
+  PlaneGeometry,
+} from "three";
 export default defineComponent({
   name: "studio",
 
@@ -323,7 +431,12 @@ export default defineComponent({
   },
 
   setup() {
+    // const renderer:any = ref(null);
+    // const box:any = ref(null);
+
+    // const box: any = null;
     const timer: any = null;
+    let apiUrl = "http://localhost:5000";
 
     const generator_options = [
       {
@@ -348,10 +461,43 @@ export default defineComponent({
       selectedGenerator: null,
       busy: false,
       output: "",
-      progress:0,
-      progressPercentage :"",
-      autoUpdate: true,
+      progress: 0,
+      progressPercentage: "",
+      autoUpdate: false,
+
+      // renderer,
+      // box
     });
+
+    const renderer: any = null;
+    const camera: any = null;
+
+    const splineHelperObjects: any[] = [];
+    let splinePointsLength = 4;
+    const positions: any[] = [];
+    const point = new THREE.Vector3();
+
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+    const onUpPosition = new THREE.Vector2();
+    const onDownPosition = new THREE.Vector2();
+
+    const geometry = new THREE.BoxGeometry(20, 20, 20);
+    let transformControl;
+
+    const ARC_SEGMENTS = 200;
+
+    const splines = {};
+
+    const params = {
+      uniform: true,
+      tension: 0.5,
+      centripetal: true,
+      chordal: true,
+      addPoint: null,
+      removePoint: null,
+      exportSpline: null,
+    };
 
     return {
       state,
@@ -359,11 +505,36 @@ export default defineComponent({
       timer,
       enabled: true,
       dragging: false,
+      apiUrl,
+
+      transformControl,
+      splineHelperObjects,
+      raycaster,
+      pointer,
+      onUpPosition,
+      onDownPosition,
+      splines,
+      params,
+      positions,
+      splinePointsLength,
+      point,
+      ARC_SEGMENTS,
+      geometry,
+      renderer,
+      camera,
     };
   },
 
   mounted() {
     // setCurrentPageTitle("Studio");
+
+    console.log(location.host);
+    if (location.host.indexOf("localhost") > -1) {
+      this.apiUrl = "http://localhost:5000";
+    } else {
+      this.apiUrl = "";
+    }
+
     this.state.mounted = true;
     const route = useRoute();
 
@@ -398,12 +569,14 @@ export default defineComponent({
         .then((res) => res.json())
         .then((res) => {
           g.schema = res;
+          console.log(res);
         });
 
       fetch("/generators/" + g.folder + "/defaults.json")
         .then((res) => res.json())
         .then((res) => {
-          g.model = res;
+          g.settings = res;
+          console.log(res);
         });
 
       // g.model = JSON.parse(
@@ -433,12 +606,12 @@ export default defineComponent({
     },
 
     updateStatus() {
-      ApiService.post("http://localhost:5000/api/task/update", {})
+      ApiService.post(this.apiUrl + "/api/task/update", {})
         .then(({ data }) => {
           console.log(data);
-          this.state.output = data['output'];
-          this.state.progress = data['progress'];
-          this.state.busy = data['busy'];
+          this.state.output = data["output"];
+          this.state.progress = data["progress"];
+          this.state.busy = data["busy"];
           this.state.progressPercentage = Math.round(this.state.progress * 100) + "%";
           // this.state.status = data.length > 0 ? "Running" : "Idle"; // if ("_False" in data) else "Running";
         })
@@ -450,32 +623,57 @@ export default defineComponent({
 
     startProject() {
       ApiService.post(
-        "http://localhost:5000/api/task/start/" +
-          (this.state.project as any).id.toString(),
-        {}
+        this.apiUrl + "/api/project/save/" + (this.state.project as any).id.toString(),
+        this.state.project as any
       )
         .then(({ data }) => {
-          console.log(data);
-          this.getProject((this.state.project as any).id);
+          ApiService.post(
+            this.apiUrl + "/api/task/start/" + (this.state.project as any).id.toString(),
+            {}
+          )
+            .then(({ data }) => {
+              console.log(data);
+              this.getProject((this.state.project as any).id);
+            })
+            .catch(({ response }) => {});
         })
         .catch(({ response }) => {});
     },
     getProject(id) {
-      ApiService.post("http://localhost:5000/api/project/" + id.toString(), {})
+      ApiService.post(this.apiUrl + "/api/project/" + id.toString(), {})
         .then(({ data }) => {
           this.state.project = data;
           //(this.state.project as any).chain = data.chain.nodes;
           console.log(data);
+
+          (this.params as any).addPoint = () => {
+            this.addPoint();
+          };
+          (this.params as any).removePoint = () => {
+            this.removePoint();
+          };
+          (this.params as any).exportSpline = () => {
+            this.exportSpline();
+          };
+
+          console.log("window", window.innerWidth, window.innerHeight);
+          this.initScene();
+
+          // const renderer = this.$refs.renderer;
+          // const box = (this.$refs.box as any).mesh;
+          // // const renderer: any = ref());
+          // // const box: any = ref(null);
+          // console.log(renderer, box);
+          // (renderer as any).onBeforeRender(() => {
+          //   box.rotation.x += 0.01;
+          // });
         })
         .catch(({ response }) => {});
     },
     saveProject() {
-      console.log("save");
-      // (this.state.project as any).chain = (this.instance as any).toObject();
-      // console.log((this.instance as any).toObject());
+      console.log(this.apiUrl);
       ApiService.post(
-        "http://localhost:5000/api/project/save/" +
-          (this.state.project as any).id.toString(),
+        this.apiUrl + "/api/project/save/" + (this.state.project as any).id.toString(),
         this.state.project as any
       )
         .then(({ data }) => {
@@ -485,12 +683,356 @@ export default defineComponent({
     },
     deleteProject(id) {
       console.log("delete");
-      ApiService.delete("http://localhost:5000/api/project/" + id.toString())
+      ApiService.delete(this.apiUrl + "/api/project/" + id.toString())
         .then(({ data }) => {
           //this.state.projects = data;
           // this.getProjects();
         })
         .catch(({ response }) => {});
+    },
+
+    initScene() {
+      // camera = new PerspectiveCamera(
+      //   70,
+      //   window.innerWidth / window.innerHeight,
+      //   1,
+      //   10000
+      // );
+      // camera.position.set(0, 250, 1000);
+      // scene.add(camera);
+
+      let scene: Scene = (this.$refs.scene as Scene).scene;
+
+      scene.add(new AmbientLight(0xf0f0f0));
+      const light = new SpotLight(0xffffff, 1.5);
+      light.position.set(0, 1500, 200);
+      light.angle = Math.PI * 0.2;
+      light.castShadow = true;
+      light.shadow.camera.near = 200;
+      light.shadow.camera.far = 2000;
+      light.shadow.bias = -0.000222;
+      light.shadow.mapSize.width = 1024;
+      light.shadow.mapSize.height = 1024;
+      scene.add(light);
+
+      const planeGeometry = new PlaneGeometry(2000, 2000);
+      planeGeometry.rotateX(-Math.PI / 2);
+      const planeMaterial = new ShadowMaterial({ color: 0x000000, opacity: 0.2 });
+
+      // const plane = new Mesh(planeGeometry, planeMaterial);
+      // plane.position.y = -200;
+      // plane.receiveShadow = true;
+      // scene.add(plane);
+
+      const helper = new GridHelper(2000, 100);
+      helper.position.y = -199;
+      helper.material.opacity = 0.25;
+      helper.material.transparent = true;
+      scene.add(helper);
+
+      this.camera = (this.$refs.camera as Camera).camera;
+      this.renderer = (this.$refs.renderer as Renderer).renderer;
+      this.camera.position.set(0, 250, 1000);
+
+      // renderer = new WebGLRenderer({ antialias: true });
+      this.renderer.setPixelRatio(window.devicePixelRatio);
+      //renderer.setSize(window.innerWidth, window.innerHeight);
+      this.renderer.shadowMap.enabled = true;
+      // container.appendChild(renderer.domElement);
+
+      const gui = new GUI({container:document.getElementById("kt_animation_tab_content")});
+
+      gui.add(this.params, "uniform").onChange(() => {
+        this.render();
+      });
+      gui
+        .add(this.params, "tension", 0, 1)
+        .step(0.01)
+        .onChange((value) => {
+          (this.splines as any).uniform.tension = value;
+          this.updateSplineOutline();
+          this.render();
+        });
+      gui.add(this.params, "centripetal").onChange(() => {
+        this.render();
+      });
+      gui.add(this.params, "chordal").onChange(() => {
+        this.render();
+      });
+      console.log(1231);
+      gui.add(this.params, "addPoint");
+      gui.add(this.params, "removePoint");
+      gui.add(this.params, "exportSpline");
+      gui.open();
+
+      console.log(123);
+
+      // Controls
+      // console.log("asdasd",(this.$refs.renderer as Renderer).renderer.domElement);
+      const controls = new OrbitControls(this.camera, this.renderer.domElement);
+      controls.damping = 0.2;
+      controls.addEventListener("change", () => {
+        this.render();
+      });
+
+      this.transformControl = new TransformControls(
+        this.camera,
+        this.renderer.domElement
+      );
+      this.transformControl.addEventListener("change", () => {
+        this.render();
+      });
+      this.transformControl.addEventListener("dragging-changed", (event) => {
+        //controls.enabled = !event.value;
+      });
+      scene.add(this.transformControl);
+
+      this.transformControl.addEventListener("objectChange", () => {
+        this.updateSplineOutline();
+      });
+
+      document.addEventListener("pointerdown", (e) => {
+        this.onPointerDown(e);
+      });
+      document.addEventListener("pointerup", () => {
+        this.onPointerUp();
+      });
+      document.addEventListener("pointermove", (e) => {
+        this.onPointerMove(e);
+      });
+      window.addEventListener("resize", () => {
+        this.onWindowResize();
+      });
+
+      /*******
+       * Curves
+       *********/
+
+      for (let i = 0; i < this.splinePointsLength; i++) {
+        this.addSplineObject(this.positions[i]);
+      }
+
+      this.positions.length = 0;
+
+      for (let i = 0; i < this.splinePointsLength; i++) {
+        this.positions.push((this.splineHelperObjects[i] as any).position);
+      }
+
+      this.geometry = new BufferGeometry();
+      this.geometry.setAttribute(
+        "position",
+        new BufferAttribute(new Float32Array(this.ARC_SEGMENTS * 3), 3)
+      );
+
+      let curve = new CatmullRomCurve3(this.positions);
+      curve.curveType = "catmullrom";
+      curve.mesh = new Line(
+        this.geometry.clone(),
+        new LineBasicMaterial({
+          color: 0xff0000,
+          opacity: 0.35,
+        })
+      );
+      curve.mesh.castShadow = true;
+      (this.splines as any).uniform = curve;
+
+      curve = new CatmullRomCurve3(this.positions);
+      curve.curveType = "centripetal";
+      curve.mesh = new Line(
+        this.geometry.clone(),
+        new LineBasicMaterial({
+          color: 0x00ff00,
+          opacity: 0.35,
+        })
+      );
+      curve.mesh.castShadow = true;
+      (this.splines as any).centripetal = curve;
+
+      curve = new CatmullRomCurve3(this.positions);
+      curve.curveType = "chordal";
+      curve.mesh = new Line(
+        this.geometry.clone(),
+        new LineBasicMaterial({
+          color: 0x0000ff,
+          opacity: 0.35,
+        })
+      );
+      curve.mesh.castShadow = true;
+      (this.splines as any).chordal = curve;
+
+      for (const k in this.splines) {
+        const spline = this.splines[k];
+        (this.$refs.scene as Scene).scene.add(spline.mesh);
+      }
+
+      this.load([
+        new Vector3(289.76843686945404, 452.51481137238443, 56.10018915737797),
+        new Vector3(-53.56300074753207, 171.49711742836848, -14.495472686253045),
+        new Vector3(-91.40118730204415, 176.4306956436485, -6.958271935582161),
+        new Vector3(-383.785318791128, 491.1365363371675, 47.869296953772746),
+      ]);
+
+      this.render();
+    },
+
+    addSplineObject(position) {
+      const material = new MeshLambertMaterial({ color: Math.random() * 0xffffff });
+      const object = new Mesh(this.geometry, material);
+      if (position) {
+        object.position.copy(position);
+      } else {
+        object.position.x = Math.random() * 1000 - 500;
+        object.position.y = Math.random() * 600;
+        object.position.z = Math.random() * 800 - 400;
+        object.position.z = Math.random() * 800 - 400;
+      }
+      object.castShadow = true;
+      object.receiveShadow = true;
+      (this.$refs.scene as Scene).scene.add(object);
+      (this.splineHelperObjects as any).push(object);
+      return object;
+    },
+
+    addPoint() {
+      this.splinePointsLength++;
+      this.positions.push(this.addSplineObject(null).position);
+      this.updateSplineOutline();
+      this.render();
+    },
+
+    removePoint() {
+      if (this.splinePointsLength <= 4) {
+        return;
+      }
+      const point = this.splineHelperObjects.pop();
+      this.splinePointsLength--;
+      this.positions.pop();
+      if (this.transformControl.object === this.point) this.transformControl.detach();
+      (this.$refs.scene as Scene).scene.remove(this.point);
+      this.updateSplineOutline();
+      this.render();
+    },
+
+    updateSplineOutline() {
+      for (const k in this.splines) {
+        const spline = this.splines[k];
+        const splineMesh = spline.mesh;
+        const position = splineMesh.geometry.attributes.position;
+        for (let i = 0; i < this.ARC_SEGMENTS; i++) {
+          const t = i / (this.ARC_SEGMENTS - 1);
+          spline.getPoint(t, this.point);
+          position.setXYZ(i, this.point.x, this.point.y, this.point.z);
+        }
+        position.needsUpdate = true;
+      }
+    },
+
+    exportSpline() {
+      const strplace: any[] = [];
+      for (let i = 0; i < this.splinePointsLength; i++) {
+        const p = this.splineHelperObjects[i].position;
+        strplace.push(`new Vector3(${p.x}, ${p.y}, ${p.z})`);
+      }
+      console.log(strplace.join(",\n"));
+      const code = "[" + strplace.join(",\n\t") + "]";
+      prompt("copy and paste code", code);
+    },
+
+    load(new_positions) {
+      while (new_positions.length > this.positions.length) {
+        this.addPoint();
+      }
+      while (new_positions.length < this.positions.length) {
+        this.removePoint();
+      }
+      for (let i = 0; i < this.positions.length; i++) {
+        this.positions[i].copy(new_positions[i]);
+      }
+      this.updateSplineOutline();
+    },
+
+    render() {
+      if (typeof this.$refs.renderer === "object" && this.$refs.renderer != null) {
+        (this.splines as any).uniform.mesh.visible = this.params.uniform;
+        (this.splines as any).centripetal.mesh.visible = this.params.centripetal;
+        (this.splines as any).chordal.mesh.visible = this.params.chordal;
+        let scene: Scene = (this.$refs.scene as Scene).scene;
+        let camera: Scene = (this.$refs.camera as Camera).camera;
+        (this.$refs.renderer as Renderer).renderer.render(scene, camera);
+      }
+    },
+
+    onPointerDown(event) {
+      this.onDownPosition.x = (event as any).clientX;
+      this.onDownPosition.y = (event as any).clientY;
+    },
+
+    onPointerUp() {
+      this.onUpPosition.x = (event as any).clientX;
+      this.onUpPosition.y = (event as any).clientY;
+
+      if (this.onDownPosition.distanceTo(this.onUpPosition) === 0)
+        (this.transformControl as any).detach();
+    },
+
+    onPointerMove(event) {
+      if (this.$refs.renderer != null) {
+        let renderer = (this.$refs.renderer as Renderer).renderer;
+        //let canvas = renderer.canvas;
+        // this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+        // this.pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+        //console.log(renderer, renderer.domElement);
+
+        var rect = renderer.domElement.getBoundingClientRect();
+        this.pointer.x = ((event.clientX - rect.left) / (rect.right - rect.left)) * 2 - 1;
+        this.pointer.y = -((event.clientY - rect.top) / (rect.bottom - rect.top)) * 2 + 1;
+
+        // this.pointer.x =
+        //   ((event.clientX - renderer.domElement.offsetLeft) /
+        //     renderer.domElement.clientWidth) *
+        //     2 -
+        //   1;
+        // this.pointer.y =
+        //   -(
+        //     (event.clientY - renderer.domElement.offsetTop) /
+        //     renderer.domElement.clientHeight
+        //   ) *
+        //     2 +
+        //   1;
+
+        //console.log((this.renderer as any).three.pointer.intersectObjects.length, (this.renderer as any).three.positionN .intersectObjects.length);
+
+        this.raycaster.setFromCamera(this.pointer, this.camera);
+        const intersects = this.raycaster.intersectObjects(
+          this.splineHelperObjects,
+          false
+        );
+        // console.log("intersects", intersects);
+        if (intersects.length > 0) {
+          const object = intersects[0].object;
+          console.log("intersected");
+          if (object !== (this.transformControl as any).object) {
+            (this.transformControl as any).attach(object);
+          }
+        }
+      }
+    },
+
+    onWindowResize() {
+      console.log("resize");
+      let camera = (this.$refs.camera as Camera).camera;
+      if (camera != null) {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        // if (this.$refs.renderer != null) {
+        //   (this.$refs.renderer as Renderer).renderer.setSize(
+        //     window.innerWidth,
+        //     window.innerHeight
+        //   );
+        // }
+        this.render();
+      }
     },
   },
   // watch: {},

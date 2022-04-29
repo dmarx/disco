@@ -44,12 +44,15 @@ class GeneratorDisco(GeneratorBase):
 
     #default settings
     settings = {
-        'prompt':
-            [
-                "A scenic view of a mystical place, by Felix Kahn, matte painting trending on artstation artstation HQ.",
-            ],
+        # 'prompt':
+        #     [
+        #         "A scenic view of a mystical place, by Felix Kahn, matte painting trending on artstation artstation HQ.",
+        #     ],
+        'text_prompts':[
+            [0, "A scenic view of a beautiful tropical beach by David Noton, bright sunny day"]
+        ],
         'clip_guidance_scale':5000,
-        'steps':100,
+        'steps':150,
         'cut_ic_pow':1,
         'range_scale':150,
         'n_batches':5,
@@ -63,7 +66,7 @@ class GeneratorDisco(GeneratorBase):
         'path':os.getcwd(),
         'ViTB32': True,
         'ViTB16': True,
-        'ViTL14': True, # True
+        'ViTL14': False, # True
         'ViTL14_336px':False,
         'RN101': False,
         'RN50': False,
@@ -99,87 +102,84 @@ class GeneratorDisco(GeneratorBase):
     clip_models = None
     os.environ['KMP_DUPLICATE_LIB_OK']='TRUE'
 
-    device = None
-    DEVICE = None
-
     stop_on_next_loop = False  # Make sure GPU memory doesn't get corrupted from cancelling the run mid-way through, allow a full frame to complete
     trans_scale = 1.0/200.0
     MAX_ADABINS_AREA = 500000
 
-    # text_prompts = None
-    # image_prompts = None
-    # clip_guidance_scale = None
-    # tv_scale = None
-    # range_scale = None
-    # sat_scale = None
-    # cutn_batches = None
-    # max_frames = None
-    # interp_spline = None
-    # init_image = None
-    # init_scale = None
-    # skip_steps = None
-    # frames_scale = None
-    # frames_skip_steps = None
-    # perlin_init = None
-    # perlin_mode = None
-    # skip_augs = None
-    # randomize_class = None
-    # clip_denoised = None
-    # clamp_grad = None
-    # clamp_max = None
-    # seed = None
-    # fuzzy_prompt = None
-    # rand_mag = None
-    # eta = None
-    # width_height = None
-    # diffusion_model = None
-    # use_secondary_model = None
-    # steps = None
-    # diffusion_steps = None
-    # diffusion_sampling_mode = None
-    # ViTB32 = None
-    # ViTB16 = None
-    # ViTL14 = None
-    # ViTL14_336px=None
-    # RN101 = None
-    # RN50 = None
-    # RN50x4 = None
-    # RN50x16 = None
-    # RN50x64 = None
-    # cut_overview = None
-    # cut_innercut = None
-    # cut_ic_pow = None
-    # cut_icgray_p = None
-    # key_frames = None
-    # max_frames = None
-    # animation_mode = None
-    # angle = None
-    # zoom = None
-    # translation_x = None
-    # translation_y = None
-    # translation_z = None
-    # rotation_3d_x = None
-    # rotation_3d_y = None
-    # rotation_3d_z = None
-    # midas_depth_model = None
-    # midas_weight = None
-    # near_plane = None
-    # far_plane = None
-    # fov = None
-    # padding_mode = None
-    # sampling_mode = None
-    # resume_run = None
-    # video_init_path = None
-    # extract_nth_frame = None
-    # video_init_seed_continuity = None
-    # turbo_mode = None
-    # turbo_steps = None
-    # turbo_preroll = None
-    # batchNum = None
+    text_prompts = None
+    image_prompts = None
+    clip_guidance_scale = None
+    tv_scale = None
+    range_scale = None
+    sat_scale = None
+    cutn_batches = None
+    max_frames = None
+    interp_spline = None
+    init_image = None
+    init_scale = None
+    skip_steps = None
+    frames_scale = None
+    frames_skip_steps = None
+    perlin_init = None
+    perlin_mode = None
+    skip_augs = None
+    randomize_class = None
+    clip_denoised = None
+    clamp_grad = None
+    clamp_max = None
+    seed = None
+    fuzzy_prompt = None
+    rand_mag = None
+    eta = None
+    width_height = None
+    diffusion_model = None
+    use_secondary_model = None
+    steps = None
+    diffusion_steps = None
+    diffusion_sampling_mode = None
+    ViTB32 = None
+    ViTB16 = None
+    ViTL14 = None
+    ViTL14_336px=None
+    RN101 = None
+    RN50 = None
+    RN50x4 = None
+    RN50x16 = None
+    RN50x64 = None
+    cut_overview = None
+    cut_innercut = None
+    cut_ic_pow = None
+    cut_icgray_p = None
+    key_frames = None
+    max_frames = None
+    animation_mode = None
+    angle = None
+    zoom = None
+    translation_x = None
+    translation_y = None
+    translation_z = None
+    rotation_3d_x = None
+    rotation_3d_y = None
+    rotation_3d_z = None
+    midas_depth_model = None
+    midas_weight = None
+    near_plane = None
+    far_plane = None
+    fov = None
+    padding_mode = None
+    sampling_mode = None
+    resume_run = None
+    video_init_path = None
+    extract_nth_frame = None
+    video_init_seed_continuity = None
+    turbo_mode = None
+    turbo_steps = None
+    turbo_preroll = None
+    batchNum = None
     
     def render_frames(self):
         args = self.args
-        seed = args.seed
+        self.seed = args.seed
         last_path  ="" #f'{batchFolder}/{filename}'
         filename = ""
         if (args.animation_mode == "3D") and (args.midas_weight > 0.0):
@@ -218,7 +218,7 @@ class GeneratorDisco(GeneratorBase):
                     )
                 
                 if self.frame_num > 0:
-                    seed += 1
+                    self.seed += 1
                     if self.resume_run and self.frame_num == self.start_frame:
                         img_0 = cv2.imread(self.batchFolder+f"/{self.batch_name}({self.batchNum})_{self.start_frame-1:04}.png")
                     else:
@@ -246,7 +246,7 @@ class GeneratorDisco(GeneratorBase):
 
             if args.animation_mode == "3D":
                 if self.frame_num > 0:
-                    seed += 1    
+                    self.seed += 1    
                     if self.resume_run and self.frame_num == self.start_frame:
                         img_filepath = self.batchFolder+f"/{self.batch_name}({self.batchNum})_{self.start_frame-1:04}.png"
                         if self.turbo_mode and self.frame_num > self.turbo_preroll:
@@ -288,18 +288,19 @@ class GeneratorDisco(GeneratorBase):
 
             if  args.animation_mode == "Video Input":
                 if not self.video_init_seed_continuity:
-                    seed += 1
+                    self.seed += 1
                     init_image = f'{self.videoFramesFolder}/{self.frame_num+1:04}.jpg'
                     self.init_scale = args.frames_scale
                     self.skip_steps = args.calc_frames_skip_steps
 
             loss_values = []
         
-            if seed is not None:
-                np.random.seed(seed)
-                random.seed(seed)
-                torch.manual_seed(seed)
-                torch.cuda.manual_seed_all(seed)
+           
+            if self.seed is not None:
+                np.random.seed(self.seed)
+                random.seed(self.seed)
+                torch.manual_seed(self.seed)
+                torch.cuda.manual_seed_all(self.seed)
                 torch.backends.cudnn.deterministic = True
         
             target_embeds, weights = [], []
@@ -311,7 +312,7 @@ class GeneratorDisco(GeneratorBase):
             else:
                 frame_prompt = []
             
-            self.chain.output_message(args.image_prompts_series)
+            #self.chain.output_message(args.image_prompts_series)
             if args.image_prompts_series is not None and self.frame_num >= len(args.image_prompts_series):
                 image_prompt = args.image_prompts_series[-1]
             elif args.image_prompts_series is not None:
@@ -495,7 +496,7 @@ class GeneratorDisco(GeneratorBase):
                     )
                 
                 for j, sample in enumerate(samples):    
-                    self.chain.progress += (1.0 / self.steps) / len(self.chain.project.generators)
+                    if self.chain.project != None : self.chain.progress += (1.0 / self.steps) / len(self.chain.project.generators)
                     cur_t -= 1
                     intermediateStep = False
                     if args.steps_per_checkpoint is not None:
@@ -524,6 +525,7 @@ class GeneratorDisco(GeneratorBase):
                                 image = TF.to_pil_image(image.add(1).div(2).clamp(0, 1))
                                 if j % args.display_rate == 0 or cur_t == -1:
                                     image.save('content/progress.png')
+                                    os.system("cp content/progress.png \"" + os.getcwd() + "/static/output/progress.png\"")
                                 if args.steps_per_checkpoint is not None:
                                     if j % args.steps_per_checkpoint == 0 and j > 0:
                                         if args.intermediates_in_subfolder is True:
@@ -606,16 +608,16 @@ class GeneratorDisco(GeneratorBase):
 
         if self.set_seed == 'random_seed':
             random.seed()
-            seed = random.randint(0, 2**32)
-            self.chain.output_message(f'Using seed: {seed}')
+            self.seed = random.randint(0, 2**32)
+            self.chain.output_message(f'Using seed: {self.seed}')
         else:
-            seed = int(self.set_seed)
+            self.seed = int(self.set_seed)
 
         self.args = {
             'batchNum': self.batchNum,
             'prompts_series': utils.split_prompts(self.text_prompts,self.max_frames) if self.text_prompts else None,
             'image_prompts_series':utils.split_prompts(self.image_prompts,self.max_frames) if self.image_prompts else None,
-            'seed': seed,
+            'seed': self.seed,
             'display_rate':self.display_rate,
             'n_batches':self.n_batches if self.animation_mode == 'None' else 1,
             'batch_size':self.batch_size,
@@ -704,7 +706,7 @@ class GeneratorDisco(GeneratorBase):
         except KeyboardInterrupt:
             pass
         finally:
-            self.chain.output_message('Seed used:', seed)
+            self.chain.output_message('Seed used:' + str(self.seed))
             gc.collect()
             torch.cuda.empty_cache()
         return filename
@@ -714,10 +716,12 @@ class GeneratorDisco(GeneratorBase):
         settings = self.settings
 
         if override_settings!=None:
-            settings = self.json_override(settings, json.loads(override_settings))
+            settings = self.json_override(settings, override_settings)
             
+        #if not isinstance(settings["prompt"], list): settings['prompt'] =   [settings['prompt']]
+        
         """# 3. Settings"""
-        self.steps = settings["steps"]
+        self.steps = int(settings["steps"])
         
         #@markdown ####**Basic Settings:**
         self.batch_name = 'TimeToDisco' #@param{type: 'string'}
@@ -997,8 +1001,8 @@ class GeneratorDisco(GeneratorBase):
 
             #@markdown ####**Cutn Scheduling:**
             #@markdown Format: `[40]*400+[20]*600` = 40 cuts for the first 400 /1000 steps, then 20 for the last 600/1000
-
             #@markdown cut_overview and cut_innercut are cumulative for total cutn on any given step. Overview cuts see the entire image and are good for early structure, innercuts are your standard cutn.
+
 
             self.cut_overview = "[12]*400+[4]*600" #@param {type: 'string'}       
             self.cut_innercut ="[4]*400+[12]*600"#@param {type: 'string'}  
@@ -1009,10 +1013,14 @@ class GeneratorDisco(GeneratorBase):
             `animation_mode: None` will only use the first set. `animation_mode: 2D / Video` will run through them per the set frames and hold on the last one.
             """
 
-            self.text_prompts = {
-                0: settings['prompt'],
-                #100: ["This set of prompts start at frame 100","This prompt has weight five:5"],
-            }
+
+            self.text_prompts = {}
+            for item in settings['text_prompts']:
+                self.text_prompts[int(item['start'])] =item['prompt']
+            # {
+            #     0: settings['prompt'],
+            #     #100: ["This set of prompts start at frame 100","This prompt has weight five:5"],
+            # }
 
             self.image_prompts = {
                 # 0:['ImagePromptsWorkButArentVeryGood.png:2',],
@@ -1042,7 +1050,7 @@ class GeneratorDisco(GeneratorBase):
         model_secondary_downloaded = False
 
         multipip_res = subprocess.run(['pip', 'install', 'lpips', 'datetime', 'timm', 'ftfy', 'einops', 'pytorch-lightning', 'omegaconf'], stdout=subprocess.PIPE).stdout.decode('utf-8')
-        self.chain.output_message(multipip_res)
+        #self.chain.output_message(multipip_res)
 
 
         """# 2. Diffusion and CLIP model settings"""
@@ -1057,7 +1065,7 @@ class GeneratorDisco(GeneratorBase):
         self.ViTB32 = settings['ViTB32'] #@param{type:"boolean"}
         self.ViTB16 = settings['ViTB16'] #@param{type:"boolean"}
         self.ViTL14 = settings['ViTL14'] #@param{type:"boolean"}
-        self.ViTL14_336 = settings['ViTL14_336px'] #@param{type:"boolean"}
+        self.ViTL14_336px = settings['ViTL14_336px'] #@param{type:"boolean"}
         self.RN101 = settings['RN101'] #@param{type:"boolean"}
         self.RN50 = settings['RN50'] #@param{type:"boolean"}
         self.RN50x4 = settings['RN50x4'] #@param{type:"boolean"}
@@ -1187,7 +1195,7 @@ class GeneratorDisco(GeneratorBase):
         if self.ViTB32 is True: self.clip_models.append(clip.load('ViT-B/32', jit=False)[0].eval().requires_grad_(False).to(self.device)) 
         if self.ViTB16 is True: self.clip_models.append(clip.load('ViT-B/16', jit=False)[0].eval().requires_grad_(False).to(self.device) ) 
         if self.ViTL14 is True: self.clip_models.append(clip.load('ViT-L/14', jit=False)[0].eval().requires_grad_(False).to(self.device) ) 
-        if self.ViTL14_336px is True: self.clip_models.append(clip.load('ViTL14@336px', jit=False)[0].eval().requires_grad_(False).to(self.device) ) 
+        if self.ViTL14_336px is True: self.clip_models.append(clip.load('ViT-L/14@336px', jit=False)[0].eval().requires_grad_(False).to(self.device) ) 
         if self.RN50 is True: self.clip_models.append(clip.load('RN50', jit=False)[0].eval().requires_grad_(False).to(self.device))
         if self.RN50x4 is True: self.clip_models.append(clip.load('RN50x4', jit=False)[0].eval().requires_grad_(False).to(self.device)) 
         if self.RN50x16 is True: self.clip_models.append(clip.load('RN50x16', jit=False)[0].eval().requires_grad_(False).to(self.device)) 
@@ -1433,7 +1441,7 @@ class GeneratorDisco(GeneratorBase):
             self.device = chain.device
             self.DEVICE = chain.DEVICE
                 
-        self.settings["steps"] = steps
+        self.settings["steps"] = int(steps)
         self.settings["wh"] = wh
 
         self.root_path = os.getcwd()

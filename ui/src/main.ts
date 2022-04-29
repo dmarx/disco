@@ -18,6 +18,9 @@ import { initApexCharts } from "@/core/plugins/apexcharts";
 import { initInlineSvg } from "@/core/plugins/inline-svg";
 import { initVeeValidate } from "@/core/plugins/vee-validate";
 
+import * as THREE from 'three';
+import { TroisJSVuePlugin } from 'troisjs';
+
 import "@/core/plugins/prismjs";
 import "bootstrap";
 
@@ -29,6 +32,7 @@ const app = createApp(App).use(store);
 // app.use(VueAxios, axios)
 app.use(router);
 app.use(ElementPlus);
+app.use(TroisJSVuePlugin);
 
 // app.provide('axios', app.config.globalProperties.axios)
 

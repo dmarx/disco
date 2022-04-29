@@ -1,5 +1,8 @@
 {
-    "prompt": ["a scenic view of a beautiful tropical beach by David Noton, bright sunny day", "dawn color scheme"],
+    "text_prompts": [{
+        "start": 0,
+        "prompt": "A scenic view of a beautiful tropical beach by David Noton, bright sunny day"
+    }],
     "width": 1024,
     "height": 576,
     "cgs": 5000,

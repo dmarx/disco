@@ -111,11 +111,21 @@ export default defineComponent({
       mounted: false,
       projects: null,
     });
+
+    let apiUrl = "http://localhost:5000";
+
     return {
       state,
+      apiUrl,
     };
   },
   mounted() {
+    console.log(location.host);
+    if (location.host.indexOf("localhost") > -1) {
+      this.apiUrl = "http://localhost:5000";
+    } else {
+      this.apiUrl = "";
+    }
     setCurrentPageTitle("Projects");
     this.state.mounted = true;
     this.getProjects();
@@ -126,7 +136,7 @@ export default defineComponent({
     },
     getProjects() {
       console.log("get");
-      ApiService.post("http://localhost:5000/api/projects", {})
+      ApiService.post(this.apiUrl + "/api/projects", {})
         .then(({ data }) => {
           this.state.projects = data;
           console.log("get projects", data);
@@ -135,7 +145,7 @@ export default defineComponent({
     },
     addProject() {
       console.log("add");
-      ApiService.post("http://localhost:5000/api/project/add", {})
+      ApiService.post(this.apiUrl + "/api/project/add", {})
         .then(({ data }) => {
           //this.state.projects = data;
           this.getProjects();
@@ -144,7 +154,7 @@ export default defineComponent({
     },
     saveProject(id) {
       console.log("save");
-      ApiService.post("http://localhost:5000/api/project/" + id.toString(), {})
+      ApiService.post(this.apiUrl + "/api/project/" + id.toString(), {})
         .then(({ data }) => {
           //this.state.projects = data;
           // this.getProjects();
@@ -153,7 +163,7 @@ export default defineComponent({
     },
     deleteProject(id) {
       console.log("delete");
-      ApiService.delete("http://localhost:5000/api/project/" + id.toString())
+      ApiService.delete(this.apiUrl + "/api/project/" + id.toString())
         .then(({ data }) => {
           //this.state.projects = data;
           // this.getProjects();

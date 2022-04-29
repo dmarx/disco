@@ -33,10 +33,33 @@
 # filename = chain.run_chain(prompt)
 
 # from modules.generators.generator_disco.generator import GeneratorDisco
+import json
+from types import SimpleNamespace
 from modules.manager.chain.chain import Chain
+from modules.manager.projects.project import Project
 
 prompt = "A scenic view underwater of large sea monsters and volumetric light, by David Noton and Asher Brown Durand, matte painting trending on artstation HQ."
-chain = Chain()
 
-# chain.run_ld = False
-filename = chain.run_chain(prompt)
+project = Project(-1)
+project.generators = [SimpleNamespace(**{
+    "id":0,
+    "type":2,
+    "settings":{
+        "prompt":prompt,
+       "steps":150,
+       "width":512,
+        "height":512,
+        # 'ViTB32': True,
+        # 'ViTB16': True,
+        # 'ViTL14': False, # True
+        # 'ViTL14_336px':False,
+        # 'RN101': False,
+        # 'RN50': False,
+        # 'RN50x4': False,
+        # 'RN50x16': False,
+        # 'RN50x64': False,
+        }
+    })]
+chain = Chain()
+filename = chain.run_project(project)
+# filename = chain.run_chain(prompt)

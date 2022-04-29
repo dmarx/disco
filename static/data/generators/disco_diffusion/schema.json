@@ -1,9 +1,20 @@
 {
     "labelWidth": "130px",
     "rows": [{
-            "type": "text",
-            "field": "prompt",
-            "label": "Prompt"
+            "type": "nested",
+            "field": "text_prompts",
+            "label": "",
+            "columns": [{
+                    "type": "number",
+                    "field": "start",
+                    "label": "Start"
+                },
+                {
+                    "type": "text",
+                    "field": "prompt",
+                    "label": "Prompt"
+                }
+            ]
         },
         {
             "type": "number",

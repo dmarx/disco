@@ -2,7 +2,7 @@
 import json
 import os
 import time
-from flask import Flask, jsonify, request,make_response,send_file,Response
+from flask import Flask, jsonify, request,make_response,send_file,Response, send_from_directory
 from flask_cors import CORS, cross_origin
 import pandas as pd
 from twilio.twiml.messaging_response import MessagingResponse
@@ -32,7 +32,10 @@ os.system("export TOKENIZERS_PARALLELISM=false")
 
 from flask_cors import CORS
 
-app = Flask(__name__)
+app = Flask(__name__,
+            static_url_path='', 
+            static_folder='static'
+            )
 CORS(app)
 cors = CORS(app, resource={
     r"/*":{
@@ -52,6 +55,11 @@ stdout, stderr = None, None
 line = ""
 
 proc = None
+
+@app.route('/')
+def serve_results():
+    # Haven't used the secure way to send files yet
+    return send_file( 'static/index.html')
 
 @asyncio.coroutine
 def run_base(id):
