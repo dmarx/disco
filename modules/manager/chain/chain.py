@@ -126,7 +126,7 @@ class Chain:
                 #     self.generator_disco.settings["skip_steps"] = 25
                 #     self.generator_disco.settings["init_image"] = os.getcwd() + "/static/output/" + self.output_filename
                 self.output_filename = self.generator_disco.do_run()
-                self.output_project_image(project,generator)
+                self.output_project_image(project,generator,"preview/" + str(frame) , "preview.png" )
               
         self.output_message("Finished project " + str(project.id) + ": " + project.title)
         self.busy = False
@@ -134,11 +134,12 @@ class Chain:
         
         return self.output_filename
 
-    def output_project_image(self,project,generator):
-        out_path = "static/data/projects/" + str(project.id) + "/output/" + str(generator.id)
+    def output_project_image(self,project,generator,slug="",filename=""):
+        out_filename = self.output_filename if len(filename)==0 else filename
+        out_path = "static/data/projects/" + str(project.id) + "/output/" + str(generator.type) + "/" + (slug + "/" if slug!= ""  else "") 
         os.system("mkdir -p " + out_path )
-        os.system("cp \"static/output/" + self.output_filename +  "\" \"" + out_path + "/" + self.output_filename + "\"")
-        generator.output_path = out_path.replace("static/","") + "/" + self.output_filename
+        os.system("cp \"static/output/" + self.output_filename +  "\" \"" + out_path + "/" + out_filename + "\"")
+        generator.output_path = out_path.replace("static/","") + "/" + out_filename
         project.save()
                 
     def output_message(self,msg):

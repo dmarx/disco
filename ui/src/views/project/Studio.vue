@@ -288,11 +288,44 @@
                           </span>
 
                           &nbsp;&nbsp;&nbsp;
-                          <button class="btn btn-primary btn-sm" @click="previewFrame()">
+                          <button
+                            class="btn btn-primary btn-sm"
+                            @click="loadPreviewFrame(state.selectedFrame)"
+                          >
                             Preview
                           </button>
                         </div>
-                        Animation Tools
+                        Animation Tools&nbsp;&nbsp;&nbsp;
+                        <button
+                          class="btn btn-primary btn-sm"
+                          @click="scrub_start()"
+                          style="margin-right: 8px"
+                        >
+                          <i class="fas fa-backward"></i>
+                        </button>
+                        <button
+                          class="btn btn-primary btn-sm"
+                          @click="scrub_play()"
+                          v-if="state.autoPlay == false"
+                          style="margin-right: 8px"
+                        >
+                          <i class="fas fa-play"></i>
+                        </button>
+                        <button
+                          class="btn btn-primary btn-sm"
+                          @click="scrub_pause()"
+                          v-if="state.autoPlay == true"
+                          style="margin-right: 8px"
+                        >
+                          <i class="fas fa-pause"></i>
+                        </button>
+                        <button
+                          class="btn btn-primary btn-sm"
+                          @click="scrub_end()"
+                          style="margin-right: 8px"
+                        >
+                          <i class="fas fa-fast-forward"></i>
+                        </button>
                       </h3>
 
                       <div style="width: 100%">
@@ -487,6 +520,7 @@ import { AxiosResponse, AxiosRequestConfig } from "axios";
 import { useRoute } from "vue-router";
 import { VueDraggableNext } from "vue-draggable-next";
 
+
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { TransformControls } from "three/examples/jsm/controls/TransformControls";
@@ -559,9 +593,9 @@ export default defineComponent({
       progress: 0,
       progressPercentage: "",
       autoUpdate: false,
-      preloadFrame:0,
+      preloadFrame: 0,
       selectedFrame: 0,
-      
+      autoPlay: false,
       // renderer,
       // box
     });
@@ -573,6 +607,7 @@ export default defineComponent({
     const renderer: any = null;
     const camera: any = null;
 
+    const previewPlanes: any[] = [];
     const splineHelperObjects: any[] = [];
     let splinePointsLength = 100;
     const positions: any[] = [];
@@ -589,16 +624,16 @@ export default defineComponent({
     const previewMaterial: any = null;
     const previewImage: any = null;
 
-    const ARC_SEGMENTS = 200;
+    const ARC_SEGMENTS = 100;
 
     const splines = {};
-    const tween:any= null;
+    const tween: any = null;
 
     const params = {
       uniform: true,
-      tension: 0.5,
-      centripetal: true,
-      chordal: true,
+      tension: 0.75,
+      centripetal: false,
+      chordal: false,
       addPoint: null,
       removePoint: null,
       exportSpline: null,
@@ -632,7 +667,8 @@ export default defineComponent({
       camera,
       previewMaterial,
       previewImage,
-      tween
+      tween,
+      previewPlanes,
     };
   },
 
@@ -665,14 +701,16 @@ export default defineComponent({
   methods: {
     updateTimeframe() {
       let frameTimelineSlider = this.$refs.frameTimelineSlider as any;
-
-      this.state.selectedFrame = frameTimelineSlider.value;
+      frameTimelineSlider.value = this.state.selectedFrame;
       // this.camera.position.copy(this.positions[this.state.selectedFrame]);
       // this.camera.position.z += 50.0;
-      console.log(this.state.selectedFrame);
+      // console.log(this.state.selectedFrame);
 
       var from = this.camera.position.clone();
-      var to = (new Vector3()).copy(this.positions[this.state.selectedFrame]).clone();
+      var to = new Vector3().copy(this.positions[this.state.selectedFrame]).clone();
+      to.z += 100.0;
+      var lookat = (this.state.selectedFrame<this.ARC_SEGMENTS-2 ?  new Vector3().copy(this.positions[this.state.selectedFrame+1]).clone() :null);
+      lookat.z += 100.0;
       // var cam = new Vector3()
       //   .copy(this.positions[this.state.selectedFrame])
       //   .clone()
@@ -685,8 +723,8 @@ export default defineComponent({
         .easing(TWEEN.Easing.Linear.None)
         .onUpdate((p) => {
           console.log(p);
-          this.camera.position.set(p.x, p.y, p.z + 100.0);
-          this.camera.lookAt(to);
+          this.camera.position.set(p.x, p.y, p.z);
+          if (lookat) this.camera.lookAt(to);
           // controls.update();
           // controls.target = new THREE.Vector3(
           //   -2.3990653437361487,
@@ -695,6 +733,14 @@ export default defineComponent({
           // );
         });
       this.tween.start();
+      if (this.state.autoPlay) {
+        setTimeout(() => {
+          if (this.state.selectedFrame < this.ARC_SEGMENTS - 1) {
+            this.state.selectedFrame += 1;
+            this.updateTimeframe();
+          }
+        }, 1500);
+      }
     },
 
     deleteGenerator(generator) {
@@ -843,6 +889,7 @@ export default defineComponent({
         // does all filtering once slider has changed and been released
         frameTimelineSlider!.addEventListener("change", () => {
           this.state.selectedFrame = frameTimelineSlider.value;
+
           this.updateTimeframe();
         });
         frameTimelineSlider.addEventListener("mouseup", () => {
@@ -899,8 +946,9 @@ export default defineComponent({
       // plane.receiveShadow = true;
       // scene.add(plane);
 
-      const helper = new GridHelper(2000, 100);
+      const helper = new GridHelper(10000, 100);
       helper.position.y = -199;
+      helper.position.z = -(this.ARC_SEGMENTS * 100)/2.0;
       helper.material.opacity = 0.25;
       helper.material.transparent = true;
       scene.add(helper);
@@ -1049,7 +1097,6 @@ export default defineComponent({
       this.load(av);
 
       this.onWindowResize();
-
     },
 
     addSplineObject(position) {
@@ -1091,6 +1138,9 @@ export default defineComponent({
     },
 
     updateSplineOutline() {
+      // console.log("updateSplineOutline");
+      let axis = new THREE.Vector3();
+      let up = new THREE.Vector3(0, 0, -1);
       for (const k in this.splines) {
         const spline = this.splines[k];
         const splineMesh = spline.mesh;
@@ -1099,6 +1149,25 @@ export default defineComponent({
           const t = i / (this.ARC_SEGMENTS - 1);
           spline.getPoint(t, this.point);
           position.setXYZ(i, this.point.x, this.point.y, this.point.z);
+
+          let pp = this.previewPlanes.find((x) => x.userData.id == i);
+          if (pp) {
+            // console.log(pp,i,this.point)
+            pp.position.set(this.point.x, this.point.y, this.point.z);
+
+            // get the tangent to the curve
+            let tangent = spline.getTangent(t).normalize();
+
+            // calculate the axis to rotate around
+            axis.crossVectors(new THREE.Vector3(0, 0, -1), tangent).normalize();
+
+            // calcluate the angle between the up vector and the tangent
+            let radians = Math.acos(up.dot(tangent));
+
+            // set the quaternion
+            pp.rotation.y = Math.PI / 2;
+            pp.quaternion.setFromAxisAngle(axis, radians);
+          }
         }
         position.needsUpdate = true;
       }
@@ -1137,7 +1206,7 @@ export default defineComponent({
 
     render() {
       if (this.renderer) {
-        console.log("rendering");
+        // console.log("rendering");
         (this.splines as any).uniform.mesh.visible = this.params.uniform;
         (this.splines as any).centripetal.mesh.visible = this.params.centripetal;
         (this.splines as any).chordal.mesh.visible = this.params.chordal;
@@ -1218,47 +1287,98 @@ export default defineComponent({
       this.render();
     },
 
-    previewFrame() {
-      ApiService.post(
-        this.apiUrl +
-          "/api/task/preview/" +
-          (this.state.project as any).id.toString() +
-          "/" +
-          this.state.selectedFrame.toString(),
-        {}
-      )
-        .then((data) => {
-          console.log("preview", data.data);
-          this.getProject((this.state.project as any).id);
+    existsFile(url) {
+      var http = new XMLHttpRequest();
+      http.open("HEAD", url, false);
+      http.send();
+      return http.status != 404;
+    },
 
+    loadPreviewFrame(frame) {
 
-          THREE.ImageUtils.crossOrigin = "";
-          const texture = new THREE.TextureLoader().load( this.apiUrl + "/output/" + data.data );
+      let fr=parseInt( (Math.round(frame/20.0 ) *5).toString());
+      let path =
+        "/data/projects/" +
+        (this.state.project as any).id.toString() +
+        "/" +
+        "output/2/preview/" +
+        fr.toString() +
+        "/preview.png";
 
-          const mat = new THREE.MeshBasicMaterial({
-            map: texture,
-          });
-          mat.map.needsUpdate = true; //ADDED
+      if (this.existsFile(this.apiUrl + path)) {
+        // console.log("exists", this.apiUrl + path);
+        this.addPreviewToScene(path, frame);
+      } else {
+        ApiService.post(
+          this.apiUrl +
+            "/api/task/preview/" +
+            (this.state.project as any).id.toString() +
+            "/" +
+            fr.toString(),
+          {}
+        )
+          .then((data) => {
+            //console.log("preview", data.data);
+            //this.getProject((this.state.project as any).id);
+            // console.log("fetched", this.apiUrl + path, data.data);
+            if (data.data != "Busy")
+              this.addPreviewToScene(path, frame);
+          })
+          .catch(({ response }) => {});
+      }
+    },
 
-          //       // // plane
-          console.log("selframe", this.state.selectedFrame);
-          let previewPlane = new THREE.Mesh(
-            new THREE.PlaneGeometry(200, 200),
-            mat
-          );
-          previewPlane.position.z = -this.state.selectedFrame * 100.0;
-          previewPlane.overdraw = true;
-          this.renderer.scene.add(previewPlane);
+    addPreviewToScene(path, frame) {
+      THREE.ImageUtils.crossOrigin = "";
 
-          if (this.state.preloadFrame<100){
-            this.state.preloadFrame+=10;
-            this.state.selectedFrame=this.state.preloadFrame;
-            this.previewFrame();
-          }
-        })
-        .catch(({ response }) => {});
+      console.log(this.apiUrl + path);
+
+      const texture = new THREE.TextureLoader().load(this.apiUrl + path, () => {
+        mat.map.needsUpdate = true; //ADDED
+      });
+
+      const mat = new THREE.MeshBasicMaterial({
+        transparent: true,
+        map: texture,
+        opacity: 0.5,
+        side: THREE.DoubleSide
+      });
+
+      // console.log("selframe", this.state.selectedFrame);
+      let previewPlane = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), mat);
+      previewPlane.userData.id = frame;
+      previewPlane.position.z = -frame * 100.0;
+      previewPlane.overdraw = true;
+      this.previewPlanes.push(previewPlane);
+      this.renderer.scene.add(previewPlane);
+
+      if (this.state.preloadFrame < 100) {
+        this.state.preloadFrame += 5;
+        // this.state.selectedFrame = this.state.preloadFrame;
+        this.loadPreviewFrame(this.state.preloadFrame);
+      }
+    },
+
+    scrub_start() {
+      this.state.autoPlay = false;
+      this.state.selectedFrame = 0;
+      this.updateTimeframe();
+    },
+    scrub_play() {
+      this.state.autoPlay = true;
+      this.updateTimeframe();
+    },
+    scrub_pause() {
+      this.state.autoPlay = false;
+      // this.updateTimeframe();
+    },
+    scrub_end() {
+      this.state.autoPlay = false;
+      this.state.selectedFrame = this.ARC_SEGMENTS - 1;
+      this.updateTimeframe();
     },
   },
+
   // watch: {},
 });
 </script>
