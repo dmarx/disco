@@ -89,6 +89,7 @@ class GeneratorDisco(GeneratorBase):
         'vr_ipd':5.0,
         'intermediate_saves': 0,
         'animation_mode':'None',
+        'start_frame':0,
         'max_frames':10000,
         #'wh':[512, 512],  
         #'wh':[1024,1024],
@@ -731,7 +732,9 @@ class GeneratorDisco(GeneratorBase):
         self.sat_scale =   settings['sat_scale'] #0#@param{type: 'number'}
         self.cutn_batches = settings['cutn_batches']   #@param{type: 'number'}
         self.skip_augs =  settings['skip_augs'] #@param{type: 'boolean'}
-
+        self.start_frame = settings['start_frame'] #@param{type: 'number'}
+        # self.args.start_frame = self.start_frame
+        
         #@markdown ####**Soft Limiter (Use 0.97 - 0.995 range):**\n",
                 #@markdown *Experimental! ...may help mitigate color clipping.*\n",
         self.soft_limiter_on = settings['soft_limiter_on'] #@param{type: 'boolean'}\n",
@@ -1016,7 +1019,14 @@ class GeneratorDisco(GeneratorBase):
 
             self.text_prompts = {}
             for item in settings['text_prompts']:
-                self.text_prompts[int(item['start'])] =[item['prompt']]
+                if item['prompt'] != None and item['start'] != None:
+                    l = item['prompt'].split('\",\"')
+                    l2 = []
+                    for s in l:
+                        l2.append(s.replace('"',''))
+                        # if s.startswith('\"'): s = s[1:]
+                        # if s.endswith('\"'): s = s[:-1]
+                    self.text_prompts[int(item['start'])] =l2
             # {
             #     0: settings['prompt'],
             #     #100: ["This set of prompts start at frame 100","This prompt has weight five:5"],

@@ -313,6 +313,7 @@
                               style="width: 100%; display: block"
                               ref="frameTimelineSlider"
                               id="frameTimelineSlider"
+                              class="slider"
                               type="range"
                               min="0"
                               max="100"
@@ -473,6 +474,7 @@
 
 <script lang="ts">
 import * as THREE from "three";
+import { TWEEN } from "three/examples/jsm/libs/tween.module.min";
 
 import { defineComponent, onMounted, ref, reactive } from "vue";
 import Flow from "../../views/project/flow/Flow.vue";
@@ -556,8 +558,10 @@ export default defineComponent({
       output: "",
       progress: 0,
       progressPercentage: "",
-      autoUpdate: true,
+      autoUpdate: false,
+      preloadFrame:0,
       selectedFrame: 0,
+      
       // renderer,
       // box
     });
@@ -570,7 +574,7 @@ export default defineComponent({
     const camera: any = null;
 
     const splineHelperObjects: any[] = [];
-    let splinePointsLength = 4;
+    let splinePointsLength = 100;
     const positions: any[] = [];
     const point = new THREE.Vector3();
 
@@ -588,6 +592,7 @@ export default defineComponent({
     const ARC_SEGMENTS = 200;
 
     const splines = {};
+    const tween:any= null;
 
     const params = {
       uniform: true,
@@ -625,8 +630,9 @@ export default defineComponent({
       geometry,
       renderer,
       camera,
-      previewMaterial,  
-      previewImage
+      previewMaterial,
+      previewImage,
+      tween
     };
   },
 
@@ -647,6 +653,10 @@ export default defineComponent({
       this.timer = setInterval(this.updateStatus, 5000);
     }
 
+    this.renderer.onBeforeRender(() => {
+      TWEEN.update();
+    });
+
     this.getProject(route.params.id);
   },
   beforeDestroy() {
@@ -657,6 +667,34 @@ export default defineComponent({
       let frameTimelineSlider = this.$refs.frameTimelineSlider as any;
 
       this.state.selectedFrame = frameTimelineSlider.value;
+      // this.camera.position.copy(this.positions[this.state.selectedFrame]);
+      // this.camera.position.z += 50.0;
+      console.log(this.state.selectedFrame);
+
+      var from = this.camera.position.clone();
+      var to = (new Vector3()).copy(this.positions[this.state.selectedFrame]).clone();
+      // var cam = new Vector3()
+      //   .copy(this.positions[this.state.selectedFrame])
+      //   .clone()
+      //   .subScalar(100);
+      to.y += 25.0;
+      // cam.y += 25.0;
+      // console.log(from, to, cam);
+      this.tween = new TWEEN.Tween(from)
+        .to(to, 1500)
+        .easing(TWEEN.Easing.Linear.None)
+        .onUpdate((p) => {
+          console.log(p);
+          this.camera.position.set(p.x, p.y, p.z + 100.0);
+          this.camera.lookAt(to);
+          // controls.update();
+          // controls.target = new THREE.Vector3(
+          //   -2.3990653437361487,
+          //   -3.4148881873690886,
+          //   54.09252756000919
+          // );
+        });
+      this.tween.start();
     },
 
     deleteGenerator(generator) {
@@ -1004,14 +1042,14 @@ export default defineComponent({
         (this.$refs.scene as Scene).scene.add(spline.mesh);
       }
 
-      this.load([
-        new Vector3(28.76843686945404, 45.51481137238443, 5.10018915737797),
-        new Vector3(-5.56300074753207, 17.49711742836848, -1.495472686253045),
-        new Vector3(-9.40118730204415, 17.4306956436485, -0.958271935582161),
-        new Vector3(-38.785318791128, 49.1365363371675, 4.869296953772746),
-      ]);
+      let av: any[] = [];
+      for (let i = 0; i < this.splinePointsLength; i++) {
+        av.push(new Vector3(0, 0, -100.0 * i));
+      }
+      this.load(av);
 
       this.onWindowResize();
+
     },
 
     addSplineObject(position) {
@@ -1167,9 +1205,9 @@ export default defineComponent({
     },
 
     onWindowResize() {
-      console.log("resize");
-      //let camera = (this.$refs.camera as Camera).camera;
-      console.log("camera", this.camera);
+      // console.log("resize");
+      // //let camera = (this.$refs.camera as Camera).camera;
+      // console.log("camera", this.camera);
       if (this.camera != null) {
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
@@ -1182,29 +1220,41 @@ export default defineComponent({
 
     previewFrame() {
       ApiService.post(
-        this.apiUrl + "/api/task/preview/" + (this.state.project as any).id.toString() + "/" + this.state.selectedFrame.toString(),
+        this.apiUrl +
+          "/api/task/preview/" +
+          (this.state.project as any).id.toString() +
+          "/" +
+          this.state.selectedFrame.toString(),
         {}
       )
-        .then(({ data }) => {
-          console.log(data);
-          // this.getProject((this.state.project as any).id);
+        .then((data) => {
+          console.log("preview", data.data);
+          this.getProject((this.state.project as any).id);
 
-          THREE.ImageUtils.crossOrigin = '';
-          let  mapOverlay = THREE.ImageUtils.loadTexture(this.apiUrl  + "/output/" + data);
 
-          this.previewMaterial = new THREE.MeshBasicMaterial({ //CHANGED to MeshBasicMaterial
-              map:mapOverlay
+          THREE.ImageUtils.crossOrigin = "";
+          const texture = new THREE.TextureLoader().load( this.apiUrl + "/output/" + data.data );
+
+          const mat = new THREE.MeshBasicMaterial({
+            map: texture,
           });
-          this.previewMaterial.map.needsUpdate = true; //ADDED
+          mat.map.needsUpdate = true; //ADDED
 
-          // plane
-          this.previewImage = new THREE.Mesh(new THREE.PlaneGeometry(200, 200),this.previewMaterial);
-          this.previewImage.overdraw = true;
-          this.renderer.scene.add(this.previewImage);
+          //       // // plane
+          console.log("selframe", this.state.selectedFrame);
+          let previewPlane = new THREE.Mesh(
+            new THREE.PlaneGeometry(200, 200),
+            mat
+          );
+          previewPlane.position.z = -this.state.selectedFrame * 100.0;
+          previewPlane.overdraw = true;
+          this.renderer.scene.add(previewPlane);
 
-
-
-          console.log();
+          if (this.state.preloadFrame<100){
+            this.state.preloadFrame+=10;
+            this.state.selectedFrame=this.state.preloadFrame;
+            this.previewFrame();
+          }
         })
         .catch(({ response }) => {});
     },

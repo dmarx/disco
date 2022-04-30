@@ -97,7 +97,7 @@ class Chain:
         return self.output_filename
 
 
-    def run_project_preview(self,project,frame):
+    def run_project_preview(self,project,frame=0):
         self.output_message("Running project preview " + str(project.id) + ": " + project.title)
         self.progress = 0
         self.busy = True
@@ -112,6 +112,7 @@ class Chain:
                 generator.settings['diffusion_steps'] = 20
                 generator.settings['width'] = 640
                 generator.settings['height'] = 376
+                generator.settings['start_frame'] = frame
                 # generator.settings['RN50x16']=False
                 if self.generator_disco == None: 
                     self.generator_disco = GeneratorDisco(self,generator.settings['steps'],[int(generator.settings['width']),int(generator.settings['height'])],load_models=False)
