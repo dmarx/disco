@@ -1,0 +1,50 @@
+{
+    "labelWidth": "130px",
+    "rows": [{
+            "type": "text",
+            "field": "prompt",
+            "label": "Prompt"
+        },
+        {
+            "type": "number",
+            "field": "width",
+            "label": "Width"
+        },
+        {
+            "type": "number",
+            "field": "height",
+            "label": "Height"
+        },
+        {
+            "type": "text",
+            "field": "steps",
+            "label": "Steps"
+        },
+        {
+            "type": "text",
+            "field": "eta",
+            "label": "ETA"
+        },
+        {
+            "type": "text",
+            "field": "iterations",
+            "label": "Iterations"
+        },
+        {
+            "type": "text",
+            "field": "samples_in_parallel",
+            "label": "Sample in parallel"
+        },
+        {
+            "type": "text",
+            "field": "diversity",
+            "label": "Diversity"
+        },
+        {
+            "type": "select",
+            "field": "plms_ddim",
+            "label": "plms/ddim",
+            "options": ["ddim", "plms"]
+        }
+    ]
+}
