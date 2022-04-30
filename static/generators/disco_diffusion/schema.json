@@ -176,6 +176,12 @@
             "type": "checkbox",
             "field": "RN50x64",
             "label": "RN50x64"
+        },
+        {
+            "type": "select",
+            "field": "animation_mode",
+            "label": "Animation Mode",
+            "options": ["None", "2D", "3D", "Video"]
         }
 
     ]
