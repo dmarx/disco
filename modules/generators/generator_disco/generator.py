@@ -1016,7 +1016,7 @@ class GeneratorDisco(GeneratorBase):
 
             self.text_prompts = {}
             for item in settings['text_prompts']:
-                self.text_prompts[int(item['start'])] =item['prompt']
+                self.text_prompts[int(item['start'])] =[item['prompt']]
             # {
             #     0: settings['prompt'],
             #     #100: ["This set of prompts start at frame 100","This prompt has weight five:5"],
@@ -1033,13 +1033,14 @@ class GeneratorDisco(GeneratorBase):
             self.display_rate =  10 #@param{type: 'number'}
             self.n_batches =  1 #@param{type: 'number'}
 
-            #Update Model Settings
-            self.timestep_respacing = f'ddim{self.steps}'
-            self.diffusion_steps = (1000//self.steps)*self.steps if self.steps < 1000 else self.steps
-            self.model_config.update({
-                'timestep_respacing': self.timestep_respacing,
-                'diffusion_steps': self.diffusion_steps,
-            })
+            # #Update Model Settings
+            # self.timestep_respacing = f'ddim{self.steps}'
+            # self.diffusion_steps = (1000//self.steps)*self.steps if self.steps < 1000 else self.steps
+            # if (settings['diffusion_steps']!=1000): self.diffusion_steps=settings['diffusion_steps']
+            # self.model_config.update({
+            #     'timestep_respacing': self.timestep_respacing,
+            #     'diffusion_steps': self.diffusion_steps,
+            # })
 
             self.batch_size = 1 
 

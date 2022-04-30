@@ -98,6 +98,7 @@
                     data-bs-toggle="tab"
                     role="tab"
                     href="#kt_animation_tab_content"
+                    @click="delayLoadAnimation()"
                   >
                     Animation
                   </a>
@@ -137,6 +138,15 @@
                     <h2 style="color: #fff">Generator Chain</h2>
 
                     <div class="flex" v-if="state.project != null">
+                      <div
+                        v-if="state.project.generators.length == 0"
+                        style="color: #fff"
+                      >
+                        <br />
+                        Add some generators into this project chain to get started.
+                        <br />
+                        <br />
+                      </div>
                       <draggable
                         class="dragArea list-group w-full"
                         :list="state.project.generators"
@@ -165,7 +175,7 @@
 
                     <br />
 
-                    <div v-if="state.project">
+                    <div v-if="state.project && state.project.generators.length > 0">
                       <h2 style="color: #fff">Preview</h2>
 
                       <div
@@ -230,22 +240,99 @@
 
               <div
                 id="kt_animation_tab_content"
-                class="py-0 tab-pane fade active show"
+                class="py-0 tab-pane fade show"
                 role="tabpanel"
               >
-                <!--  <div style="position: relative; width: 100%; height: 600px">
-               <Renderer ref="renderer" :resize="true">
-                    <Camera ref="camera" fov="70" :near="1" :far="10000" />
-                    <Scene ref="scene">
-                    </Scene>
-                  </Renderer>
-                </div> -->
+                <div>
+                  <div v-if="!generator_disco" style="color: #fff">
+                    <h3>Animation Tools</h3>
+                    Only visible when a Disco generator is in the chain.
+                  </div>
+                  <div v-show="generator_disco != null">
+                    <div
+                      class="bg-gray-300 m-1 p-3 rounded-md text-center item-generator"
+                    >
+                      <h3
+                        style="
+                          padding: 10px;
+                          padding-bottom: 25px;
+                          line-height: 30px;
+                          margin-bottom: 16px;
+                        "
+                      >
+                        <div style="float: right; white-space: nowrap">
+                          <span
+                            v-if="generator_disco && generator_disco.settings"
+                            style="
+                              display: inline-block;
+                              display: inline-block;
+                              margin-right: 60px;
+                            "
+                            >Mode:&nbsp;
+                            <select
+                              v-model="generator_disco.settings['animation_mode']"
+                              class="form-control"
+                              style="
+                                background: #222;
+                                border: 1px solid #555;
+                                display: inline-block;
+                                color: #fff;
+                              "
+                            >
+                              <option disabled value="">Select animation mode...</option>
+                              <option>None</option>
+                              <option>2D</option>
+                              <option>3D</option>
+                              <option>Video</option>
+                            </select>
+                          </span>
 
-                <div style="width: 100%; height: 600px; position: relative" class="threejs">
-                  <Renderer ref="renderer" :resize="true" style="width:100%;height:600px">
-                    <Camera ref="camera" :fov="70" :near="1" :far="10000" />
-                    <Scene ref="scene"> </Scene>
-                  </Renderer>
+                          &nbsp;&nbsp;&nbsp;
+                          <button class="btn btn-primary btn-sm" @click="previewFrame()">
+                            Preview
+                          </button>
+                        </div>
+                        Animation Tools
+                      </h3>
+
+                      <div style="width: 100%">
+                        <label
+                          style="
+                            color: #fff;
+                            width: 100%;
+                            text-align: center;
+                            color: #999;
+                          "
+                        >
+                          Frame Timeline:
+                          <span id="sliderDisplayValue">0</span>
+                        </label>
+                        <fieldset style="width: 100%">
+                          <label id="slider-container" style="width: 100%">
+                            <input
+                              style="width: 100%; display: block"
+                              ref="frameTimelineSlider"
+                              id="frameTimelineSlider"
+                              type="range"
+                              min="0"
+                              max="100"
+                              value="0"
+                              step="1"
+                            />
+                          </label>
+                        </fieldset>
+                      </div>
+                    </div>
+
+                    <div style="position: relative" class="threejs" id="threejs">
+                      <div style="width: 100%; height: 600px; position: relative">
+                        <Renderer ref="renderer" style="width: 100%; height: 600px">
+                          <Camera ref="camera" :fov="70" :near="1" :far="10000" />
+                          <Scene ref="scene"> </Scene>
+                        </Renderer>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -451,6 +538,12 @@ export default defineComponent({
         description: "Disco diffusion network",
         folder: "disco_diffusion",
       },
+      {
+        type: 3,
+        title: "Upscale",
+        description: "BigJpg Upscaler API",
+        folder: "go_big",
+      },
     ];
     const state = reactive({
       count: 0,
@@ -463,11 +556,15 @@ export default defineComponent({
       output: "",
       progress: 0,
       progressPercentage: "",
-      autoUpdate: false,
-
+      autoUpdate: true,
+      selectedFrame: 0,
       // renderer,
       // box
     });
+
+    // const frameTimelineSlider = ref();
+
+    const generator_disco = null;
 
     const renderer: any = null;
     const camera: any = null;
@@ -482,8 +579,11 @@ export default defineComponent({
     const onUpPosition = new THREE.Vector2();
     const onDownPosition = new THREE.Vector2();
 
-    const geometry = new THREE.BoxGeometry(20, 20, 20);
+    const geometry = new THREE.BoxGeometry(5, 5, 5);
     let transformControl;
+
+    const previewMaterial: any = null;
+    const previewImage: any = null;
 
     const ARC_SEGMENTS = 200;
 
@@ -501,11 +601,14 @@ export default defineComponent({
 
     return {
       state,
+      generator_disco,
 
       timer,
       enabled: true,
       dragging: false,
       apiUrl,
+
+      // frameTimelineSlider,
 
       transformControl,
       splineHelperObjects,
@@ -522,6 +625,8 @@ export default defineComponent({
       geometry,
       renderer,
       camera,
+      previewMaterial,  
+      previewImage
     };
   },
 
@@ -548,6 +653,12 @@ export default defineComponent({
     this.cancelAutoUpdate();
   },
   methods: {
+    updateTimeframe() {
+      let frameTimelineSlider = this.$refs.frameTimelineSlider as any;
+
+      this.state.selectedFrame = frameTimelineSlider.value;
+    },
+
     deleteGenerator(generator) {
       this.state.selectedGenerator = null;
       (this.state.project as any).generators = (this.state
@@ -586,6 +697,8 @@ export default defineComponent({
       //   );
 
       (this.state.project as any).generators.push(g);
+
+      this.updateView();
     },
 
     log(event) {
@@ -646,19 +759,7 @@ export default defineComponent({
           //(this.state.project as any).chain = data.chain.nodes;
           console.log(data);
 
-          (this.params as any).addPoint = () => {
-            this.addPoint();
-          };
-          (this.params as any).removePoint = () => {
-            this.removePoint();
-          };
-          (this.params as any).exportSpline = () => {
-            this.exportSpline();
-          };
-
-          console.log("window", window.innerWidth, window.innerHeight);
-          this.initScene();
-
+          this.updateView();
           // const renderer = this.$refs.renderer;
           // const box = (this.$refs.box as any).mesh;
           // // const renderer: any = ref());
@@ -691,6 +792,42 @@ export default defineComponent({
         .catch(({ response }) => {});
     },
 
+    updateView() {
+      this.generator_disco = (this.state.project as any).generators.find(
+        (x) => x.type == 2
+      );
+      if (this.generator_disco) {
+        let frameTimelineSlider = this.$refs.frameTimelineSlider as any;
+        frameTimelineSlider.addEventListener("input", () => {
+          const sliderValue = frameTimelineSlider.value;
+          document.getElementById("sliderDisplayValue")!.innerHTML = ` ${sliderValue}`;
+        });
+        // does all filtering once slider has changed and been released
+        frameTimelineSlider!.addEventListener("change", () => {
+          this.state.selectedFrame = frameTimelineSlider.value;
+          this.updateTimeframe();
+        });
+        frameTimelineSlider.addEventListener("mouseup", () => {
+          if (this.state.selectedFrame !== frameTimelineSlider.value) {
+            this.state.selectedFrame = frameTimelineSlider.value;
+            this.updateTimeframe();
+          }
+        });
+
+        (this.params as any).addPoint = () => {
+          this.addPoint();
+        };
+        (this.params as any).removePoint = () => {
+          this.removePoint();
+        };
+        (this.params as any).exportSpline = () => {
+          this.exportSpline();
+        };
+
+        console.log("window", window.innerWidth, window.innerHeight);
+        this.initScene();
+      }
+    },
     initScene() {
       // camera = new PerspectiveCamera(
       //   70,
@@ -705,7 +842,7 @@ export default defineComponent({
 
       scene.add(new AmbientLight(0xf0f0f0));
       const light = new SpotLight(0xffffff, 1.5);
-      light.position.set(0, 1500, 200);
+      light.position.set(0, 250, 100);
       light.angle = Math.PI * 0.2;
       light.castShadow = true;
       light.shadow.camera.near = 200;
@@ -732,7 +869,7 @@ export default defineComponent({
 
       this.camera = (this.$refs.camera as Camera).camera;
       this.renderer = (this.$refs.renderer as Renderer).renderer;
-      this.camera.position.set(0, 250, 1000);
+      this.camera.position.set(0, 25, 100);
 
       // renderer = new WebGLRenderer({ antialias: true });
       this.renderer.setPixelRatio(window.devicePixelRatio);
@@ -740,7 +877,9 @@ export default defineComponent({
       this.renderer.shadowMap.enabled = true;
       // container.appendChild(renderer.domElement);
 
-      const gui = new GUI({container:document.getElementById("kt_animation_tab_content")});
+      const gui = new GUI({
+        container: document.getElementById("threejs"),
+      });
 
       gui.add(this.params, "uniform").onChange(() => {
         this.render();
@@ -783,7 +922,7 @@ export default defineComponent({
         this.render();
       });
       this.transformControl.addEventListener("dragging-changed", (event) => {
-        //controls.enabled = !event.value;
+        controls.enabled = !event.value;
       });
       scene.add(this.transformControl);
 
@@ -866,13 +1005,13 @@ export default defineComponent({
       }
 
       this.load([
-        new Vector3(289.76843686945404, 452.51481137238443, 56.10018915737797),
-        new Vector3(-53.56300074753207, 171.49711742836848, -14.495472686253045),
-        new Vector3(-91.40118730204415, 176.4306956436485, -6.958271935582161),
-        new Vector3(-383.785318791128, 491.1365363371675, 47.869296953772746),
+        new Vector3(28.76843686945404, 45.51481137238443, 5.10018915737797),
+        new Vector3(-5.56300074753207, 17.49711742836848, -1.495472686253045),
+        new Vector3(-9.40118730204415, 17.4306956436485, -0.958271935582161),
+        new Vector3(-38.785318791128, 49.1365363371675, 4.869296953772746),
       ]);
 
-      this.render();
+      this.onWindowResize();
     },
 
     addSplineObject(position) {
@@ -938,6 +1077,13 @@ export default defineComponent({
       prompt("copy and paste code", code);
     },
 
+    delayLoadAnimation() {
+      setTimeout(() => {
+        this.onWindowResize();
+        this.render();
+      }, 1000);
+    },
+
     load(new_positions) {
       while (new_positions.length > this.positions.length) {
         this.addPoint();
@@ -952,13 +1098,14 @@ export default defineComponent({
     },
 
     render() {
-      if (typeof this.$refs.renderer === "object" && this.$refs.renderer != null) {
+      if (this.renderer) {
+        console.log("rendering");
         (this.splines as any).uniform.mesh.visible = this.params.uniform;
         (this.splines as any).centripetal.mesh.visible = this.params.centripetal;
         (this.splines as any).chordal.mesh.visible = this.params.chordal;
-        let scene: Scene = (this.$refs.scene as Scene).scene;
-        let camera: Scene = (this.$refs.camera as Camera).camera;
-        (this.$refs.renderer as Renderer).renderer.render(scene, camera);
+        let scene: Scene = this.renderer.scene;
+        let camera: Scene = this.camera;
+        this.renderer.render(scene, camera);
       }
     },
 
@@ -1021,18 +1168,45 @@ export default defineComponent({
 
     onWindowResize() {
       console.log("resize");
-      let camera = (this.$refs.camera as Camera).camera;
-      if (camera != null) {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        // if (this.$refs.renderer != null) {
-        //   (this.$refs.renderer as Renderer).renderer.setSize(
-        //     window.innerWidth,
-        //     window.innerHeight
-        //   );
-        // }
-        this.render();
+      //let camera = (this.$refs.camera as Camera).camera;
+      console.log("camera", this.camera);
+      if (this.camera != null) {
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.updateProjectionMatrix();
       }
+      if (this.renderer) {
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+      }
+      this.render();
+    },
+
+    previewFrame() {
+      ApiService.post(
+        this.apiUrl + "/api/task/preview/" + (this.state.project as any).id.toString() + "/" + this.state.selectedFrame.toString(),
+        {}
+      )
+        .then(({ data }) => {
+          console.log(data);
+          // this.getProject((this.state.project as any).id);
+
+          THREE.ImageUtils.crossOrigin = '';
+          let  mapOverlay = THREE.ImageUtils.loadTexture(this.apiUrl  + "/output/" + data);
+
+          this.previewMaterial = new THREE.MeshBasicMaterial({ //CHANGED to MeshBasicMaterial
+              map:mapOverlay
+          });
+          this.previewMaterial.map.needsUpdate = true; //ADDED
+
+          // plane
+          this.previewImage = new THREE.Mesh(new THREE.PlaneGeometry(200, 200),this.previewMaterial);
+          this.previewImage.overdraw = true;
+          this.renderer.scene.add(this.previewImage);
+
+
+
+          console.log();
+        })
+        .catch(({ response }) => {});
     },
   },
   // watch: {},

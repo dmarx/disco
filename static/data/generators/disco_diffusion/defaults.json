@@ -34,5 +34,6 @@
     "RN50": false,
     "RN50x4": false,
     "RN50x16": false,
-    "RN50x64": false
+    "RN50x64": false,
+    "animation_mode": "None"
 }

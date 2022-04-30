@@ -68,13 +68,32 @@ def run_base(id):
     if chain == None: chain = Chain()
     chain.output = ""
     filename = chain.run_project(project)
+    return filename
+    
+@asyncio.coroutine
+def run_base_preview(id,frame):
+    global chain 
+    project =Api.fetch(id)
+    if chain == None: chain = Chain()
+    chain.output = ""
+    filename = chain.run_project_preview(project,frame)
+    return filename
     
 @asyncio.coroutine
 async def run_project(id):
     global proc
     proc = asyncio.create_task(run_base(id))
-    await proc
+    response = await proc
     proc = None
+    return response
+
+@asyncio.coroutine
+async def run_project_preview(id,frame):
+    global proc
+    proc = asyncio.create_task(run_base_preview(id,frame))
+    response = await proc
+    proc = None
+    return response
 
 @app.route('/api/task/start/<int:id>', methods=['POST'])
 @cross_origin()
@@ -86,6 +105,21 @@ def api_task_start(id):
         asyncio.set_event_loop(loop)
         responses = loop.run_until_complete(run_project(id))
         return "Finished"
+        # return Response({}, status=200, mimetype='application/json')
+
+    return "Busy"
+
+
+@app.route('/api/task/preview/<int:id>/<int:frame>', methods=['POST'])
+@cross_origin()
+def api_task_preview(id,frame):
+    global proc, output
+    
+    if (proc==None):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        responses = loop.run_until_complete(run_project_preview(id,frame))
+        return responses
         # return Response({}, status=200, mimetype='application/json')
 
     return "Busy"

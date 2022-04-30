@@ -83,11 +83,11 @@
         color: #FFF;
     }
     .threejs canvas {
-        width: 100%;
-        height: 100%;
+        width: 100% !important;
+        height: 100% !important;
     }
     .lil-gui {
         position: absolute;
-        top: 26px;
-        right: 26px;
+        top: 0;
+        right: 0;
     }
