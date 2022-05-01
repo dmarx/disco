@@ -1,0 +1,188 @@
+{
+    "labelWidth": "130px",
+    "rows": [{
+            "type": "nested",
+            "field": "text_prompts",
+            "label": "",
+            "columns": [{
+                    "type": "number",
+                    "field": "start",
+                    "label": "Start"
+                },
+                {
+                    "type": "text",
+                    "field": "prompt",
+                    "label": "Prompt"
+                }
+            ]
+        },
+        {
+            "type": "number",
+            "field": "width",
+            "label": "Width"
+        },
+        {
+            "type": "number",
+            "field": "height",
+            "label": "Height"
+        },
+        {
+            "type": "number",
+            "field": "cgs",
+            "label": "Clip Guidance Scale"
+        },
+        {
+            "type": "number",
+            "field": "tvs",
+            "label": "tv Scale"
+        },
+        {
+            "type": "number",
+            "field": "cut_ic_pow",
+            "label": "Cut Pow"
+        },
+        {
+            "type": "number",
+            "field": "clamp_max",
+            "label": "Clamp max"
+        },
+        {
+            "type": "checkbox",
+            "field": "clamp",
+            "label": "Use clamp"
+        },
+        {
+            "type": "text",
+            "field": "steps",
+            "label": "Steps"
+        },
+        {
+            "type": "text",
+            "field": "eta",
+            "label": "ETA"
+        },
+        {
+            "type": "text",
+            "field": "sat",
+            "label": "Saturation"
+        },
+        {
+            "type": "text",
+            "field": "range_scale",
+            "label": "Range scale"
+        },
+        {
+            "type": "text",
+            "field": "intermediate_save",
+            "label": "Intermediate saves"
+        },
+        {
+            "type": "display_rate",
+            "field": "text",
+            "label": "Display rate"
+        },
+        {
+            "type": "n_batches",
+            "field": "text",
+            "label": "Batches"
+        },
+        {
+            "type": "checkbox",
+            "field": "skip_augs",
+            "label": "Skip Augs"
+        },
+        {
+            "type": "text",
+            "field": "init_image",
+            "label": "Init image"
+        },
+        {
+            "field": "number",
+            "type": "init_scale",
+            "label": "Init scale"
+        },
+        {
+            "type": "text",
+            "field": "set_seed",
+            "label": "random_seed"
+        },
+        {
+            "type": "text",
+            "field": "cut_overview",
+            "label": "Cut Overview"
+        },
+        {
+            "type": "text",
+            "field": "cut_innercut",
+            "label": "Cut innercut"
+        },
+        {
+            "type": "text",
+            "field": "cut_icgray_p",
+            "label": "Cut gray"
+        },
+
+        {
+            "type": "checkbox",
+            "field": "use_secondary_model",
+            "label": "secondary model"
+        },
+        {
+            "type": "checkbox",
+            "field": "use_checkpoint",
+            "label": "Checkpoint"
+        },
+        {
+            "type": "checkbox",
+            "field": "VitB32",
+            "label": "VitB32"
+        },
+        {
+            "type": "checkbox",
+            "field": "VitB16",
+            "label": "VitB16"
+        },
+        {
+            "type": "checkbox",
+            "field": "VitL14",
+            "label": "VitL14"
+        },
+        {
+            "type": "checkbox",
+            "field": "VitL14_336px",
+            "label": "VitL14@336px"
+        },
+        {
+            "type": "checkbox",
+            "field": "RN101",
+            "label": "RN101"
+        },
+        {
+            "type": "checkbox",
+            "field": "RN50",
+            "label": "RN50"
+        },
+        {
+            "type": "checkbox",
+            "field": "RN50x4",
+            "label": "RN50x4"
+        },
+        {
+            "type": "checkbox",
+            "field": "RN50x16",
+            "label": "RN50x16"
+        },
+        {
+            "type": "checkbox",
+            "field": "RN50x64",
+            "label": "RN50x64"
+        },
+        {
+            "type": "select",
+            "field": "animation_mode",
+            "label": "Animation Mode",
+            "options": ["None", "2D", "3D", "Video"]
+        }
+
+    ]
+}
