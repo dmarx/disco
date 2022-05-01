@@ -64,14 +64,14 @@ class GeneratorDisco(GeneratorBase):
         'rand_mag':0.05,
         'cutn_batches':4, #2
         'path':os.getcwd(),
-        'ViTB32': True,
-        'ViTB16': True,
+        'ViTB32': False,
+        'ViTB16': False,
         'ViTL14': False, # True
-        'ViTL14_336px':False,
-        'RN101': False,
+        'ViTL14_336px':True,
+        'RN101': True,
         'RN50': False,
         'RN50x4': False,
-        'RN50x16': True,
+        'RN50x16': False,
         'RN50x64': False,
         'use_secondary_model':False,
         'skip_augs':False,
@@ -279,8 +279,8 @@ class GeneratorDisco(GeneratorBase):
                                 continue
                             else:
                                 #if not a skip frame, will run diffusion and need to blend.
-                                oldWarpedImg = cv2.imread('prevFrameScaled.png')
-                                cv2.imwrite(f'oldFrameScaled.png',oldWarpedImg)#swap in for blending later 
+                                oldWarpedImg = cv2.imread('content/prevFrameScaled.png')
+                                cv2.imwrite(f'content/oldFrameScaled.png',oldWarpedImg)#swap in for blending later 
                                 self.chain.output_message('clip/diff this frame - generate clip diff image')
 
                     init_image = 'content/prevFrameScaled.png'

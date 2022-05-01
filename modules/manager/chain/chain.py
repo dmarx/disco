@@ -1,3 +1,4 @@
+import gc
 import json
 import os, sys
 from random import randint, seed
@@ -68,19 +69,25 @@ class Chain:
                 self.generator_ld.init_settings(generator.settings)
                 self.output_filename = self.generator_ld.do_run(generator.settings["prompt"],self.generator_ld.args.prefix,str(100))
                 self.output_project_image(project,generator)
+                # del self.generator_ld
+                # # del self.generator_ld.diffusion
+                # gc.collect()
+                # torch.cuda.empty_cache()
                 
             if generator.type == 2:
                 generator.settings = json.loads(json.dumps(generator.settings, default=lambda obj: obj.__dict__))
                 if self.generator_disco == None: self.generator_disco = GeneratorDisco(self,generator.settings['steps'],[int(generator.settings['width']),int(generator.settings['height'])])
                 # self.generator_disco.settings["prompt"] = generator.settings["prompt"]
-                self.generator_disco.init_settings(generator.settings)
                 if self.output_filename != None and len(self.output_filename) > 0: 
-                    self.generator_disco.settings["skip_steps"] = 25
-                    self.generator_disco.settings["init_image"] = os.getcwd() + "/static/output/" + self.output_filename
+                    generator.settings["skip_steps"] = 25
+                    generator.settings["init_image"] = os.getcwd() + "/static/output/" + self.output_filename
+                self.generator_disco.init_settings(generator.settings)
                 self.output_filename = self.generator_disco.do_run()
                 self.output_project_image(project,generator)
-                
+               
+            
             if generator.type == 3:
+                
                 generator.settings = json.loads(json.dumps(generator.settings, default=lambda obj: obj.__dict__))
                 if self.generator_go_big == None: self.generator_go_big = GeneratorGoBig(self)
                 # self.generator_disco.settings["prompt"] = generator.settings["prompt"]

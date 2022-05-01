@@ -109,7 +109,7 @@ class GeneratorLatentDiffusion(GeneratorBase):
         #self.chain.output_message("doing run", prompt, prefix, input_seed)
 
         self.args.text = prompt
-        #if len(input_seed) > 0: self.args.seed = int(input_seed)
+        #if len(input_seed) > 0: self.args.s    eed = int(input_seed)
         self.args.prefix = prefix
 
         device = self.device
@@ -406,8 +406,8 @@ class GeneratorLatentDiffusion(GeneratorBase):
         set_requires_grad(self.bert, False)
 
         # clip
-        self.clip_model, self.clip_preprocess = clip.load(
-            'ViT-L/14@336px', device=self.device, jit=False)
+        # self.clip_model, self.clip_preprocess = clip.load('ViT-L/14@336px', device=self.device, jit=False)
+        self.clip_model, self.clip_preprocess = clip.load('ViT-L/14', device=self.device, jit=False)
         self.clip_model.eval().requires_grad_(False)
         self.normalize = transforms.Normalize(mean=[0.48145466, 0.4578275, 0.40821073], std=[
                                               0.26862954, 0.26130258, 0.27577711])
@@ -558,7 +558,7 @@ class GeneratorLatentDiffusion(GeneratorBase):
         
         self.args.width = 256
         self.args.height = 256
-        self.args.clip_guidance = False
+        self.args.clip_guidance = True
 
         # self.device = torch.device('cuda:0' if (
         #     torch.cuda.is_available() and not self.args.cpu) else 'cpu')

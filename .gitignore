@@ -26,3 +26,9 @@ models/latent_diffusion_txt2img_f8_large.ckpt
 static/output
 glid-3-xl
 ui/node_modules
+static/data/projects/*/output/*/*.png
+content/images_out
+static/dist
+ui/dist/media
+*.Identifier
+*.Identifier

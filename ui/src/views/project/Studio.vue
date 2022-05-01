@@ -286,7 +286,10 @@
                               <option>Video</option>
                             </select>
                           </span>
-
+                          &nbsp;&nbsp;&nbsp;
+                          <button class="btn btn-primary btn-sm" @click="resetFrames()">
+                            Reset
+                          </button>
                           &nbsp;&nbsp;&nbsp;
                           <button
                             class="btn btn-primary btn-sm"
@@ -397,6 +400,14 @@
                         Update
                       </button>
                     </p>
+                    <br />
+                    <div v-if="state.project">
+                      <h2 style="color: #fff">CLI</h2>
+                      <p style="color: #fff">
+                        To run from shell:
+                        <br /><span>python cli.py --project {{ state.project.id }}</span>
+                      </p>
+                    </div>
                   </div>
                   <div class="col-6" v-if="state.project">
                     <h2 style="color: #fff">Output</h2>
@@ -519,7 +530,6 @@ import ApiService from "@/core/services/ApiService";
 import { AxiosResponse, AxiosRequestConfig } from "axios";
 import { useRoute } from "vue-router";
 import { VueDraggableNext } from "vue-draggable-next";
-
 
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
@@ -709,7 +719,10 @@ export default defineComponent({
       var from = this.camera.position.clone();
       var to = new Vector3().copy(this.positions[this.state.selectedFrame]).clone();
       to.z += 100.0;
-      var lookat = (this.state.selectedFrame<this.ARC_SEGMENTS-2 ?  new Vector3().copy(this.positions[this.state.selectedFrame+1]).clone() :null);
+      var lookat =
+        this.state.selectedFrame < this.ARC_SEGMENTS - 2
+          ? new Vector3().copy(this.positions[this.state.selectedFrame + 1]).clone()
+          : null;
       lookat.z += 100.0;
       // var cam = new Vector3()
       //   .copy(this.positions[this.state.selectedFrame])
@@ -948,7 +961,7 @@ export default defineComponent({
 
       const helper = new GridHelper(10000, 100);
       helper.position.y = -199;
-      helper.position.z = -(this.ARC_SEGMENTS * 100)/2.0;
+      helper.position.z = -(this.ARC_SEGMENTS * 100) / 2.0;
       helper.material.opacity = 0.25;
       helper.material.transparent = true;
       scene.add(helper);
@@ -1090,11 +1103,7 @@ export default defineComponent({
         (this.$refs.scene as Scene).scene.add(spline.mesh);
       }
 
-      let av: any[] = [];
-      for (let i = 0; i < this.splinePointsLength; i++) {
-        av.push(new Vector3(0, 0, -100.0 * i));
-      }
-      this.load(av);
+      this.resetFrames();
 
       this.onWindowResize();
     },
@@ -1295,8 +1304,7 @@ export default defineComponent({
     },
 
     loadPreviewFrame(frame) {
-
-      let fr=parseInt( (Math.round(frame/20.0 ) *5).toString());
+      let fr = parseInt((Math.round(frame / 20.0) * 5).toString());
       let path =
         "/data/projects/" +
         (this.state.project as any).id.toString() +
@@ -1321,8 +1329,7 @@ export default defineComponent({
             //console.log("preview", data.data);
             //this.getProject((this.state.project as any).id);
             // console.log("fetched", this.apiUrl + path, data.data);
-            if (data.data != "Busy")
-              this.addPreviewToScene(path, frame);
+            if (data.data != "Busy") this.addPreviewToScene(path, frame);
           })
           .catch(({ response }) => {});
       }
@@ -1341,7 +1348,7 @@ export default defineComponent({
         transparent: true,
         map: texture,
         opacity: 0.5,
-        side: THREE.DoubleSide
+        side: THREE.DoubleSide,
       });
 
       // console.log("selframe", this.state.selectedFrame);
@@ -1357,6 +1364,14 @@ export default defineComponent({
         // this.state.selectedFrame = this.state.preloadFrame;
         this.loadPreviewFrame(this.state.preloadFrame);
       }
+    },
+
+    resetFrames() {
+      let av: any[] = [];
+      for (let i = 0; i < this.splinePointsLength; i++) {
+        av.push(new Vector3(0, 0, -100.0 * i));
+      }
+      this.load(av);
     },
 
     scrub_start() {
