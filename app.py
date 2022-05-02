@@ -1,25 +1,26 @@
 
 import json
 import os
-import time
-from flask import Flask, jsonify, request,make_response,send_file,Response, send_from_directory
+from flask import Flask, jsonify, request,send_file,Response
 from flask_cors import CORS, cross_origin
-import pandas as pd
-from twilio.twiml.messaging_response import MessagingResponse
 from modules.manager.chain.chain import Chain
 from modules.manager.projects.api import Api
-# from modules.manager.projects.api import api
-import asyncio
-import async_timeout
-import aiohttp
-
-import subprocess
 from subprocess import Popen, PIPE
 from subprocess import check_output
-import shlex
+import asyncio
+import sys
 
+
+PROJECT_DIR=os.getcwd()
+sys.path.append(f'{PROJECT_DIR}/CLIP')
+sys.path.append(f'{PROJECT_DIR}/MiDaS')
+sys.path.append(f'{PROJECT_DIR}/AdaBins')
+sys.path.append(f'{PROJECT_DIR}/latent-diffusion')
+sys.path.append(f'{PROJECT_DIR}/ResizeRight')
+sys.path.append(f'{PROJECT_DIR}./pytorch3d-lite')
+        
+        
 # from celery import Celery
-
 # from job import run
 
 UPLOAD_FOLDER = 'static/uploads/'

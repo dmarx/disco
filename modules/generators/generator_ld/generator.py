@@ -33,11 +33,11 @@ class GeneratorLatentDiffusion(GeneratorBase):
 
     ldm = None
     
-    default_settings= '{"model_path": "glid-3-xl/finetune.pt", "kl_path": "glid-3-xl/kl-f8.pt", "bert_path": "glid-3-xl/bert.pt", "text": "", "edit": null, "edit_x": 0, "edit_y": 0, "edit_width": 0, "edit_height": 0, "mask": null, "negative": "", "init_image": null, "skip_timesteps": 0, "prefix": "", "num_batches": 1, "batch_size": 1, "width": 256, "height": 256, "seed": -1, "guidance_scale": 5.0, "steps": 0, "cpu": false, "clip_score": false, "clip_guidance": false, "clip_guidance_scale": 150, "cutn": 16, "ddim": false, "ddpm": false}'
+    default_settings= '{"model_path": "glid_3_xl/finetune.pt", "kl_path": "glid_3_xl/kl-f8.pt", "bert_path": "glid_3_xl/bert.pt", "text": "", "edit": null, "edit_x": 0, "edit_y": 0, "edit_width": 0, "edit_height": 0, "mask": null, "negative": "", "init_image": null, "skip_timesteps": 0, "prefix": "", "num_batches": 1, "batch_size": 1, "width": 256, "height": 256, "seed": -1, "guidance_scale": 5.0, "steps": 0, "cpu": false, "clip_score": false, "clip_guidance": false, "clip_guidance_scale": 150, "cutn": 16, "ddim": false, "ddpm": false}'
     settings = {
-        "model_path":"glid-3-xl/finetune.pt",
-        "kl_path":"glid-3-xl/kl-f8.pt",
-        "bert_path":"glid-3-xl/bert.pt",
+        "model_path":"glid_3_xl/finetune.pt",
+        "kl_path":"glid_3_xl/kl-f8.pt",
+        "bert_path":"glid_3_xl/bert.pt",
         "text":"",
         "edit":None,
         "edit_x":0,
@@ -468,13 +468,13 @@ class GeneratorLatentDiffusion(GeneratorBase):
         
         # parser = argparse.ArgumentParser()
         
-        # parser.add_argument('--model_path', type=str, default='glid-3-xl/finetune.pt',
+        # parser.add_argument('--model_path', type=str, default='glid_3_xl/finetune.pt',
         #                     help='path to the diffusion model')
 
-        # parser.add_argument('--kl_path', type=str, default='glid-3-xl/kl-f8.pt',
+        # parser.add_argument('--kl_path', type=str, default='glid_3_xl/kl-f8.pt',
         #                     help='path to the LDM first stage model')
 
-        # parser.add_argument('--bert_path', type=str, default='glid-3-xl/bert.pt',
+        # parser.add_argument('--bert_path', type=str, default='glid_3_xl/bert.pt',
         #                     help='path to the LDM first stage model')
 
         # parser.add_argument('--text', type=str, required=False, default='',
