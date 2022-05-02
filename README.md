@@ -12,14 +12,23 @@ To avoid CORS issue.`
 INSTALL
 
 pip install 
+
 piq pip install ftfy 
+
 pip install ipywidgets 
+
 pip install lpips 
+
 pip install pytorch_lit 
+
 pip install pandas 
+
 pip install timm 
+
 pip install pytorch-lightning 
+
 pip install einops 
+
 pip install omegaconf
 
 #pip install dependency-injector
@@ -44,6 +53,7 @@ git clone https://github.com/Jack000/glid-3-xl
 rename this folder to underscores
 
 cd glid-3-xl
+
 pip install -e .
 
 
