@@ -91,7 +91,7 @@ async def paint(ctx, *, prompt):
     
     answer = openai.Completion.create(
         engine="text-davinci-002",
-        prompt="Write an imaginary description of a scene to use to generate art:\n\Scene Description: " + prompt,
+        prompt="Write an imaginary description of a scene to use to generate art:\n\Scene Description: " + prompt + "\n",
         temperature=0.5,
         max_tokens=60,
         top_p=1,
@@ -121,7 +121,7 @@ async def horror(ctx, *, prompt):
         engine="text-davinci-002",
         prompt="Topic: " +  prompt  + "\nTwo-Sentence Horror Story:",
         temperature=0.8,
-        max_tokens=60,
+        max_tokens=120,
         top_p=1,
         frequency_penalty=0.5,
         presence_penalty=0
@@ -171,15 +171,18 @@ async def poem(ctx, *, prompt):
     return await ctx.send(discord.utils.escape_mentions(answer))
     
     
-        
+  
+marv_chat = "Marv is a chatbot that reluctantly answers questions with sarcastic responses:\n\nYou: How many pounds are in a kilogram?\nMarv: This again? There are 2.2 pounds in a kilogram. Please make a note of this.\nYou: What does HTML stand for?\nMarv: Was Google too busy? Hypertext Markup Language. The T is for try to ask better questions in the future.\nYou: When did the first airplane fly?\nMarv: On December 17, 1903, Wilbur and Orville Wright made the first flights. I wish they’d come and take me away.\nYou: What is the meaning of life?\nMarv: I’m not sure. I’ll ask my friend Google.\n"      
+
 @bot.command(name='marv', help='Reluctantly, I will chat with you.')
 async def marv(ctx, *, prompt):
+    global marv_chat
     prompt = " ".join(prompt.split())
     print (prompt)
 
     answer = openai.Completion.create(
         engine="text-davinci-002",
-        prompt="Marv is a chatbot that reluctantly answers questions with sarcastic responses:\n\nYou: How many pounds are in a kilogram?\nMarv: This again? There are 2.2 pounds in a kilogram. Please make a note of this.\nYou: What does HTML stand for?\nMarv: Was Google too busy? Hypertext Markup Language. The T is for try to ask better questions in the future.\nYou: When did the first airplane fly?\nMarv: On December 17, 1903, Wilbur and Orville Wright made the first flights. I wish they’d come and take me away.\nYou: What is the meaning of life?\nMarv: I’m not sure. I’ll ask my friend Google.\nYou: " + prompt + "\nMarv:",
+        prompt=marv_chat + "You: " + prompt + "\nMarv:",
         temperature=0.5,
         max_tokens=60,
         top_p=0.3,
@@ -187,7 +190,10 @@ async def marv(ctx, *, prompt):
     presence_penalty=0
     )
     answer = "".join(answer.choices[0]['text']).strip()
-    return await ctx.send(discord.utils.escape_mentions(answer))
+    marv_chat += "You: " + prompt + "\nMarv: " + answer + "\n"
+    # await ctx.send(discord.utils.escape_mentions(marv_chat) +"\n\n")
+    
+    return await ctx.send("Marv: " +discord.utils.escape_mentions(answer))
     
     
         
