@@ -1,22 +1,13 @@
-pip install piq pip install ftfy pip install ipywidgets pip install lpips pip install pytorch_lit pip install pandas pip install timm pip install pytorch-lightning pip install einops pip install omegaconf 
-flask_cors
+#PIP stuff
+pip install piq ftfy ipywidgets lpips pytorch_lit pandas timm pip pytorch-lightning einops omegaconf flask_cors dependency-injector twilio encoders dill dalle_pytorch
 
-#pip install dependency-injector
-
-twilio
-encoders
-dill
-
-
-
-cpythn install CMD
-
+#Pytorch3d if missing
 git clone https://github.com/facebookresearch/pytorch3d.git
 cd pytorch3d 
 python3 setup.py install
 
+#Glid_3_xl
+1. rename /glid-3-xl to /glid_3_xl
+2. rename /glid-3-xl/guided_diffusion" to /glid-3-xl/guided_diffusion_ld"
 
-
-rename /glid_3d_xl/guided_diffusion add _ld
-pip install dalle_pytorch
 
