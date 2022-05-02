@@ -5,7 +5,8 @@
         "./CLIP",
         "./latent-diffusion",
         "./ResizeRight",
-        "./pytorch3d-lite"
+        "./pytorch3d-lite",
+        "./glid_3_xl"
     ],
     "python.formatting.pvider": "autopep8",
     "jupyter.jupyterServerType": "remote"

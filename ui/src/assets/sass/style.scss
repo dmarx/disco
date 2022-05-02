@@ -118,3 +118,30 @@
         background: #04AA6D;
         cursor: pointer;
     }
+    .sf-row:first .sf-row-label {
+        display: none;
+    }
+    .sf-container .sf-row.sf-row-flex-column {
+        flex-direction: column;
+        display: flex;
+        align-items: unset !important;
+        justify-content: unset !important;
+    }
+    div.sf-nested-rows tr.sf-nested-row {
+        background-color: transparent !important;
+    }
+    div.sf-nested-rows tr.sf-nested-row.add-row {
+        justify-content: center;
+        cursor: pointer;
+        border: none;
+        padding: none;
+        margin: none;
+        font-family: inherit;
+        font-weight: bold;
+        background-color: #03d8ae !important;
+        color: #FFF;
+        margin-top: 15px;
+    }
+    .sf-nested-rows input[type=text] {
+        font-size: 12px
+    }

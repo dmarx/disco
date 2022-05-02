@@ -32,3 +32,7 @@ rename this folder to underscores
 
 cd glid-3-xl
 pip install -e .
+
+
+
+ngrok http 5000 --host-header="localhost:5000"

@@ -7,10 +7,10 @@ from PIL import Image, ImageOps
 import torch
 from torchvision import transforms
 from tqdm.notebook import tqdm
-from encoders.modules import BERTEmbedder
+from glid_3_xl.encoders.modules import BERTEmbedder
 from modules.generators.generator_disco.guided_diffusion_disco.guided_diffusion.script_util import create_model_and_diffusion, model_and_diffusion_defaults
 import os
-from encoders.modules import BERTEmbedder
+from glid_3_xl.encoders.modules import BERTEmbedder
 import clip
 from modules.generators.base.generator import GeneratorBase
 import requests

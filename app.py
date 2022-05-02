@@ -18,6 +18,7 @@ sys.path.append(f'{PROJECT_DIR}/AdaBins')
 sys.path.append(f'{PROJECT_DIR}/latent-diffusion')
 sys.path.append(f'{PROJECT_DIR}/ResizeRight')
 sys.path.append(f'{PROJECT_DIR}./pytorch3d-lite')
+sys.path.append(f'{PROJECT_DIR}./glid_3_xl')
         
         
 # from celery import Celery

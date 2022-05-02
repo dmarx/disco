@@ -1291,7 +1291,9 @@ export default defineComponent({
         this.camera.updateProjectionMatrix();
       }
       if (this.renderer) {
+        try{
         this.renderer.setSize(window.innerWidth, window.innerHeight);
+        }catch(e){}
       }
       this.render();
     },
