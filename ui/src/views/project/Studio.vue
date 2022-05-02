@@ -136,13 +136,12 @@
                 <div class="row">
                   <div class="col-6">
                     <h2 style="color: #fff">Generator Chain</h2>
-
+<br />
                     <div class="flex" v-if="state.project != null">
                       <div
                         v-if="state.project.generators.length == 0"
                         style="color: #fff"
                       >
-                        <br />
                         Add some generators into this project chain to get started.
                         <br />
                         <br />
@@ -174,6 +173,8 @@
                     </div>
 
                     <br />
+                    <br />
+                    <br />\
 
                     <div v-if="state.project && state.project.generators.length > 0">
                       <h2 style="color: #fff">Preview</h2>
@@ -401,13 +402,27 @@
                       </button>
                     </p>
                     <br />
+                    <br />
+                    <br />
                     <div v-if="state.project">
                       <h2 style="color: #fff">CLI</h2>
                       <p style="color: #fff">
                         To run from shell:
                         <br /><span>python cli.py --project {{ state.project.id }}</span>
                       </p>
+                   
+                    </div>preview available.
+
+
+                        <div v-if="state.project">
+                      <h2 style="color: #fff">Delete Project</h2>
+                      <p style="color: #fff">
+                       If you're sure you want to delete the project you can do so below.
+                        <br /><p><button id="btn btn-primary" @click="deleteProject()">Delete Project</button></p>
+                      </p>
+                   
                     </div>
+
                   </div>
                   <div class="col-6" v-if="state.project">
                     <h2 style="color: #fff">Output</h2>
@@ -586,6 +601,12 @@ export default defineComponent({
       },
       {
         type: 3,
+        title: "DALLE2 Pytorch",
+        description: "Open DALLE2 + Extras",
+        folder: "dalle2_pytorch",
+      },
+      {
+        type: 4,
         title: "Upscale",
         description: "BigJpg Upscaler API",
         folder: "go_big",

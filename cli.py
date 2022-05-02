@@ -83,7 +83,6 @@ def run_custom():
     filename = chain.run_project(project)
     # filename = chain.run_chain(prompt)
     
-    
 
 parser = argparse.ArgumentParser()
 

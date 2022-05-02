@@ -19,13 +19,11 @@ from modules.manager.projects.project import Project
 
 import openai   
 
-
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# 2
 bot = commands.Bot(command_prefix='!',description='Lets talk about art baby.!')
 
 project = Project(-1)
@@ -255,6 +253,25 @@ async def brandgen(ctx, *, prompt):
     return await ctx.send(discord.utils.escape_mentions(answer))
 
 
+@bot.command(name='complete', help='Complete some task (or just a sentence).')
+async def complete(ctx, *, prompt):
+    prompt = " ".join(prompt.split())
+    print (prompt)
+    
+    answer = openai.Completion.create(
+        engine="text-davinci-002",
+        prompt= prompt,
+        temperature=0.8,
+        max_tokens=2000,
+        top_p=1,
+        frequency_penalty=0.1,
+        presence_penalty=0.1,
+        
+    )
+    answer = prompt + "\n"  + "".join(answer.choices[0]['text']).strip()
+    return await ctx.send(discord.utils.escape_mentions(answer))
+
+
 
 @bot.command(name='fixpy', help='Fix dodgy code that nin wrote. (need codex)')
 async def fixpy(ctx, *, prompt):
@@ -269,7 +286,6 @@ async def fixpy(ctx, *, prompt):
         top_p=1,
         frequency_penalty=0,
         presence_penalty=0,
-        stop=["###"]
     )
 
     answer = prompt + "\n"  + "".join(answer.choices[0]['text']).strip()

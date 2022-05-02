@@ -9,8 +9,6 @@ from modules.manager.projects.project import Project
 class Api:
 
     def fetch_all():
-        
-        
         root_path = os.getcwd()
         projects_path = root_path + "/static/data/projects"
         results = []

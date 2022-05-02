@@ -13,8 +13,8 @@ from torchvision import transforms
 from torchvision.transforms import functional as TF
 from tqdm.notebook import tqdm
 import numpy as np
-from glid_3_xl.encoders.modules import BERTEmbedder
-from glid_3_xl.guided_diffusion_ld.script_util import create_model_and_diffusion, model_and_diffusion_defaults
+from lib.glid_3_xl.encoders.modules import BERTEmbedder
+from lib.glid_3_xl.guided_diffusion_ld.script_util import create_model_and_diffusion, model_and_diffusion_defaults
 from einops import rearrange
 from math import log2, sqrt
 import os
@@ -29,11 +29,11 @@ class GeneratorLatentDiffusion(GeneratorBase):
 
     ldm = None
     
-    default_settings= '{"model_path": "glid_3_xl/finetune.pt", "kl_path": "glid_3_xl/kl-f8.pt", "bert_path": "glid_3_xl/bert.pt", "text": "", "edit": null, "edit_x": 0, "edit_y": 0, "edit_width": 0, "edit_height": 0, "mask": null, "negative": "", "init_image": null, "skip_timesteps": 0, "prefix": "", "num_batches": 1, "batch_size": 1, "width": 256, "height": 256, "seed": -1, "guidance_scale": 5.0, "steps": 0, "cpu": false, "clip_score": false, "clip_guidance": false, "clip_guidance_scale": 150, "cutn": 16, "ddim": false, "ddpm": false}'
+    default_settings= '{"model_path": "lib/glid-3-xl/finetune.pt", "kl_path": "lib/glid-3-xl/kl-f8.pt", "bert_path": "lib/glid-3-xl/bert.pt", "text": "", "edit": null, "edit_x": 0, "edit_y": 0, "edit_width": 0, "edit_height": 0, "mask": null, "negative": "", "init_image": null, "skip_timesteps": 0, "prefix": "", "num_batches": 1, "batch_size": 1, "width": 256, "height": 256, "seed": -1, "guidance_scale": 5.0, "steps": 0, "cpu": false, "clip_score": false, "clip_guidance": false, "clip_guidance_scale": 150, "cutn": 16, "ddim": false, "ddpm": false}'
     settings = {
-        "model_path":"glid_3_xl/finetune.pt",
-        "kl_path":"glid_3_xl/kl-f8.pt",
-        "bert_path":"glid_3_xl/bert.pt",
+        "model_path":"lib/glid-3-xl/finetune.pt",
+        "kl_path":"lib/glid-3-xl/kl-f8.pt",
+        "bert_path":"lib/glid-3-xl/bert.pt",
         "text":"",
         "edit":None,
         "edit_x":0,

@@ -7,7 +7,6 @@ cd pytorch3d
 python3 setup.py install
 
 #Glid_3_xl
-1. rename /glid-3-xl to /glid_3_xl
 2. rename /glid-3-xl/guided_diffusion" to /glid-3-xl/guided_diffusion_ld"
 
 

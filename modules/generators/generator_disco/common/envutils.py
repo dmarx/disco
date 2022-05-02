@@ -77,9 +77,9 @@ def configure_sys_paths(PROJECT_DIR,model_path,USE_ADABINS):
     try:
       from CLIP import clip
     except:
-      if os.path.exists("CLIP") is not True:
+      if os.path.exists("lib/CLIP") is not True:
         gitclone("https://github.com/openai/CLIP")
-    sys.path.append(f'{PROJECT_DIR}/CLIP')
+    sys.path.append(f'{PROJECT_DIR}/lib/CLIP')
 
     # try:
     #   from guided_diffusion.script_util import create_model_and_diffusion
@@ -91,27 +91,27 @@ def configure_sys_paths(PROJECT_DIR,model_path,USE_ADABINS):
     try:
       from ResizeRight import resize
     except:
-      if os.path.exists("ResizeRight") is not True:
+      if os.path.exists("lib/ResizeRight") is not True:
         gitclone("https://github.com/assafshocher/ResizeRight.git")
-    sys.path.append(f'{PROJECT_DIR}/ResizeRight')
+    sys.path.append(f'{PROJECT_DIR}/lib/ResizeRight')
 
     try:
       import py3d_tools
     except:
-      if os.path.exists('pytorch3d-lite') is not True:
+      if os.path.exists('lib/pytorch3d-lite') is not True:
         gitclone("https://github.com/MSFTserver/pytorch3d-lite.git")
-    sys.path.append(f'{PROJECT_DIR}/pytorch3d-lite')
+    sys.path.append(f'{PROJECT_DIR}/lib/pytorch3d-lite')
 
     try:
       from midas.dpt_depth import DPTDepthModel
     except:
-      if os.path.exists('MiDaS') is not True:
+      if os.path.exists('lib/MiDaS') is not True:
         gitclone("https://github.com/isl-org/MiDaS.git")
-      if os.path.exists('MiDaS/midas_utils.py') is not True:
-        shutil.move('MiDaS/utils.py', 'MiDaS/midas_utils.py')
+      if os.path.exists('lib/MiDaS/midas_utils.py') is not True:
+        shutil.move('lib/MiDaS/utils.py', 'lib/MiDaS/midas_utils.py')
       if not os.path.exists(f'{model_path}/dpt_large-midas-2f21e586.pt'):
         wget("https://github.com/intel-isl/DPT/releases/download/1_0/dpt_large-midas-2f21e586.pt", model_path)
-    sys.path.append(f'{PROJECT_DIR}/MiDaS')
+    sys.path.append(f'{PROJECT_DIR}/lib/MiDaS')
 
     # try:
     #sys.path.append(PROJECT_DIR)
@@ -129,10 +129,10 @@ def configure_sys_paths(PROJECT_DIR,model_path,USE_ADABINS):
         try:
             from infer import InferenceHelper
         except:
-            if os.path.exists("AdaBins") is not True:
+            if os.path.exists("lib/AdaBins") is not True:
                 gitclone("https://github.com/shariqfarooq123/AdaBins.git")
-            if not os.path.exists(f'{PROJECT_DIR}/pretrained/AdaBins_nyu.pt'):
-                createPath(f'{PROJECT_DIR}/pretrained')
-                wget("https://cloudflare-ipfs.com/ipfs/Qmd2mMnDLWePKmgfS8m6ntAg4nhV5VkUyAydYBp8cWWeB7/AdaBins_nyu.pt", f'{PROJECT_DIR}/pretrained')
-        sys.path.append(f'{PROJECT_DIR}/AdaBins')
+            if not os.path.exists(f'{PROJECT_DIR}/content/models/pretrained/AdaBins_nyu.pt'):
+                createPath(f'{PROJECT_DIR}/content/models/pretrained')
+                wget("https://cloudflare-ipfs.com/ipfs/Qmd2mMnDLWePKmgfS8m6ntAg4nhV5VkUyAydYBp8cWWeB7/AdaBins_nyu.pt", f'{PROJECT_DIR}/content/models/pretrained')
+        sys.path.append(f'{PROJECT_DIR}/lib/AdaBins')
         from infer import InferenceHelper

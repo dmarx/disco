@@ -10,6 +10,7 @@ from modules.generators.generator_disco.guided_diffusion_disco.guided_diffusion.
 from modules.generators.generator_disco.common import models, utils
 from modules.generators.generator_disco.common.cutouts import MakeCutouts, MakeCutoutsDango
 
+import lib
 import gc
 import subprocess
 import torch
@@ -28,7 +29,7 @@ from types import SimpleNamespace
 import torchvision.transforms as T
 import torchvision.transforms.functional as TF
 from tqdm.notebook import tqdm
-from CLIP import clip
+from lib.CLIP import clip
 # from guided_diffusion.script_util import create_model_and_diffusion, model_and_diffusion_defaults
 from datetime import datetime
 import numpy as np

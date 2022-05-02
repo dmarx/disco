@@ -1,13 +1,20 @@
 {
     "python.analysis.extraPaths": [
-        "./MiDaS",
-        "./AdaBins",
-        "./CLIP",
-        "./latent-diffusion",
-        "./ResizeRight",
-        "./pytorch3d-lite",
-        "./glid_3_xl"
+        "./lib/MiDaS",
+        "./lib/AdaBins",
+        "./lib/CLIP",
+        "./lib/latent-diffusion",
+        "./lib/ResizeRight",
+        "./lib/pytorch3d-lite",
+        "./lib/glid_3_xl",
+        "./lib/DALLE2-pytorch"
     ],
+    "files.exclude": {
+        // "**/*.js": true,
+        // "**/*.map": true,
+        "**/*.pyc": {"when": "$(basename).py"}, 
+        "**/__pycache__": true,
+    },
     "python.formatting.pvider": "autopep8",
     "jupyter.jupyterServerType": "remote"
 }

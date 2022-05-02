@@ -13,6 +13,7 @@ __pycache__
 /AdaBins
 /MiDaS
 /pytorch3d
+/lib
 /disco-diffusion
 pretrained/AdaBins_nyu.pt
 pretrained/AdaBins_nyu.ptZone.Identifier
@@ -34,4 +35,4 @@ ui/dist/media
 *.Identifier
 *.Identifier
 *ipynb_checkpoints*
-/.env
+.env

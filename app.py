@@ -9,35 +9,34 @@ from subprocess import Popen, PIPE
 from subprocess import check_output
 import asyncio
 import sys
+from flask_cors import CORS
 
+os.system("export TOKENIZERS_PARALLELISM=false")
 
 PROJECT_DIR=os.getcwd()
+UPLOAD_FOLDER = 'static/uploads/'
+ALLOWED_EXTENSIONS = set(['mp4', 'mp3', 'wav','.mov'])
+apiURL = "http://localhost:5000"
+
 sys.path.append(f'{PROJECT_DIR}/CLIP')
 sys.path.append(f'{PROJECT_DIR}/MiDaS')
 sys.path.append(f'{PROJECT_DIR}/AdaBins')
 sys.path.append(f'{PROJECT_DIR}/latent-diffusion')
 sys.path.append(f'{PROJECT_DIR}/ResizeRight')
-sys.path.append(f'{PROJECT_DIR}./pytorch3d-lite')
-sys.path.append(f'{PROJECT_DIR}./glid_3_xl')
-        
-        
-# from celery import Celery
-# from job import run
+sys.path.append(f'{PROJECT_DIR}/pytorch3d-lite')
+sys.path.append(f'{PROJECT_DIR}/gl_3_xl')
 
-UPLOAD_FOLDER = 'static/uploads/'
-ALLOWED_EXTENSIONS = set(['mp4', 'mp3', 'wav','.mov'])
 
-apiURL = "http://localhost:5000"
 chain = None
-
-os.system("export TOKENIZERS_PARALLELISM=false")
-
-from flask_cors import CORS
+session = None
+stdout, stderr = None, None
+line = ""
+proc = None
 
 app = Flask(__name__,
-            static_url_path='', 
-            static_folder='static'
-            )
+        static_url_path='', 
+        static_folder='static'
+        )
 CORS(app)
 cors = CORS(app, resource={
     r"/*":{
@@ -45,19 +44,11 @@ cors = CORS(app, resource={
     }
 })
 
-# cors = CORS(app,    resources={r"/api/*": {"origins": "*"}})
-# cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
-app.secret_key = "1923493493"
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['CORS_HEADERS']='Content-Type'
-app.run(debug=False,host = "0.0.0.0")
+def main():
+    
+    print("main")
 
-session = None
-stdout, stderr = None, None
-line = ""
-
-proc = None
-
+# import bot;
 @app.route('/')
 def serve_results():
     # Haven't used the secure way to send files yet
@@ -132,7 +123,7 @@ def api_task_preview(id,frame):
 def api_task_update():
     global proc, chain
     global session,stdout,stderr
-   
+
     res = {
             'output':chain.output.replace("\n","<br />") if chain != None else "",
             'busy':chain.busy if chain != None else False,
@@ -201,17 +192,25 @@ def project_delete(id):
     Api.delete(id)
     return jsonify(None)
 
-def load_chain():
-    global chain
-    chain = Chain()
+
+# '
+# if __name__ == '__main__':
+#     this.reate_app();
+
+if __name__ == "__main__":
+    main()
+
+# def load_chain():
+#     global chain
+#     chain = Chain()
     # global generator_ld
     # if (generator_disco==None): generator_disco = GeneratorDisco()
     # if (generator_ld==None): generator_ld =  GeneratorLatentDiffusion()
 
-if __name__ == '__main__':
     # asyncio.get_event_loop().run_forever()
-    load_chain()
-    print("running")
+    
+    # load_chain()
+    # print("running")
 
 
 # @app.route('/make/<prompt>', methods=['GET', 'POST'])

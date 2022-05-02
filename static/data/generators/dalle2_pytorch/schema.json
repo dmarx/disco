@@ -1,0 +1,24 @@
+{
+    "labelWidth": "130px",
+    "rows": [{
+            "type": "text",
+            "field": "prompt",
+            "label": "Prompt"
+        },
+        {
+            "type": "number",
+            "field": "width",
+            "label": "Width"
+        },
+        {
+            "type": "number",
+            "field": "height",
+            "label": "Height"
+        },
+        {
+            "type": "text",
+            "field": "steps",
+            "label": "Steps"
+        }
+    ]
+}
