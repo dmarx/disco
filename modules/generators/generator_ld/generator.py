@@ -14,7 +14,7 @@ from torchvision.transforms import functional as TF
 from tqdm.notebook import tqdm
 import numpy as np
 from encoders.modules import BERTEmbedder
-from guided_diffusion_ld.script_util import create_model_and_diffusion, model_and_diffusion_defaults
+from glid_3_xl.guided_diffusion_ld.script_util import create_model_and_diffusion, model_and_diffusion_defaults
 from dalle_pytorch import DiscreteVAE, VQGanVAE
 from einops import rearrange
 from math import log2, sqrt
