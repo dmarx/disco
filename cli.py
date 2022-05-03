@@ -50,15 +50,58 @@ def run_custom():
 
     project = Project(-1)
     project.generators = [
-        SimpleNamespace(**
+        # SimpleNamespace(**
+        # {
+        #     "id":0,
+        #     "type":1,
+        #     "settings":{
+        #         "prompt":prompt,
+        #         "steps":150,
+        #         "width":512,
+        #         "height":512,
+        #         # 'ViTB32': True,
+        #         # 'ViTB16': True,
+        #         # 'ViTL14': False, # True
+        #         # 'ViTL14_336px':False,
+        #         # 'RN101': False,
+        #         # 'RN50': False,
+        #         # 'RN50x4': False,
+        #         # 'RN50x16': False,
+        #         # 'RN50x64': False,
+        #     }
+        # }),
+        # SimpleNamespace(**{
+        #     "id":3,
+        #     "type":3,
+        #     "settings":{
+        #     "width":512,
+        #         "height":512,
+        #         }
+        # # }),
+        #      SimpleNamespace(**{
+        #     "id":3
+        #     "type":3,
+        #     "settings":{
+        #     "width":512,
+        #         "height":512,
+        #         }
+        #     # ),
+        #      SimpleNamespace(**{
+        #     "id":4
+        #     "type":4,
+        #     "settings":{
+        #     "width":512,
+        # # #         "height":512,
+        # #         }
+        # })
         {
-            "id":0,
-            "type":1,
-            "settings":{
-                "prompt":prompt,
-                "steps":150,
-                "width":512,
-                "height":512,
+            id:0,
+            type:4,
+            'settings':{
+                prompt:prompt,
+                'steps':150,
+                'width':512,
+                'height':512,
                 # 'ViTB32': True,
                 # 'ViTB16': True,
                 # 'ViTL14': False, # True
@@ -69,15 +112,7 @@ def run_custom():
                 # 'RN50x16': False,
                 # 'RN50x64': False,
             }
-        }),
-        SimpleNamespace(**{
-            "id":1,
-            "type":3,
-            "settings":{
-            "width":512,
-                "height":512,
-                }
-        })
+        }
     ]
     chain = Chain()
     filename = chain.run_project(project)
@@ -91,7 +126,7 @@ parser.add_argument('--project', type=int, default='0',
 
 args = parser.parse_args(args = [],namespace=None)
 
-args.project = 580962
+args.project = 0
 if args.project > 0:
     project =Api.fetch(args.project)
     chain = Chain()

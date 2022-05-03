@@ -23,21 +23,15 @@ class GeneratorGoBig(GeneratorBase):
      'input_height': 512
         }
     
-    
     model_config = None
     model_path = None
     diffusion_model = None
-    
-    
     
     # FUNCTIONS FOR GO BIG MODE
     global slices_todo
     slices_todo = 5 # Number of chunks to slice up from the original image
 
-
     def do_run(self):
-        
-
 
         # curl -i -F files[]=@yourfile.jpeg https://tmp.ninja/upload.php (JSON Response)
 
@@ -70,7 +64,6 @@ class GeneratorGoBig(GeneratorBase):
                 break
         #     print(r.json())
         # print(r.json()['tid'])
-
 
         return "output_go_big.png"
   
@@ -153,7 +146,6 @@ class GeneratorGoBig(GeneratorBase):
     #               " static/output/output_go_big.png")
 
     #     return "output_go_big.png"
-
 
 
     # # Input is an image, return image with mask added as an alpha channel
