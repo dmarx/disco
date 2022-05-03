@@ -48,13 +48,13 @@ class Chain:
         #     self.output_filename = self.generator_ld.do_run(prompt,self.generator_ld.args.prefix,str(100))
 
         # if self.run_disco:
-        if self.generator_disco == None: self.generator_disco = GeneratorDisco(self,150,[512,512])
+        #if self.generator_disco == None: self.generator_disco = GeneratorDisco(self,150,[512,512])
         # self.generator_disco.settings["prompt"] = [prompt]
         # if self.run_ld: 
         #     self.generator_disco.settings["skip_steps"] = 25
         #     self.generator_disco.settings["init_image"] = os.getcwd() + "/static/output/" + self.output_filename
-        self.generator_disco.init_settings()
-        self.output_filename = self.generator_disco.do_run()
+        #self.generator_disco.init_settings()
+        #self.output_filename = self.generator_disco.do_run()
         
         return self.output_filename
     
@@ -66,8 +66,8 @@ class Chain:
         self.output_filename = ""
         
         for generator in project.generators:
-            print(generator.keys())
-            if generator[type] == 1:
+            #print(generator.keys())
+            if generator.type == 1:
                 if self.generator_ld == None: self.generator_ld =  GeneratorLatentDiffusion(self)
                 self.generator_ld.args.prefix = str(randint(0,1000000))
                 generator.settings = json.loads(json.dumps(generator.settings, default=lambda obj: obj.__dict__))
@@ -79,7 +79,7 @@ class Chain:
                 # gc.collect()
                 # torch.cuda.empty_cache()
                 
-            if generator[type] == 2:
+            if generator.type == 2:
                 generator.settings = json.loads(json.dumps(generator.settings, default=lambda obj: obj.__dict__))
                 if self.generator_disco == None: self.generator_disco = GeneratorDisco(self,generator.settings['steps'],[int(generator.settings['width']),int(generator.settings['height'])])
                 # self.generator_disco.settings["prompt"] = generator.settings["prompt"]
@@ -91,7 +91,7 @@ class Chain:
                 self.output_project_image(project,generator)
                
             
-            if generator[type] == 3:
+            if generator.type == 3:
                 
                 generator.settings = json.loads(json.dumps(generator.settings, default=lambda obj: obj.__dict__))
                 if self.generator_go_big == None: self.generator_go_big = GeneratorGoBig(self)
@@ -102,22 +102,22 @@ class Chain:
                 self.output_filename = self.generator_go_big.do_run()
                 self.output_project_image(project,generator)
 
-            if generator[type] == 4:
+            if generator.type == 4:
                 
-                try:
-                    generator["settings"] = json.loads(json.dumps(generator.settings, default=lambda obj: obj.__dict__))
-                except Exception:
-                    pass
+                #try:
+                    #generator["settings"] = json.loads(json.dumps(generator.settings, default=lambda obj: obj.__dict__))
+                #except Exception:
+                 #   pass
                 
             
+                generator.settings = json.loads(json.dumps(generator.settings, default=lambda obj: obj.__dict__))
                 if self.generator_dalle_pytorch == None:
                     self.generator_dalle_pytorch = GeneratorDALLE2Pytorch(self)
                 # self.generator_disco.settings["prompt"] = generator.settings["prompt"]
                 #self.generator_dalle_pytorch.init_settings(generator["settings"])
 #                 if self.output_filename != None and len(self.output_filename) > 0: 
 #                     self.generator_dalle_pytorch.settings["init_image"] = os.getcwd() + "/static/output/" + self.output_filename
-                self.output_filename = self.generator_dalle_pytorch.do_run((generator["settings"])['prompt'])
-                
+                self.output_filename = self.generator_dalle_pytorch.do_run(generator.settings['prompt'])
                 self.output_project_image(project,generator)
 
         
@@ -171,6 +171,7 @@ class Chain:
         out_filename = self.output_filename if len(filename)==0 else filename
         out_path = "static/data/projects/" + str(project.id) + "/output/" + str(generator.type) + "/" + (slug + "/" if slug!= ""  else "") 
         os.system("mkdir -p " + out_path )
+        print(generator,self.output_filename,out_path,out_filename)
         os.system("cp \"static/output/" + self.output_filename +  "\" \"" + out_path + "/" + out_filename + "\"")
         generator.output_path = out_path.replace("static/","") + "/" + out_filename
         project.save()

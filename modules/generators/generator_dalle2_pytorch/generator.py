@@ -2,7 +2,6 @@
 import json
 import os
 from types import SimpleNamespace
-
 import PIL
 from dalle2_pytorch.cli import get_pkg_version, safeget, simple_slugify
 from dalle2_pytorch.dalle2_pytorch import DALLE2, Decoder, DiffusionPrior, DiffusionPriorNetwork, OpenAIClipAdapter, Unet
@@ -10,18 +9,76 @@ import torch
 # import torchvision.transforms as T
 from pathlib import Path
 import torchvision.transforms as T
-
 # from dalle2_pytorch import DALLE2, Decoder, DiffusionPrior
-
 from functools import reduce, partial
 from modules.generators.base.generator import GeneratorBase
+import click
 
-
+#https://huggingface.co/krish240574/Dalle2-Diffusion-Prior
+    
 class GeneratorDALLE2Pytorch(GeneratorBase):
 
     args = None
 
+    def safeget(dictionary, keys, default = None):
+        return reduce(lambda d, key: d.get(key, default) if isinstance(d, dict) else default, keys.split('.'), dictionary)
+
+    def simple_slugify(text, max_length = 255):
+        return text.replace("-", "_").replace(",", "").replace(" ", "_").replace("|", "--").strip('-_')[:max_length]
+
+    def get_pkg_version():
+        from pkg_resources import get_distribution
+        return get_distribution('dalle2_pytorch').version
+
     def do_run(self, prompt, prefix="", input_seed=""):
+    
+        # filename_gen = self.args.prefix + "00000.png"
+        # filename_out = self.args.prefix + "_" + str(self.args.seed) + "_00000.png"
+        # os.system("cp content/output/" + filename_gen +
+        #         " static/output/" + filename_out)
+      
+    
+        filename_gen = self.dream("content/models/dalle2/1651473037.600823_saved_model.pth", 2, prompt)
+        #filename_gen = self.do_run_openai(prompt)
+
+        #filename_gen = self.args.prefix + "00000.png"
+        filename_out = filename_gen #self.args.prefix + "_" + str(self.args.seed) + "_00000.png"
+        os.system("cp content/output/" + filename_gen +
+                  " static/output/" + filename_out)
+        
+        return filename_out
+    
+
+    def dream(
+        self,
+        model,
+        cond_scale,
+        text
+    ):
+        model_path = Path(model)
+        full_model_path = str(model_path.resolve())
+        assert model_path.exists(), f'model not found at {full_model_path}'
+        loaded = torch.load(str(model_path))
+
+        version = safeget(loaded, 'version')
+        print(f'loading DALL-E2 from {full_model_path}, saved at version {version} - current package version is {get_pkg_version()}')
+
+        prior_init_params = safeget(loaded, 'init_params.prior')
+        decoder_init_params = safeget(loaded, 'init_params.decoder')
+        model_params = safeget(loaded, 'model_params')
+
+        prior = DiffusionPrior(**prior_init_params)
+        decoder = Decoder(**decoder_init_params)
+
+        dalle2 = DALLE2(prior, decoder)
+        dalle2.load_state_dict(model_params)
+
+        image = dalle2(text, cond_scale = cond_scale)
+
+        pil_image = T.ToPILImage()(image)
+        return pil_image.save(f'./{simple_slugify(text)}.png')
+
+    def do_run_openai(self, prompt):
     
         # filename_gen = self.args.prefix + "00000.png"
         # filename_out = self.args.prefix + "_" + str(self.args.seed) + "_00000.png"
@@ -102,12 +159,12 @@ class GeneratorDALLE2Pytorch(GeneratorBase):
             cond_scale=2.
         )
 
-        filename = f'/home/twmmason/dev/disco/content/dalle_out.png'
+        filename_gen = f'dalle_out.png'
         for img in images:
             
             try:
                 pil_image = T.ToPILImage()(img)
-                return pil_image.save(filename)
+                pil_image.save("content/output/" + filename_gen)
                 # return pil_image.save(f'/home/twmmason/dev/disco/content/{simple_slugify(text)}.png')
                 
             except Exception as inst:
@@ -116,9 +173,11 @@ class GeneratorDALLE2Pytorch(GeneratorBase):
             #  T.ToPILImage()("/homw/twmmason/dev/discpoimg)
             # PIPpil_image.save(f'./{simple_slugify(text)}.png')
 
-        # return    PIL.save('content/dalle.png')
+        return filename_gen
+       
 
     def do_run_cli(self, prompt):
+        print("cli")
         
         
     def load_models(self):
