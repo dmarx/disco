@@ -98,7 +98,7 @@ def run_custom():
             id:0,
             type:4,
             'settings':{
-                prompt:prompt,
+                'prompt':prompt,
                 'steps':150,
                 'width':512,
                 'height':512,

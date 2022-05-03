@@ -2,6 +2,7 @@ import gc
 import json
 import os, sys
 from random import randint, seed
+from regex import P
 import torch
 from modules.generators.generator_disco.generator import GeneratorDisco
 from modules.generators.generator_go_big.generator import GeneratorGoBig
@@ -107,19 +108,25 @@ class Chain:
                     generator["settings"] = json.loads(json.dumps(generator.settings, default=lambda obj: obj.__dict__))
                 except Exception:
                     pass
+                
+            
                 if self.generator_dalle_pytorch == None:
                     self.generator_dalle_pytorch = GeneratorDALLE2Pytorch(self)
                 # self.generator_disco.settings["prompt"] = generator.settings["prompt"]
-                self.generator_dalle_pytorch.init_settings(generator["settings"])
+                #self.generator_dalle_pytorch.init_settings(generator["settings"])
 #                 if self.output_filename != None and len(self.output_filename) > 0: 
 #                     self.generator_dalle_pytorch.settings["init_image"] = os.getcwd() + "/static/output/" + self.output_filename
-                self.output_filename = self.generator_dalle_pytorch.do_run()
-                self.output_project_image(project,generator)
+                self.output_filename = self.generator_dalle_pytorch.do_run((generator["settings"])['prompt'])
                 
-        self.output_message("Finished project " + str(project.id) + ": " + project.title)
-        self.busy = False
-        self.progress = 0
+                self.output_project_image(project,generator)
+
         
+
+            self.output_message("Finished project " + str(project.id) + ": " + project.title)
+            self.busy = False
+            self.progress = 0
+            print("ad")                
+
         return self.output_filename
 
 

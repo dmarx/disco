@@ -1,8 +1,11 @@
 # import click
 import json
+import os
 from types import SimpleNamespace
+
+import PIL
 from dalle2_pytorch.cli import get_pkg_version, safeget, simple_slugify
-from dalle2_pytorch.dalle2_pytorch import DALLE2, Decoder, DiffusionPrior
+from dalle2_pytorch.dalle2_pytorch import DALLE2, Decoder, DiffusionPrior, DiffusionPriorNetwork, OpenAIClipAdapter, Unet
 import torch
 # import torchvision.transforms as T
 from pathlib import Path
@@ -18,49 +21,106 @@ class GeneratorDALLE2Pytorch(GeneratorBase):
 
     args = None
 
-    def safeget(dictionary, keys, default = None):
-        return reduce(lambda d, key: d.get(key, default) if isinstance(d, dict) else default, keys.split('.'), dictionary)
-
-    def simple_slugify(text, max_length = 255):
-        return text.replace("-", "_").replace(",", "").replace(" ", "_").replace("|", "--").strip('-_')[:max_length]
-
-    def get_pkg_version():
-        from pkg_resources import get_distribution
-        return get_distribution('dalle2_pytorch').version
-
-
-    def do_run(self,  model,cond_scale=1,text="Hello I am a string"):
+    def do_run(self, prompt, prefix="", input_seed=""):
     
-        model_path = Path(model)
-        full_model_path = str(model_path.resolve())
-        assert model_path.exists(), f'model not found at {full_model_path}'
-        loaded = torch.load(str(model_path))
+        # filename_gen = self.args.prefix + "00000.png"
+        # filename_out = self.args.prefix + "_" + str(self.args.seed) + "_00000.png"
+        # os.system("cp content/output/" + filename_gen +
+        #         " static/output/" + filename_out)
+        clip = OpenAIClipAdapter()
 
-        version = safeget(loaded, 'version')
-        print(f'loading DALL-E2 from {full_model_path}, saved at version {version} - current package version is {get_pkg_version()}')
+        # mock data
 
-        prior_init_params = safeget(loaded, 'init_params.prior')
-        decoder_init_params = safeget(loaded, 'init_params.decoder')
-        model_params = safeget(loaded, 'model_params')
+        text = torch.randint(0, 49408, (4, 256)).cuda()
+        images = torch.randn(4, 3, 256, 256).cuda()
 
-        prior = DiffusionPrior(**prior_init_params)
-        decoder = Decoder(**decoder_init_params)
+        # prior networks (with transformer)
 
-        dalle2 = DALLE2(prior, decoder)
-        dalle2.load_state_dict(model_params)
+        prior_network = DiffusionPriorNetwork(
+            dim=512,
+            depth=6,
+            dim_head=64,
+            heads=8
+        ).cuda()
 
-        image = dalle2(text, cond_scale = cond_scale)
+        diffusion_prior = DiffusionPrior(
+            net=prior_network,
+            clip=clip,
+            timesteps=100,
+            cond_drop_prob=0.2
+        ).cuda()
 
-        pil_image = T.ToPILImage()(image)
-        return pil_image.save(f'./{simple_slugify(text)}.png')
+        loss = diffusion_prior(text, images)
+        loss.backward()
 
-        filename_gen = self.args.prefix + "00000.png"
-        filename_out = self.args.prefix + "_" + str(self.args.seed) + "_00000.png"
-        os.system("cp content/output/" + filename_gen +
-                " static/output/" + filename_out)
+        # do above for many steps ...
 
-        return filename_out
+        # decoder (with unet)
 
+        unet1 = Unet(
+            dim=128,
+            image_embed_dim=512,
+            cond_dim=128,
+            channels=3,
+            dim_mults=(1, 2, 4, 8)
+        ).cuda()
+
+        unet2 = Unet(
+            dim=16,
+            image_embed_dim=512,
+            cond_dim=128,
+            channels=3,
+            dim_mults=(1, 2, 4, 8, 16)
+        ).cuda()
+
+        decoder = Decoder(
+            unet=(unet1, unet2),
+            image_sizes=(128, 256),
+            clip=clip,
+            timesteps=100,
+            image_cond_drop_prob=0.1,
+            text_cond_drop_prob=0.5,
+            # set this to True if you wish to condition on text during training and sampling
+            condition_on_text_encodings=False
+        ).cuda()
+
+        for unet_number in (1, 2):
+            # this can optionally be decoder(images, text) if you wish to condition on the text encodings as well, though it was hinted in the paper it didn't do much
+            loss = decoder(images, unet_number=unet_number)
+            loss.backward()
+
+        # do above for many steps
+
+        dalle2 = DALLE2(
+            prior=diffusion_prior,
+            decoder=decoder
+        )
+
+        images = dalle2(
+            [prompt],
+            # classifier free guidance strength (> 1 would strengthen the condition)
+            cond_scale=2.
+        )
+
+        filename = f'/home/twmmason/dev/disco/content/dalle_out.png'
+        for img in images:
+            
+            try:
+                pil_image = T.ToPILImage()(img)
+                return pil_image.save(filename)
+                # return pil_image.save(f'/home/twmmason/dev/disco/content/{simple_slugify(text)}.png')
+                
+            except Exception as inst:
+                print(inst)          # __str__ allows args to be printed directly,
+                
+            #  T.ToPILImage()("/homw/twmmason/dev/discpoimg)
+            # PIPpil_image.save(f'./{simple_slugify(text)}.png')
+
+        # return    PIL.save('content/dalle.png')
+
+    def do_run_cli(self, prompt):
+        
+        
     def load_models(self):
         print("Loading models")
         
