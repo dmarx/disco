@@ -7,7 +7,7 @@
           style="
             margin-top: 14px;
             background-size: auto calc(100% + 10rem);
-            background-position-x: 100%;
+            background-position-x: 100%;n
             background-image: url('/metronic8/demo1/assets/media/illustrations/sketchy-1/4.png');
           "
         >
