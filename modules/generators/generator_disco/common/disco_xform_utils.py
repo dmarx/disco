@@ -1,5 +1,5 @@
 import torch, torchvision
-import pytorch3d.renderer.cameras as p3dCam
+import py3d_tools as p3dCam
 import midas_utils
 from PIL import Image
 import numpy as np

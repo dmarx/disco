@@ -29,7 +29,7 @@ class GeneratorDALLE2Pytorch(GeneratorBase):
         return get_distribution('dalle2_pytorch').version
 
 
-    def do_run(self,  model,cond_scale,text):
+    def do_run(self,  model,cond_scale=1,text="Hello I am a string"):
     
         model_path = Path(model)
         full_model_path = str(model_path.resolve())
@@ -75,11 +75,14 @@ class GeneratorDALLE2Pytorch(GeneratorBase):
         super().__init__(chain)
         self.title = "Latent Diffusion"
      
-        self.args = json.loads(self.default_settings, object_hook=lambda d: SimpleNamespace(**d))
+        try:
+            self.args = json.loads(self.default_settings, object_hook=lambda d: SimpleNamespace(**d))
+        except Exception:
+            pass
         
-        self.args.width = 256
-        self.args.height = 256
-        self.args.clip_guidance = True
+#         self.args.width = 256
+#         self.args.height = 256
+#         self.args.clip_guidance = True
 
   
         if load_models:

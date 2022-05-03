@@ -6,6 +6,7 @@ import torch
 from modules.generators.generator_disco.generator import GeneratorDisco
 from modules.generators.generator_go_big.generator import GeneratorGoBig
 from modules.generators.generator_ld.generator import GeneratorLatentDiffusion
+from modules.generators.generator_dalle2_pytorch.generator import GeneratorDALLE2Pytorch
 
 class Chain:
 
@@ -21,6 +22,8 @@ class Chain:
     generator_disco = None
     generator_ld = None
     generator_go_big = None
+    generator_dalle_pytorch = None
+    
     
     # run_disco = True
     # run_ld = True
@@ -62,7 +65,8 @@ class Chain:
         self.output_filename = ""
         
         for generator in project.generators:
-            if generator.type == 1:
+            print(generator.keys())
+            if generator[type] == 1:
                 if self.generator_ld == None: self.generator_ld =  GeneratorLatentDiffusion(self)
                 self.generator_ld.args.prefix = str(randint(0,1000000))
                 generator.settings = json.loads(json.dumps(generator.settings, default=lambda obj: obj.__dict__))
@@ -74,7 +78,7 @@ class Chain:
                 # gc.collect()
                 # torch.cuda.empty_cache()
                 
-            if generator.type == 2:
+            if generator[type] == 2:
                 generator.settings = json.loads(json.dumps(generator.settings, default=lambda obj: obj.__dict__))
                 if self.generator_disco == None: self.generator_disco = GeneratorDisco(self,generator.settings['steps'],[int(generator.settings['width']),int(generator.settings['height'])])
                 # self.generator_disco.settings["prompt"] = generator.settings["prompt"]
@@ -86,7 +90,7 @@ class Chain:
                 self.output_project_image(project,generator)
                
             
-            if generator.type == 3:
+            if generator[type] == 3:
                 
                 generator.settings = json.loads(json.dumps(generator.settings, default=lambda obj: obj.__dict__))
                 if self.generator_go_big == None: self.generator_go_big = GeneratorGoBig(self)
@@ -95,6 +99,21 @@ class Chain:
                 if self.output_filename != None and len(self.output_filename) > 0: 
                     self.generator_go_big.settings["init_image"] = os.getcwd() + "/static/output/" + self.output_filename
                 self.output_filename = self.generator_go_big.do_run()
+                self.output_project_image(project,generator)
+
+            if generator[type] == 4:
+                
+                try:
+                    generator["settings"] = json.loads(json.dumps(generator.settings, default=lambda obj: obj.__dict__))
+                except Exception:
+                    pass
+                if self.generator_dalle_pytorch == None:
+                    self.generator_dalle_pytorch = GeneratorDALLE2Pytorch(self)
+                # self.generator_disco.settings["prompt"] = generator.settings["prompt"]
+                self.generator_dalle_pytorch.init_settings(generator["settings"])
+#                 if self.output_filename != None and len(self.output_filename) > 0: 
+#                     self.generator_dalle_pytorch.settings["init_image"] = os.getcwd() + "/static/output/" + self.output_filename
+                self.output_filename = self.generator_dalle_pytorch.do_run()
                 self.output_project_image(project,generator)
                 
         self.output_message("Finished project " + str(project.id) + ": " + project.title)

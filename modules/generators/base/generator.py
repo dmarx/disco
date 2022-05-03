@@ -6,12 +6,12 @@ class GeneratorBase:
     device = None
     DEVICE = None
     
-    type = None
-    id = None
+#     type = None
+#     id = None
     title = None
     description = None
     folder = None
-    settings = None
+    settings = {}
     output_filename = None
     output_path = None
 
