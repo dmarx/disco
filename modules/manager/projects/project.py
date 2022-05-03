@@ -15,7 +15,7 @@ class Project:
     title = ""
     created = ""
     
-    generators= None
+    generators = None
     generators_json = None
         
     def load_data(self):
@@ -23,8 +23,8 @@ class Project:
         self.title = ""
         if exists(self.project_dir()):
             with open(self.project_dir() + "/data.json") as json_file:
-                #data = json.load(json_file)
-                data = json.load(json_file, object_hook=lambda d: SimpleNamespace(**d))
+                data = json.load(json_file)
+#                 data = json.load(json_file, object_hook=lambda d: SimpleNamespace(**d))
                 
                 # print(data)
                 self.title = data.title

@@ -128,7 +128,7 @@ args = parser.parse_args(args = [],namespace=None)
 
 args.project = 0
 if args.project > 0:
-    project =Api.fetch(args.project)
+    project = Api.fetch(args.project)
     chain = Chain()
     chain.output = ""
     filename = chain.run_project(project)
