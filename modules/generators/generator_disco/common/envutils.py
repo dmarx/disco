@@ -15,8 +15,13 @@ import requests
 #   nvidiasmi_ecc_note = subprocess.run(['nvidia-smi', '-i', '0', '-e', '0'], stdout=subprocess.PIPE).stdout.decode('utf-8')
 #   print(nvidiasmi_ecc_note)
 
-def gitclone(url):
-  res = subprocess.run(['git', 'clone', url], stdout=subprocess.PIPE).stdout.decode('utf-8')
+def gitclone(url, path=None):
+  if path is None:
+    res = subprocess.run(['git', 'clone', url], stdout=subprocess.PIPE).stdout.decode('utf-8')
+  else:
+    if not os.path.exists(path):
+      os.makedirs(path)
+    res = subprocess.run(['git', '-C', path, 'clone', url], stdout=subprocess.PIPE).stdout.decode('utf-8')
   print(res)
 
 def pipi(modulestr):
@@ -78,7 +83,7 @@ def configure_sys_paths(PROJECT_DIR,model_path,USE_ADABINS):
       from CLIP import clip
     except:
       if os.path.exists("lib/CLIP") is not True:
-        gitclone("https://github.com/openai/CLIP")
+        gitclone("https://github.com/openai/CLIP", path=f'{PROJECT_DIR}/lib/')
     sys.path.append(f'{PROJECT_DIR}/lib/CLIP')
 
     # try:
@@ -92,26 +97,49 @@ def configure_sys_paths(PROJECT_DIR,model_path,USE_ADABINS):
       from ResizeRight import resize
     except:
       if os.path.exists("lib/ResizeRight") is not True:
-        gitclone("https://github.com/assafshocher/ResizeRight.git")
+        gitclone("https://github.com/assafshocher/ResizeRight.git", path=f'{PROJECT_DIR}/lib/')
     sys.path.append(f'{PROJECT_DIR}/lib/ResizeRight')
 
     try:
       import py3d_tools
     except:
       if os.path.exists('lib/pytorch3d-lite') is not True:
-        gitclone("https://github.com/MSFTserver/pytorch3d-lite.git")
+        gitclone("https://github.com/MSFTserver/pytorch3d-lite.git", path=f'{PROJECT_DIR}/lib/')
     sys.path.append(f'{PROJECT_DIR}/lib/pytorch3d-lite')
 
     try:
       from midas.dpt_depth import DPTDepthModel
     except:
       if os.path.exists('lib/MiDaS') is not True:
-        gitclone("https://github.com/isl-org/MiDaS.git")
+        gitclone("https://github.com/isl-org/MiDaS.git", path=f'{PROJECT_DIR}/lib/')
       if os.path.exists('lib/MiDaS/midas_utils.py') is not True:
         shutil.move('lib/MiDaS/utils.py', 'lib/MiDaS/midas_utils.py')
       if not os.path.exists(f'{model_path}/dpt_large-midas-2f21e586.pt'):
         wget("https://github.com/intel-isl/DPT/releases/download/1_0/dpt_large-midas-2f21e586.pt", model_path)
     sys.path.append(f'{PROJECT_DIR}/lib/MiDaS')
+
+
+    try:
+      from glid_3_xl.encoders.modules import BERTEmbedder
+    except:
+        if os.path.exists("lib/glid_3_xl") is not True:
+            gitclone("https://github.com/Jack000/glid-3-xl.git", path=f'{PROJECT_DIR}/lib/')
+            shutil.move('lib/glid-3-xl', 'lib/glid_3_xl')
+
+        import fileinput
+        def replace_in_file(file_path, search_text, new_text):
+            with fileinput.input(file_path, inplace=True) as file:
+                for line in file:
+                    new_line = line.replace(search_text, new_text)
+                    print(new_line, end='')
+        replace_in_file(
+            'lib/glid_3_xl/encoders/modules.py',
+            'from encoders.x_transformer import Encoder, TransformerWrapper',
+            'from lib.glid_3_xl.encoders.x_transformer import Encoder, TransformerWrapper'
+        )
+
+        # Should be pip install -e .
+        sys.path.append(f'{PROJECT_DIR}/lib/glid_3_xl')
 
     # try:
     #sys.path.append(PROJECT_DIR)
@@ -130,7 +158,7 @@ def configure_sys_paths(PROJECT_DIR,model_path,USE_ADABINS):
             from infer import InferenceHelper
         except:
             if os.path.exists("lib/AdaBins") is not True:
-                gitclone("https://github.com/shariqfarooq123/AdaBins.git")
+                gitclone("https://github.com/shariqfarooq123/AdaBins.git", path=f'{PROJECT_DIR}/lib/')
             if not os.path.exists(f'{PROJECT_DIR}/content/models/pretrained/AdaBins_nyu.pt'):
                 createPath(f'{PROJECT_DIR}/content/models/pretrained')
                 wget("https://cloudflare-ipfs.com/ipfs/Qmd2mMnDLWePKmgfS8m6ntAg4nhV5VkUyAydYBp8cWWeB7/AdaBins_nyu.pt", f'{PROJECT_DIR}/content/models/pretrained')
