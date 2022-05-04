@@ -3,7 +3,6 @@ import json
 import os
 from types import SimpleNamespace
 import PIL
-from dalle2_pytorch.cli import get_pkg_version, safeget, simple_slugify
 from dalle2_pytorch.dalle2_pytorch import DALLE2, Decoder, DiffusionPrior, DiffusionPriorNetwork, OpenAIClipAdapter, Unet
 import torch
 # import torchvision.transforms as T
@@ -20,13 +19,13 @@ class GeneratorDALLE2Pytorch(GeneratorBase):
 
     args = None
 
-    def safeget(dictionary, keys, default = None):
+    def safeget(self, dictionary, keys, default = None):
         return reduce(lambda d, key: d.get(key, default) if isinstance(d, dict) else default, keys.split('.'), dictionary)
 
-    def simple_slugify(text, max_length = 255):
+    def simple_slugify(self, text, max_length = 255):
         return text.replace("-", "_").replace(",", "").replace(" ", "_").replace("|", "--").strip('-_')[:max_length]
 
-    def get_pkg_version():
+    def get_pkg_version(self):
         from pkg_resources import get_distribution
         return get_distribution('dalle2_pytorch').version
 
@@ -60,12 +59,12 @@ class GeneratorDALLE2Pytorch(GeneratorBase):
         assert model_path.exists(), f'model not found at {full_model_path}'
         loaded = torch.load(str(model_path))
 
-        version = safeget(loaded, 'version')
-        print(f'loading DALL-E2 from {full_model_path}, saved at version {version} - current package version is {get_pkg_version()}')
+        version = self.safeget(loaded, 'version')
+        print(f'loading DALL-E2 from {full_model_path}, saved at version {version} - current package version is {self.get_pkg_version()}')
 
-        prior_init_params = safeget(loaded, 'init_params.prior')
-        decoder_init_params = safeget(loaded, 'init_params.decoder')
-        model_params = safeget(loaded, 'model_params')
+        prior_init_params = self.safeget(loaded, 'init_params.prior')
+        decoder_init_params = self.safeget(loaded, 'init_params.decoder')
+        model_params = self.safeget(loaded, 'model_params')
 
         prior = DiffusionPrior(**prior_init_params)
         decoder = Decoder(**decoder_init_params)
