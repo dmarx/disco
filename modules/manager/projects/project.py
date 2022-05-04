@@ -23,8 +23,8 @@ class Project:
         self.title = ""
         if exists(self.project_dir()):
             with open(self.project_dir() + "/data.json") as json_file:
-                data = json.load(json_file)
-#                 data = json.load(json_file, object_hook=lambda d: SimpleNamespace(**d))
+                #data = json.load(json_file)
+                data = json.load(json_file, object_hook=lambda d: SimpleNamespace(**d))
                 
                 # print(data)
                 self.title = data.title
@@ -71,5 +71,6 @@ class Project:
     
     def __init__(self,id):
         self.id = id
+        self.title = ""
         self.generators = []
     

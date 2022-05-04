@@ -45,8 +45,7 @@ cors = CORS(app, resource={
 })
 
 def main():
-    
-    print("main")
+    print("Use flask run to correctly launch the api.")
 
 # import bot;
 @app.route('/')
@@ -54,8 +53,7 @@ def serve_results():
     # Haven't used the secure way to send files yet
     return send_file( 'static/index.html')
 
-@asyncio.coroutine
-def run_base(id):
+async def run_base(id):
     global chain 
     project =Api.fetch(id)
     if chain == None: chain = Chain()
@@ -63,8 +61,7 @@ def run_base(id):
     filename = chain.run_project(project)
     return filename
     
-@asyncio.coroutine
-def run_base_preview(id,frame):
+async def run_base_preview(id,frame):
     global chain 
     project =Api.fetch(id)
     if chain == None: chain = Chain()
@@ -72,7 +69,6 @@ def run_base_preview(id,frame):
     filename = chain.run_project_preview(project,frame)
     return filename
     
-@asyncio.coroutine
 async def run_project(id):
     global proc
     proc = asyncio.create_task(run_base(id))
@@ -80,7 +76,6 @@ async def run_project(id):
     proc = None
     return response
 
-@asyncio.coroutine
 async def run_project_preview(id,frame):
     global proc
     proc = asyncio.create_task(run_base_preview(id,frame))

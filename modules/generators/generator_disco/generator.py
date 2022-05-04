@@ -726,6 +726,8 @@ class GeneratorDisco(GeneratorBase):
             
         #if not isinstance(settings["prompt"], list): settings['prompt'] =   [settings['prompt']]
         
+        
+        
         """# 3. Settings"""
         self.steps = int(settings["steps"])
         
