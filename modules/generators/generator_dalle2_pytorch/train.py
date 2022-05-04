@@ -3,18 +3,27 @@ import os
 from types import SimpleNamespace
 import PIL
 from dalle2_pytorch.cli import get_pkg_version, safeget, simple_slugify
-from dalle2_pytorch.dalle2_pytorch import DALLE2, Decoder, DiffusionPrior, DiffusionPriorNetwork, OpenAIClipAdapter, Unet
+from dalle2_pytorch.dalle2_pytorch import (
+    DALLE2,
+    Decoder,
+    DiffusionPrior,
+    DiffusionPriorNetwork,
+    OpenAIClipAdapter,
+    Unet,
+)
 import torch
 from pathlib import Path
 import torchvision.transforms as T
 from functools import reduce, partial
 import click
 
+
 def main():
     print("Training...")
     do_run_openai("An apple")
 
-def do_run_openai( prompt):
+
+def do_run_openai(prompt):
 
     clip = OpenAIClipAdapter()
 
@@ -25,18 +34,10 @@ def do_run_openai( prompt):
 
     # prior networks (with transformer)
 
-    prior_network = DiffusionPriorNetwork(
-        dim=512,
-        depth=6,
-        dim_head=64,
-        heads=8
-    ).cuda()
+    prior_network = DiffusionPriorNetwork(dim=512, depth=6, dim_head=64, heads=8).cuda()
 
     diffusion_prior = DiffusionPrior(
-        net=prior_network,
-        clip=clip,
-        timesteps=100,
-        cond_drop_prob=0.2
+        net=prior_network, clip=clip, timesteps=100, cond_drop_prob=0.2
     ).cuda()
 
     loss = diffusion_prior(text, images)
@@ -47,11 +48,7 @@ def do_run_openai( prompt):
     # decoder (with unet)
 
     unet1 = Unet(
-        dim=128,
-        image_embed_dim=512,
-        cond_dim=128,
-        channels=3,
-        dim_mults=(1, 2, 4, 8)
+        dim=128, image_embed_dim=512, cond_dim=128, channels=3, dim_mults=(1, 2, 4, 8)
     ).cuda()
 
     unet2 = Unet(
@@ -59,7 +56,7 @@ def do_run_openai( prompt):
         image_embed_dim=512,
         cond_dim=128,
         channels=3,
-        dim_mults=(1, 2, 4, 8, 16)
+        dim_mults=(1, 2, 4, 8, 16),
     ).cuda()
 
     decoder = Decoder(
@@ -70,7 +67,7 @@ def do_run_openai( prompt):
         image_cond_drop_prob=0.1,
         text_cond_drop_prob=0.5,
         # set this to True if you wish to condition on text during training and sampling
-        condition_on_text_encodings=False
+        condition_on_text_encodings=False,
     ).cuda()
 
     for unet_number in (1, 2):
@@ -80,26 +77,24 @@ def do_run_openai( prompt):
 
     # do above for many steps
 
-    dalle2 = DALLE2(
-        prior=diffusion_prior,
-        decoder=decoder
-    )
+    dalle2 = DALLE2(prior=diffusion_prior, decoder=decoder)
 
     images = dalle2(
         [prompt],
         # classifier free guidance strength (> 1 would strengthen the condition)
-        cond_scale=2.
+        cond_scale=2.0,
     )
 
-    filename_gen = f'dalle_out.png'
+    filename_gen = f"dalle_out.png"
     for img in images:
         try:
             pil_image = T.ToPILImage()(img)
             pil_image.save("content/output/" + filename_gen)
         except Exception as inst:
-            print(inst)          # __str__ allows args to be printed directly,
+            print(inst)  # __str__ allows args to be printed directly,
 
     return filename_gen
-       
+
+
 if __name__ == "__main__":
     main()

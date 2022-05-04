@@ -14,13 +14,17 @@ from torchvision.transforms import functional as TF
 from tqdm.notebook import tqdm
 import numpy as np
 from lib.glid_3_xl.encoders.modules import BERTEmbedder
-from lib.glid_3_xl.guided_diffusion_ld.script_util import create_model_and_diffusion, model_and_diffusion_defaults
+from lib.glid_3_xl.guided_diffusion_ld.script_util import (
+    create_model_and_diffusion,
+    model_and_diffusion_defaults,
+)
 from einops import rearrange
 from math import log2, sqrt
 import os
 import clip
 from modules.generators.base.generator import GeneratorBase
-from functools import reduce # py3
+from functools import reduce  # py3
+
 
 class GeneratorLatentDiffusion(GeneratorBase):
 
@@ -29,51 +33,53 @@ class GeneratorLatentDiffusion(GeneratorBase):
     normalize = None
 
     ldm = None
-    
-    default_settings= '{"model_path": "lib/glid_3_xl/finetune.pt", "kl_path": "lib/glid_3_xl/kl-f8.pt", "bert_path": "lib/glid_3_xl/bert.pt", "text": "", "edit": null, "edit_x": 0, "edit_y": 0, "edit_width": 0, "edit_height": 0, "mask": null, "negative": "", "init_image": null, "skip_timesteps": 0, "prefix": "", "num_batches": 1, "batch_size": 1, "width": 256, "height": 256, "seed": -1, "guidance_scale": 5.0, "steps": 0, "cpu": false, "clip_score": false, "clip_guidance": false, "clip_guidance_scale": 150, "cutn": 16, "ddim": false, "ddpm": false}'
+
+    default_settings = '{"model_path": "lib/glid_3_xl/finetune.pt", "kl_path": "lib/glid_3_xl/kl-f8.pt", "bert_path": "lib/glid_3_xl/bert.pt", "text": "", "edit": null, "edit_x": 0, "edit_y": 0, "edit_width": 0, "edit_height": 0, "mask": null, "negative": "", "init_image": null, "skip_timesteps": 0, "prefix": "", "num_batches": 1, "batch_size": 1, "width": 256, "height": 256, "seed": -1, "guidance_scale": 5.0, "steps": 0, "cpu": false, "clip_score": false, "clip_guidance": false, "clip_guidance_scale": 150, "cutn": 16, "ddim": false, "ddpm": false}'
     settings = {
-        "model_path":"lib/glid_3_xl/finetune.pt",
-        "kl_path":"lib/glid_3_xl/kl-f8.pt",
-        "bert_path":"lib/glid_3_xl/bert.pt",
-        "text":"",
-        "edit":None,
-        "edit_x":0,
-        "edit_y":0,
-        "edit_width":0,
-        "edit_height":0,
-        "mask":None,
-        "negative":"",
-        "init_image":None,
-        "skip_timesteps":0,
-        "prefix":"",
-        "num_batches":1,
-        "batch_size":1,
-        "width":256,
-        "height":256,
-        "seed":-1,
-        "guidance_scale":5.0,
-        "steps":0,
-        "cpu":False,
-        "clip_score":False,
-        "clip_guidance":False,
-        "clip_guidance_scale":150,
-        "cutn":16,
-        "ddim":False,
-        "ddpm":False
-        }
-    
+        "model_path": "lib/glid_3_xl/finetune.pt",
+        "kl_path": "lib/glid_3_xl/kl-f8.pt",
+        "bert_path": "lib/glid_3_xl/bert.pt",
+        "text": "",
+        "edit": None,
+        "edit_x": 0,
+        "edit_y": 0,
+        "edit_width": 0,
+        "edit_height": 0,
+        "mask": None,
+        "negative": "",
+        "init_image": None,
+        "skip_timesteps": 0,
+        "prefix": "",
+        "num_batches": 1,
+        "batch_size": 1,
+        "width": 256,
+        "height": 256,
+        "seed": -1,
+        "guidance_scale": 5.0,
+        "steps": 0,
+        "cpu": False,
+        "clip_score": False,
+        "clip_guidance": False,
+        "clip_guidance_scale": 150,
+        "cutn": 16,
+        "ddim": False,
+        "ddpm": False,
+    }
+
     def fetch(url_or_path):
-        if str(url_or_path).startswith('http://') or str(url_or_path).startswith('https://'):
+        if str(url_or_path).startswith("http://") or str(url_or_path).startswith(
+            "https://"
+        ):
             r = requests.get(url_or_path)
             r.raise_for_status()
             fd = io.BytesIO()
             fd.write(r.content)
             fd.seek(0)
             return fd
-        return open(url_or_path, 'rb')
+        return open(url_or_path, "rb")
 
     class MakeCutouts(nn.Module):
-        def __init__(self, cut_size, cutn, cut_pow=1.):
+        def __init__(self, cut_size, cutn, cut_pow=1.0):
             super().__init__()
 
             self.cut_size = cut_size
@@ -86,27 +92,27 @@ class GeneratorLatentDiffusion(GeneratorBase):
             min_size = min(sideX, sideY, self.cut_size)
             cutouts = []
             for _ in range(self.cutn):
-                size = int(torch.rand([])**self.cut_pow *
-                           (max_size - min_size) + min_size)
+                size = int(
+                    torch.rand([]) ** self.cut_pow * (max_size - min_size) + min_size
+                )
                 offsetx = torch.randint(0, sideX - size + 1, ())
                 offsety = torch.randint(0, sideY - size + 1, ())
-                cutout = input[:, :, offsety:offsety +
-                               size, offsetx:offsetx + size]
+                cutout = input[:, :, offsety : offsety + size, offsetx : offsetx + size]
                 cutouts.append(F.adaptive_avg_pool2d(cutout, self.cut_size))
             return torch.cat(cutouts)
 
     def tv_loss(input):
         """L2 total variation loss, as in Mahendran et al."""
-        input = F.pad(input, (0, 1, 0, 1), 'replicate')
+        input = F.pad(input, (0, 1, 0, 1), "replicate")
         x_diff = input[..., :-1, 1:] - input[..., :-1, :-1]
         y_diff = input[..., 1:, :-1] - input[..., :-1, :-1]
-        return (x_diff**2 + y_diff**2).mean([1, 2, 3])
+        return (x_diff ** 2 + y_diff ** 2).mean([1, 2, 3])
 
     def do_run(self, prompt, prefix="", input_seed=""):
-        #self.chain.output_message("doing run", prompt, prefix, input_seed)
+        # self.chain.output_message("doing run", prompt, prefix, input_seed)
 
         self.args.text = prompt
-        #if len(input_seed) > 0: self.args.s    eed = int(input_seed)
+        # if len(input_seed) > 0: self.args.s    eed = int(input_seed)
         self.args.prefix = prefix
 
         device = self.device
@@ -115,29 +121,33 @@ class GeneratorLatentDiffusion(GeneratorBase):
             torch.manual_seed(self.args.seed)
 
         # bert context
-        text_emb = self.bert.encode(
-            [self.args.text]*self.args.batch_size).to(device).float()
-        text_blank = self.bert.encode(
-            [self.args.negative]*self.args.batch_size).to(device).float()
+        text_emb = (
+            self.bert.encode([self.args.text] * self.args.batch_size).to(device).float()
+        )
+        text_blank = (
+            self.bert.encode([self.args.negative] * self.args.batch_size)
+            .to(device)
+            .float()
+        )
 
-        text = clip.tokenize(
-            [self.args.text]*self.args.batch_size, truncate=True).to(device)
+        text = clip.tokenize([self.args.text] * self.args.batch_size, truncate=True).to(
+            device
+        )
         text_clip_blank = clip.tokenize(
-            [self.args.negative]*self.args.batch_size, truncate=True).to(device)
+            [self.args.negative] * self.args.batch_size, truncate=True
+        ).to(device)
 
         # clip context
         text_emb_clip = self.clip_model.encode_text(text)
         text_emb_clip_blank = self.clip_model.encode_text(text_clip_blank)
 
         make_cutouts = self.MakeCutouts(
-            self.clip_model.visual.input_resolution, self.args.cutn)
+            self.clip_model.visual.input_resolution, self.args.cutn
+        )
 
-        text_emb_norm = text_emb_clip[0] / \
-            text_emb_clip[0].norm(dim=-1, keepdim=True)
+        text_emb_norm = text_emb_clip[0] / text_emb_clip[0].norm(dim=-1, keepdim=True)
 
         image_embed = None
-
-
 
         # image context
         # if args.edit:
@@ -220,8 +230,10 @@ class GeneratorLatentDiffusion(GeneratorBase):
 
         kwargs = {
             "context": torch.cat([text_emb, text_blank], dim=0).float(),
-            "clip_embed": torch.cat([text_emb_clip, text_emb_clip_blank], dim=0).float() if self.model_params['clip_embed_dim'] else None,
-            "image_embed": image_embed
+            "clip_embed": torch.cat([text_emb_clip, text_emb_clip_blank], dim=0).float()
+            if self.model_params["clip_embed_dim"]
+            else None,
+            "image_embed": image_embed,
         }
 
         # Create a classifier-free guidance sampling function
@@ -231,13 +243,11 @@ class GeneratorLatentDiffusion(GeneratorBase):
             model_out = self.model(combined, ts, **kwargs)
             eps, rest = model_out[:, :3], model_out[:, 3:]
             cond_eps, uncond_eps = torch.split(eps, len(eps) // 2, dim=0)
-            half_eps = uncond_eps + self.args.guidance_scale * \
-                (cond_eps - uncond_eps)
+            half_eps = uncond_eps + self.args.guidance_scale * (cond_eps - uncond_eps)
             eps = torch.cat([half_eps, half_eps], dim=0)
             return torch.cat([eps, rest], dim=1)
 
         cur_t = None
-
 
         def spherical_dist_loss(x, y):
             x = F.normalize(x, dim=-1)
@@ -246,23 +256,28 @@ class GeneratorLatentDiffusion(GeneratorBase):
 
         def cond_fn(x, t, context=None, clip_embed=None, image_embed=None):
             with torch.enable_grad():
-                x = x[:self.args.batch_size].detach().requires_grad_()
+                x = x[: self.args.batch_size].detach().requires_grad_()
 
                 n = x.shape[0]
 
                 my_t = torch.ones([n], device=device, dtype=torch.long) * cur_t
 
                 kw = {
-                    'context': context[:self.args.batch_size],
-                    'clip_embed': clip_embed[:self.args.batch_size] if self.model_params['clip_embed_dim'] else None,
-                    'image_embed': image_embed[:self.args.batch_size] if image_embed is not None else None
+                    "context": context[: self.args.batch_size],
+                    "clip_embed": clip_embed[: self.args.batch_size]
+                    if self.model_params["clip_embed_dim"]
+                    else None,
+                    "image_embed": image_embed[: self.args.batch_size]
+                    if image_embed is not None
+                    else None,
                 }
 
                 out = self.diffusion.p_mean_variance(
-                    self.model, x, my_t, clip_denoised=False, model_kwargs=kw)
+                    self.model, x, my_t, clip_denoised=False, model_kwargs=kw
+                )
 
                 fac = self.diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
-                x_in = out['pred_xstart'] * fac + x * (1 - fac)
+                x_in = out["pred_xstart"] * fac + x * (1 - fac)
 
                 x_in /= 0.18215
 
@@ -271,7 +286,8 @@ class GeneratorLatentDiffusion(GeneratorBase):
                 clip_in = self.normalize(make_cutouts(x_img.add(1).div(2)))
                 clip_embeds = self.clip_model.encode_image(clip_in).float()
                 dists = spherical_dist_loss(
-                    clip_embeds.unsqueeze(1), text_emb_clip.unsqueeze(0))
+                    clip_embeds.unsqueeze(1), text_emb_clip.unsqueeze(0)
+                )
                 dists = dists.view([self.args.cutn, n, -1])
 
                 losses = dists.sum(2).mean(0)
@@ -288,42 +304,44 @@ class GeneratorLatentDiffusion(GeneratorBase):
             sample_fn = self.diffusion.plms_sample_loop_progressive
 
         def save_sample(i, sample, clip_score=False):
-            for k, image in enumerate(sample['pred_xstart'][:self.args.batch_size]):
+            for k, image in enumerate(sample["pred_xstart"][: self.args.batch_size]):
                 image /= 0.18215
                 im = image.unsqueeze(0)
                 out = self.ldm.decode(im)
 
-                npy_filename = f'content/output_npy/{self.args.prefix}{i * self.args.batch_size + k:05}.npy'
-                with open(npy_filename, 'wb') as outfile:
+                npy_filename = f"content/output_npy/{self.args.prefix}{i * self.args.batch_size + k:05}.npy"
+                with open(npy_filename, "wb") as outfile:
                     np.save(outfile, image.detach().cpu().numpy())
 
                 out = TF.to_pil_image(out.squeeze(0).add(1).div(2).clamp(0, 1))
 
-                filename = f'content/output/{self.args.prefix}{i * self.args.batch_size + k:05}.png'
+                filename = f"content/output/{self.args.prefix}{i * self.args.batch_size + k:05}.png"
                 out.save(filename)
 
                 if clip_score:
                     image_emb = self.clip_model.encode_image(
-                        self.clip_preprocess(out).unsqueeze(0).to(device))
-                    image_emb_norm = image_emb / \
-                        image_emb.norm(dim=-1, keepdim=True)
+                        self.clip_preprocess(out).unsqueeze(0).to(device)
+                    )
+                    image_emb_norm = image_emb / image_emb.norm(dim=-1, keepdim=True)
 
                     similarity = torch.nn.functional.cosine_similarity(
-                        image_emb_norm, text_emb_norm, dim=-1)
+                        image_emb_norm, text_emb_norm, dim=-1
+                    )
 
-                    final_filename = f'content/output/{self.args.prefix}_{similarity.item():0.3f}_{i * self.args.batch_size + k:05}.png'
+                    final_filename = f"content/output/{self.args.prefix}_{similarity.item():0.3f}_{i * self.args.batch_size + k:05}.png"
                     os.rename(filename, final_filename)
 
-                    npy_final = f'content/output_npy/{self.args.prefix}_{similarity.item():0.3f}_{i * self.args.batch_size + k:05}.npy'
+                    npy_final = f"content/output_npy/{self.args.prefix}_{similarity.item():0.3f}_{i * self.args.batch_size + k:05}.npy"
                     os.rename(npy_filename, npy_final)
 
         if self.args.init_image:
-            init = Image.open(self.args.init_image).convert('RGB')
+            init = Image.open(self.args.init_image).convert("RGB")
             init = init.resize(
-                (int(self.args.width),  int(self.args.height)), Image.LANCZOS)
+                (int(self.args.width), int(self.args.height)), Image.LANCZOS
+            )
             init = TF.to_tensor(init).to(device).unsqueeze(0).clamp(0, 1)
             h = self.ldm.encode(init * 2 - 1).sample() * 0.18215
-            init = torch.cat(self.args.batch_size*2*[h], dim=0)
+            init = torch.cat(self.args.batch_size * 2 * [h], dim=0)
         else:
             init = None
 
@@ -332,8 +350,12 @@ class GeneratorLatentDiffusion(GeneratorBase):
 
             samples = sample_fn(
                 model_fn,
-                (self.args.batch_size*2, 4,
-                 int(self.args.height/8), int(self.args.width/8)),
+                (
+                    self.args.batch_size * 2,
+                    4,
+                    int(self.args.height / 8),
+                    int(self.args.width / 8),
+                ),
                 clip_denoised=False,
                 model_kwargs=kwargs,
                 cond_fn=cond_fn if self.args.clip_guidance else None,
@@ -344,7 +366,10 @@ class GeneratorLatentDiffusion(GeneratorBase):
             )
 
             for j, sample in enumerate(samples):
-                if self.chain.project != None: self.chain.progress += (1.0 / self.diffusion.num_timesteps) / len(self.chain.project.generators)
+                if self.chain.project != None:
+                    self.chain.progress += (1.0 / self.diffusion.num_timesteps) / len(
+                        self.chain.project.generators
+                    )
                 cur_t -= 1
                 if j % 5 == 0 and j != self.diffusion.num_timesteps - 1:
                     save_sample(i, sample)
@@ -353,8 +378,9 @@ class GeneratorLatentDiffusion(GeneratorBase):
 
         filename_gen = self.args.prefix + "00000.png"
         filename_out = self.args.prefix + "_" + str(self.args.seed) + "_00000.png"
-        os.system("cp content/output/" + filename_gen +
-                  " static/output/" + filename_out)
+        os.system(
+            "cp content/output/" + filename_gen + " static/output/" + filename_out
+        )
 
         return filename_out
 
@@ -362,23 +388,20 @@ class GeneratorLatentDiffusion(GeneratorBase):
     # do_run()
 
     def load_models(self):
-        
-        self.model_state_dict = torch.load(
-            self.args.model_path, map_location='cuda')
+
+        self.model_state_dict = torch.load(self.args.model_path, map_location="cuda")
 
         self.update_model_params()
 
         if self.args.cpu:
-            self.model_config['use_fp16'] = False
+            self.model_config["use_fp16"] = False
 
         # Load models
-        self.model, self.diffusion = create_model_and_diffusion(
-            **self.model_config)
+        self.model, self.diffusion = create_model_and_diffusion(**self.model_config)
         self.model.load_state_dict(self.model_state_dict, strict=False)
-        self.model.requires_grad_(
-            self.args.clip_guidance).eval().to(self.device)
+        self.model.requires_grad_(self.args.clip_guidance).eval().to(self.device)
 
-        if self.model_config['use_fp16']:
+        if self.model_config["use_fp16"]:
             self.model.convert_to_fp16()
         else:
             self.model.convert_to_fp32()
@@ -404,67 +427,73 @@ class GeneratorLatentDiffusion(GeneratorBase):
 
         # clip
         # self.clip_model, self.clip_preprocess = clip.load('ViT-L/14@336px', device=self.device, jit=False)
-        self.clip_model, self.clip_preprocess = clip.load('ViT-L/14', device=self.device, jit=False)
+        self.clip_model, self.clip_preprocess = clip.load(
+            "ViT-L/14", device=self.device, jit=False
+        )
         self.clip_model.eval().requires_grad_(False)
-        self.normalize = transforms.Normalize(mean=[0.48145466, 0.4578275, 0.40821073], std=[
-                                              0.26862954, 0.26130258, 0.27577711])
-
+        self.normalize = transforms.Normalize(
+            mean=[0.48145466, 0.4578275, 0.40821073],
+            std=[0.26862954, 0.26130258, 0.27577711],
+        )
 
     def update_model_params(self):
         self.model_params = {
-            'attention_resolutions': '32,16,8',
-            'class_cond': False,
-            'diffusion_steps': 1000,
-            'rescale_timesteps': True,
-            'timestep_respacing': '27',  # Modify this value to decrease the number of
+            "attention_resolutions": "32,16,8",
+            "class_cond": False,
+            "diffusion_steps": 1000,
+            "rescale_timesteps": True,
+            "timestep_respacing": "27",  # Modify this value to decrease the number of
             # timesteps.
-            'image_size': 32,
-            'learn_sigma': False,
-            'noise_schedule': 'linear',
-            'num_channels': 320,
-            'num_heads': 8,
-            'num_res_blocks': 2,
-            'resblock_updown': False,
-            'use_fp16': False,
-            'use_scale_shift_norm': False,
-            'clip_embed_dim': 768 if 'clip_proj.weight' in self.model_state_dict else None,
-            'image_condition': True if self.model_state_dict['input_blocks.0.0.weight'].shape[1] == 8 else False,
-            'super_res_condition': True if 'external_block.0.0.weight' in self.model_state_dict else False,
+            "image_size": 32,
+            "learn_sigma": False,
+            "noise_schedule": "linear",
+            "num_channels": 320,
+            "num_heads": 8,
+            "num_res_blocks": 2,
+            "resblock_updown": False,
+            "use_fp16": False,
+            "use_scale_shift_norm": False,
+            "clip_embed_dim": 768
+            if "clip_proj.weight" in self.model_state_dict
+            else None,
+            "image_condition": True
+            if self.model_state_dict["input_blocks.0.0.weight"].shape[1] == 8
+            else False,
+            "super_res_condition": True
+            if "external_block.0.0.weight" in self.model_state_dict
+            else False,
         }
 
         if self.args.ddpm:
-            self.model_params['timestep_respacing'] = 1000
+            self.model_params["timestep_respacing"] = 1000
         if self.args.ddim:
             if self.args.steps:
-                self.model_params['timestep_respacing'] = 'ddim' + \
-                    str(self.args.steps)
+                self.model_params["timestep_respacing"] = "ddim" + str(self.args.steps)
             else:
-                self.model_params['timestep_respacing'] = 'ddim50'
+                self.model_params["timestep_respacing"] = "ddim50"
         elif self.args.steps:
-            self.model_params['timestep_respacing'] = str(self.args.steps)
+            self.model_params["timestep_respacing"] = str(self.args.steps)
 
         self.model_config = model_and_diffusion_defaults()
         self.model_config.update(self.model_params)
 
     def init_settings(self, override_settings=None):
-                
+
         settings = self.settings
 
-        if override_settings!=None:
+        if override_settings != None:
             settings = self.json_override(settings, override_settings)
-            
+
         self.args.steps = settings["steps"]
-        
+
         self.update_model_params()
-        
 
-
-    def __init__(self,chain, load_models=True):
+    def __init__(self, chain, load_models=True):
         super().__init__(chain)
         self.title = "Latent Diffusion"
-        
+
         # parser = argparse.ArgumentParser()
-        
+
         # parser.add_argument('--model_path', type=str, default='glid_3_xl/finetune.pt',
         #                     help='path to the diffusion model')
 
@@ -548,11 +577,12 @@ class GeneratorLatentDiffusion(GeneratorBase):
         # # turn on to use 50 step ddim
         # parser.add_argument('--ddpm', dest='ddpm', action='store_true')
 
-
         # self.args = parser.parse_args(args = [],namespace=None)
         # strj = json.dumps(self.args, default=lambda obj: obj.__dict__)
-        self.args = json.loads(self.default_settings, object_hook=lambda d: SimpleNamespace(**d))
-        
+        self.args = json.loads(
+            self.default_settings, object_hook=lambda d: SimpleNamespace(**d)
+        )
+
         self.args.width = 256
         self.args.height = 256
         self.args.clip_guidance = True

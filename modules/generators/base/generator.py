@@ -1,11 +1,9 @@
-
-
 class GeneratorBase:
 
     chain = None
     device = None
     DEVICE = None
-    
+
     type = None
     id = None
     title = None
@@ -17,16 +15,16 @@ class GeneratorBase:
 
     def load_models(self):
         return None
-            
+
     def do_run(self):
         return self.output_filename
 
-    def __init__(self,chain):
+    def __init__(self, chain):
         self.chain = chain
         self.DEVICE = self.chain.DEVICE
         self.device = self.chain.device
 
-    def json_override(self,base, new):
+    def json_override(self, base, new):
         if isinstance(base, dict):
             for k, v in new.items():
                 if k in base:
@@ -34,6 +32,6 @@ class GeneratorBase:
             return {k: self.json_override(v, new) for k, v in base.items()}
         else:
             return base
-        
+
     # gc.collect()
     # do_run()
