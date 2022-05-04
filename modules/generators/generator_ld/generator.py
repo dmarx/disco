@@ -14,7 +14,7 @@ from torchvision.transforms import functional as TF
 from tqdm.notebook import tqdm
 import numpy as np
 from lib.glid_3_xl.encoders.modules import BERTEmbedder
-from lib.glid_3_xl.guided_diffusion_ld.script_util import (
+from lib.glid_3_xl.guided_diffusion.script_util import (
     create_model_and_diffusion,
     model_and_diffusion_defaults,
 )
