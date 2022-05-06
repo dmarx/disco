@@ -10,6 +10,7 @@ from modules.generators.generator_ld.generator import GeneratorLatentDiffusion
 from modules.generators.generator_dalle2_pytorch.generator import GeneratorDALLE2Pytorch
 from modules.generators.generator_test.generator import GeneratorTest
 
+
 class Chain:
 
     DEVICE = None
@@ -25,9 +26,7 @@ class Chain:
     generator_ld = None
     generator_go_big = None
     generator_dalle_pytorch = None
-
-    # run_disco = True
-    # run_ld = True
+    generator_test = None
 
     def load_cuda(self):
 

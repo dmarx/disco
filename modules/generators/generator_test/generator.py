@@ -9,10 +9,10 @@ from modules.generators.base.generator import GeneratorBase
 
 class GeneratorTest(GeneratorBase):
 
-    default_settings = '{"reflect": True}'
+    default_settings = '{"reflect": true}'
     settings = {"reflect": True}
 
-    def fetch(url_or_path):
+    def fetch(self, url_or_path):
         if str(url_or_path).startswith("http://") or str(url_or_path).startswith(
             "https://"
         ):
@@ -28,14 +28,14 @@ class GeneratorTest(GeneratorBase):
         if len(prompt) > 0:
             im = Image.open(self.fetch(prompt)).convert("RGB")
         else:
-            arr = np.zeros(shape=(512, 512, 3), dtype=np.int16)
+            arr = np.zeros(shape=(512, 512, 3), dtype=np.uint8)
             arr[256:, :, 0] = 255
             arr[:, 256:, 1] = 255
             im = Image.fromarray(arr)
 
         if self.settings["reflect"]:
             im = im.transpose(Image.FLIP_LEFT_RIGHT)
-        filename_out = "test.png"
+        filename_out = "content/output/test.png"
         im.save(filename_out)
         return filename_out
 
@@ -52,10 +52,6 @@ class GeneratorTest(GeneratorBase):
     def __init__(self, chain, load_models=True):
         super().__init__(chain)
         self.title = "Test"
-
-        self.args = json.loads(
-            self.default_settings, object_hook=lambda d: SimpleNamespace(**d)
-        )
 
         if load_models:
             self.load_models()
