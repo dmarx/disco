@@ -36,12 +36,13 @@ class Chain:
         print("Using device:", self.DEVICE)
         self.device = self.DEVICE  # At least one of the modules expects this name.
 
-        if torch.cuda.get_device_capability(self.DEVICE) == (
-            8,
-            0,
-        ):  ## A100 fix thanks to Emad
-            print("Disabling CUDNN for A100 gpu", file=sys.stderr)
-            torch.backends.cudnn.enabled = False
+        if torch.cuda.is_available():
+            if torch.cuda.get_device_capability(self.DEVICE) == (
+                8,
+                0,
+            ):  ## A100 fix thanks to Emad
+                print("Disabling CUDNN for A100 gpu", file=sys.stderr)
+                torch.backends.cudnn.enabled = False
 
     def run_chain(self, prompt):
         return self.output_filename
