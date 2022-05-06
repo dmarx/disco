@@ -18,7 +18,19 @@ from modules.manager.projects.project import Project
 # from generator_ld.generator import GeneratorLatentDiffusion
 # from manager.chain.chain import Chain
 
-import openai
+import openai, sys 
+
+PROJECT_DIR=os.getcwd()
+
+sys.path.append(f'{PROJECT_DIR}/lib/glid_3_xl')
+sys.path.append(f'{PROJECT_DIR}/lib/CLIP')
+sys.path.append(f'{PROJECT_DIR}/lib/MiDaS')
+sys.path.append(f'{PROJECT_DIR}/lib/AdaBins')
+sys.path.append(f'{PROJECT_DIR}/lib/latent-diffusion')
+sys.path.append(f'{PROJECT_DIR}/lib/ResizeRight')
+sys.path.append(f'{PROJECT_DIR}/lib/pytorch3d-lite')
+
+
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
@@ -120,6 +132,28 @@ async def paint(ctx, *, prompt):
         discord.utils.escape_mentions(answer)
     )  # , files: [discord.File("static/output/" + filename)]})
     await ctx.send(file=discord.File("static/output/" + filename))
+
+
+
+
+@bot.command(name="chocomatic", help="Makes chocolate.")
+async def paint(ctx, *, prompt):
+    prompt = " ".join(prompt.split())
+    print(prompt)
+
+    global project, chain
+
+    project.generators[0].settings["prompt"] = prompt + ", made entirely of chocolate"
+    # project.generators[1].settings["prompt"] = prompt
+    filename = chain.run_project(project)
+    # filename = chain.run_chain(prompt)
+    
+    filename = chain.run_project(project)
+    # filename = chain.run_chain(prompt)
+
+    await ctx.send(file=discord.File("static/output/" + filename))
+
+
 
 
 @bot.command(name="horror", help="Makes a horror scene.")
