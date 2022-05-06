@@ -30,7 +30,7 @@
 
 
 #     def do_run(self,  model,cond_scale,text):
-    
+
 #         model_path = Path(model)
 #         full_model_path = str(model_path.resolve())
 #         assert model_path.exists(), f'model not found at {full_model_path}'
@@ -63,24 +63,24 @@
 
 #     def load_models(self):
 #         print("Loading models")
-        
+
 #     def init_settings(self, override_settings=None):
-                
+
 #         settings = self.settings
 #         if override_settings!=None:
 #             settings = self.json_override(settings, override_settings)
-            
+
 
 #     def __init__(self,chain, load_models=True):
 #         super().__init__(chain)
 #         self.title = "Latent Diffusion"
-     
+
 #         self.args = json.loads(self.default_settings, object_hook=lambda d: SimpleNamespace(**d))
-        
+
 #         self.args.width = 256
 #         self.args.height = 256
 #         self.args.clip_guidance = True
 
-  
+
 #         if load_models:
 #             self.load_models()

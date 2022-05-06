@@ -22,7 +22,7 @@
 #     args = None
 
 #     def do_run(self, prompt, prefix="", input_seed=""):
-    
+
 
 #         # filename_gen = self.args.prefix + "00000.png"
 #         # filename_out = self.args.prefix + "_" + str(self.args.seed) + "_00000.png"
@@ -105,7 +105,7 @@
 
 
 #         out_path = "content/dalle.png"
-        
+
 #         return    PIL.save(out_path)
 
 # # save your image (in this example, of size 256x256)
@@ -113,27 +113,27 @@
 
 #     def load_models(self):
 #         print("Loading models")
-        
+
 #     def init_settings(self, override_settings=None):
-                
+
 #         settings = self.settings
 #         if override_settings!=None:
 #             settings = self.json_override(settings, override_settings)
-            
+
 
 #     def __init__(self,chain, load_models=True):
 #         super().__init__(chain)
 #         self.title = "Latent Diffusion"
-     
+
 #         try:
 #             self.args = json.loads(self.default_settings, object_hook=lambda d: SimpleNamespace(**d))
 #         except Exception:
 #             pass
-        
+
 # #         self.args.width = 256
 # #         self.args.height = 256
 # #         self.args.clip_guidance = True
 
-  
+
 #         if load_models:
 #             self.load_models()

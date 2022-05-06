@@ -420,9 +420,7 @@ class GaussianDiffusion:
         alpha_bar = _extract_into_tensor(self.alphas_cumprod, t, x.shape)
 
         eps = self._predict_eps_from_xstart(x, t, p_mean_var["pred_xstart"])
-        eps = eps - (1 - alpha_bar).sqrt() * cond_fn(
-            x, t, p_mean_var, **model_kwargs
-        )
+        eps = eps - (1 - alpha_bar).sqrt() * cond_fn(x, t, p_mean_var, **model_kwargs)
 
         out = p_mean_var.copy()
         out["pred_xstart"] = self._predict_xstart_from_eps(x, t, eps)
@@ -628,12 +626,17 @@ class GaussianDiffusion:
 
         for i in indices:
             t = th.tensor([i] * shape[0], device=device)
-            if randomize_class and 'y' in model_kwargs:
-                model_kwargs['y'] = th.randint(low=0, high=model.num_classes,
-                                               size=model_kwargs['y'].shape,
-                                               device=model_kwargs['y'].device)
+            if randomize_class and "y" in model_kwargs:
+                model_kwargs["y"] = th.randint(
+                    low=0,
+                    high=model.num_classes,
+                    size=model_kwargs["y"].shape,
+                    device=model_kwargs["y"].device,
+                )
             with th.no_grad():
-                sample_fn = self.p_sample_with_grad if cond_fn_with_grad else self.p_sample
+                sample_fn = (
+                    self.p_sample_with_grad if cond_fn_with_grad else self.p_sample
+                )
                 out = sample_fn(
                     model,
                     img,
@@ -671,7 +674,9 @@ class GaussianDiffusion:
             model_kwargs=model_kwargs,
         )
         if cond_fn is not None:
-            out = self.condition_score(cond_fn, out_orig, x, t, model_kwargs=model_kwargs)
+            out = self.condition_score(
+                cond_fn, out_orig, x, t, model_kwargs=model_kwargs
+            )
         else:
             out = out_orig
 
@@ -725,8 +730,9 @@ class GaussianDiffusion:
                 model_kwargs=model_kwargs,
             )
             if cond_fn is not None:
-                out = self.condition_score_with_grad(cond_fn, out_orig, x, t,
-                                                     model_kwargs=model_kwargs)
+                out = self.condition_score_with_grad(
+                    cond_fn, out_orig, x, t, model_kwargs=model_kwargs
+                )
             else:
                 out = out_orig
 
@@ -883,12 +889,19 @@ class GaussianDiffusion:
 
         for i in indices:
             t = th.tensor([i] * shape[0], device=device)
-            if randomize_class and 'y' in model_kwargs:
-                model_kwargs['y'] = th.randint(low=0, high=model.num_classes,
-                                               size=model_kwargs['y'].shape,
-                                               device=model_kwargs['y'].device)
+            if randomize_class and "y" in model_kwargs:
+                model_kwargs["y"] = th.randint(
+                    low=0,
+                    high=model.num_classes,
+                    size=model_kwargs["y"].shape,
+                    device=model_kwargs["y"].device,
+                )
             with th.no_grad():
-                sample_fn = self.ddim_sample_with_grad if cond_fn_with_grad else self.ddim_sample
+                sample_fn = (
+                    self.ddim_sample_with_grad
+                    if cond_fn_with_grad
+                    else self.ddim_sample
+                )
                 out = sample_fn(
                     model,
                     img,
@@ -921,7 +934,7 @@ class GaussianDiffusion:
         Same usage as p_sample().
         """
         if not int(order) or not 1 <= order <= 4:
-            raise ValueError('order is invalid (should be int from 1-4).')
+            raise ValueError("order is invalid (should be int from 1-4).")
 
         def get_model_output(x, t):
             with th.set_grad_enabled(cond_fn_with_grad and cond_fn is not None):
@@ -936,10 +949,14 @@ class GaussianDiffusion:
                 )
                 if cond_fn is not None:
                     if cond_fn_with_grad:
-                        out = self.condition_score_with_grad(cond_fn, out_orig, x, t, model_kwargs=model_kwargs)
+                        out = self.condition_score_with_grad(
+                            cond_fn, out_orig, x, t, model_kwargs=model_kwargs
+                        )
                         x = x.detach()
                     else:
-                        out = self.condition_score(cond_fn, out_orig, x, t, model_kwargs=model_kwargs)
+                        out = self.condition_score(
+                            cond_fn, out_orig, x, t, model_kwargs=model_kwargs
+                        )
                 else:
                     out = out_orig
 
@@ -955,11 +972,17 @@ class GaussianDiffusion:
         if order > 1 and old_out is None:
             # Pseudo Improved Euler
             old_eps = [eps]
-            mean_pred = out["pred_xstart"] * th.sqrt(alpha_bar_prev) + th.sqrt(1 - alpha_bar_prev) * eps
+            mean_pred = (
+                out["pred_xstart"] * th.sqrt(alpha_bar_prev)
+                + th.sqrt(1 - alpha_bar_prev) * eps
+            )
             eps_2, _, _ = get_model_output(mean_pred, t - 1)
             eps_prime = (eps + eps_2) / 2
             pred_prime = self._predict_xstart_from_eps(x, t, eps_prime)
-            mean_pred = pred_prime * th.sqrt(alpha_bar_prev) + th.sqrt(1 - alpha_bar_prev) * eps_prime
+            mean_pred = (
+                pred_prime * th.sqrt(alpha_bar_prev)
+                + th.sqrt(1 - alpha_bar_prev) * eps_prime
+            )
         else:
             # Pseudo Linear Multistep (Adams-Bashforth)
             old_eps = old_out["old_eps"]
@@ -972,11 +995,19 @@ class GaussianDiffusion:
             elif cur_order == 3:
                 eps_prime = (23 * old_eps[-1] - 16 * old_eps[-2] + 5 * old_eps[-3]) / 12
             elif cur_order == 4:
-                eps_prime = (55 * old_eps[-1] - 59 * old_eps[-2] + 37 * old_eps[-3] - 9 * old_eps[-4]) / 24
+                eps_prime = (
+                    55 * old_eps[-1]
+                    - 59 * old_eps[-2]
+                    + 37 * old_eps[-3]
+                    - 9 * old_eps[-4]
+                ) / 24
             else:
-                raise RuntimeError('cur_order is invalid.')
+                raise RuntimeError("cur_order is invalid.")
             pred_prime = self._predict_xstart_from_eps(x, t, eps_prime)
-            mean_pred = pred_prime * th.sqrt(alpha_bar_prev) + th.sqrt(1 - alpha_bar_prev) * eps_prime
+            mean_pred = (
+                pred_prime * th.sqrt(alpha_bar_prev)
+                + th.sqrt(1 - alpha_bar_prev) * eps_prime
+            )
 
         if len(old_eps) >= order:
             old_eps.pop(0)
@@ -984,7 +1015,11 @@ class GaussianDiffusion:
         nonzero_mask = (t != 0).float().view(-1, *([1] * (len(x.shape) - 1)))
         sample = mean_pred * nonzero_mask + out["pred_xstart"] * (1 - nonzero_mask)
 
-        return {"sample": sample, "pred_xstart": out_orig["pred_xstart"], "old_eps": old_eps}
+        return {
+            "sample": sample,
+            "pred_xstart": out_orig["pred_xstart"],
+            "old_eps": old_eps,
+        }
 
     def plms_sample_loop(
         self,
@@ -1078,10 +1113,13 @@ class GaussianDiffusion:
 
         for i in indices:
             t = th.tensor([i] * shape[0], device=device)
-            if randomize_class and 'y' in model_kwargs:
-                model_kwargs['y'] = th.randint(low=0, high=model.num_classes,
-                                               size=model_kwargs['y'].shape,
-                                               device=model_kwargs['y'].device)
+            if randomize_class and "y" in model_kwargs:
+                model_kwargs["y"] = th.randint(
+                    low=0,
+                    high=model.num_classes,
+                    size=model_kwargs["y"].shape,
+                    device=model_kwargs["y"].device,
+                )
             with th.no_grad():
                 out = self.plms_sample(
                     model,
