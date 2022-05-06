@@ -16,7 +16,6 @@ __pycache__
 /lib
 /disco-diffusion
 pretrained/AdaBins_nyu.pt
-pretrained/AdaBins_nyu.ptZone.Identifier
 tools/3d/BoostingMonocularDepth
 model/superres/last.ckpt/dl=1
 model/superres/project.yaml/dl=1
@@ -32,7 +31,6 @@ static/data/projects/*/output/*/*.png
 content/images_out
 static/dist
 ui/dist/media
-*.Identifier
 *.Identifier
 *ipynb_checkpoints*
 .env

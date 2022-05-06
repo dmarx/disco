@@ -63,10 +63,11 @@ def replace_in_file(file_path, search_text, new_text):
             print(new_line, end="")
 
 
-# def configure_paths(root_path):
+def configure_paths(PROJECT_DIR):
 
-#   initDirPath = f'{root_path}/content/init_images'
-#   createPath(initDirPath)
+   createPath(f'{PROJECT_DIR}/content/output')
+   createPath(f'{PROJECT_DIR}/content/output_npy')
+   createPath(f'{PROJECT_DIR}/static/output')
 #   outDirPath = f'{root_path}/content/images_out'
 #   createPath(outDirPath)
 #   model_path = f'{root_path}/content/models'
@@ -77,6 +78,8 @@ def configure_libs(PROJECT_DIR, model_path, USE_ADABINS):
 
     if os.path.exists("lib/CLIP") is not True:
         gitclone("https://github.com/openai/CLIP", path=f"{PROJECT_DIR}/lib/")
+        os.system("cd lib/CLIP && pip install -e .")
+        os.system("cd ..")
 
     if os.path.exists("lib/ResizeRight") is not True:
         gitclone(
@@ -99,20 +102,42 @@ def configure_libs(PROJECT_DIR, model_path, USE_ADABINS):
             "https://github.com/intel-isl/DPT/releases/download/1_0/dpt_large-midas-2f21e586.pt",
             model_path,
         )
+        
+        
+    # if os.path.exists("lib/pytorch3d") is not True:
+    #     gitclone(
+    #         "https://github.com/facebookresearch/pytorch3d.git", path=f"{PROJECT_DIR}/lib/"
+    #     )
+    #     os.system("cd lib/pytorch3d && python3 setup.py install")
+    #     os.system("cd " + PROJECT_DIR)
+
+    if os.path.exists("lib/latent-diffusion") is not True:
+        gitclone(
+            "https://github.com/CompVis/latent-diffusion", path=f"{PROJECT_DIR}/lib/"
+        )
+        os.system("cd lib/latent-diffusion && pip install -e .")
+        os.system("cd ..")
 
     if os.path.exists("lib/glid_3_xl") is not True:
         gitclone(
             "https://github.com/Jack000/glid-3-xl.git", path=f"{PROJECT_DIR}/lib/"
         )
-    shutil.move("lib/glid-3-xl", "lib/glid_3_xl")
+        shutil.move("lib/glid-3-xl", "lib/glid_3_xl")
+        shutil.move("lib/glid_3_xl/guided_diffusion", "lib/glid_3_xl/guided_diffusion_ld")
 
+        replace_in_file(
+            "lib/glid_3_xl/encoders/modules.py",
+            "from encoders.x_transformer import Encoder, TransformerWrapper",
+            "from lib.glid_3_xl.encoders.x_transformer import Encoder, TransformerWrapper",
+        )
+        
+        os.system("wget https://dall-3.com/models/glid-3-xl/bert.pt -P lib/glid_3_xl")
+        os.system("wget https://dall-3.com/models/glid-3-xl/kl-f8.pt -P lib/glid_3_xl")
+        os.system("wget https://dall-3.com/models/glid-3-xl/finetune.pt -P lib/glid_3_xl")
 
-    replace_in_file(
-        "lib/glid_3_xl/encoders/modules.py",
-        "from encoders.x_transformer import Encoder, TransformerWrapper",
-        "from lib.glid_3_xl.encoders.x_transformer import Encoder, TransformerWrapper",
-    )
-
+        os.system("cd lib/latent-diffusion && pip install -e .")
+        os.system("cd ..")
+        
     # try:
     # sys.path.append(PROJECT_DIR)
     # import disco_xform_utils as dxf
@@ -148,3 +173,11 @@ def configure_libs(PROJECT_DIR, model_path, USE_ADABINS):
     #   if os.path.exists("guided-diffusion") is not True:
     #     gitclone("https://github.com/crowsonkb/guided-diffusion")
     # sys.path.append(f'{PROJECT_DIR}/guided-diffusion')
+
+PROJECT_DIR=os.getcwd()
+model_path = f"{PROJECT_DIR}/content/models"
+USE_ADABINS = True
+
+configure_libs(PROJECT_DIR, model_path, USE_ADABINS)
+configure_paths(PROJECT_DIR)
+

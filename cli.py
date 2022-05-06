@@ -26,38 +26,38 @@ def run_custom():
 
     project = Project(1)
     project.generators = [
-        SimpleNamespace(**{
-           'id':0,
-           'type':1,
-           'settings':{
-               "prompt":prompt,
-               "steps":150,
-               "width":512,
-               "height":512,
-           }
-        }),
         # SimpleNamespace(**{
-        #     'id':0,
-        #     'type':2,
-        #     'settings':{
-        #         "text_prompts": [{
-        #             "start": 0,
-        #             "prompt": prompt
-        #         }], 
-        #         "steps":150,
-        #         "width":512,
-        #         "height":512,
-        #         #'ViTB32': True,
-        #         #'ViTB16': True,
-        #         #'ViTL14': False,
-        #         #'ViTL14_336px':False,
-        #        # 'RN101': False,
-        #        # 'RN50': False,
-        #       #  'RN50x4': False,
-        #       #  'RN50x16': False,
-        #        # 'RN50x64': False,
-        #     }
+        #    'id':0,
+        #    'type':1,
+        #    'settings':{
+        #        "prompt":prompt,
+        #        "steps":30,
+        #        "width":512,
+        #        "height":512,
+        #    }
         # }),
+        SimpleNamespace(**{
+            'id':1,
+            'type':2,
+            'settings':{
+                "text_prompts": [{
+                    "start": 0,
+                    "prompt": prompt
+                }], 
+                "steps":50,
+                "width":512,
+                "height":512,
+                #'ViTB32': True,
+                #'ViTB16': True,
+                #'ViTL14': False,
+                #'ViTL14_336px':False,
+               # 'RN101': False,
+               # 'RN50': False,
+              #  'RN50x4': False,
+              #  'RN50x16': False,
+               # 'RN50x64': False,
+            }
+        }),
         #      SimpleNamespace(**{
         #     "id":3
         #     "type":3,
