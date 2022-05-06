@@ -1,6 +1,7 @@
 import os, sys
 PROJECT_DIR=os.getcwd()
-sys.path.append(f'{PROJECT_DIR}/lib/gl_3_xl')
+
+sys.path.append(f'{PROJECT_DIR}/lib/glid_3_xl')
 sys.path.append(f'{PROJECT_DIR}/lib/CLIP')
 sys.path.append(f'{PROJECT_DIR}/lib/MiDaS')
 sys.path.append(f'{PROJECT_DIR}/lib/AdaBins')
@@ -9,7 +10,7 @@ sys.path.append(f'{PROJECT_DIR}/lib/ResizeRight')
 sys.path.append(f'{PROJECT_DIR}/lib/pytorch3d-lite')
 
 # # from generator_disco.generator import GeneratorDisco
-from modules.generators.generator_ld.generator import GeneratorLatentDiffusion
+#from modules.generators.generator_ld.generator import GeneratorLatentDiffusion
 # # from manager.chain.chain import Chain
 
 import argparse
