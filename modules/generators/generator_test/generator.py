@@ -1,6 +1,5 @@
 import io
 import os
-from types import SimpleNamespace
 from PIL import Image
 import requests
 import numpy as np
@@ -8,6 +7,14 @@ from modules.generators.base.generator import GeneratorBase
 
 
 class GeneratorTest(GeneratorBase):
+    """If this generator is after another generator in the chain,
+    it will output the same image it is given.
+    Otherwise, if prompt is the URL or filepath of an image,
+    it will output that image.
+    If prompt is empty, or does not resolve, it will output a
+    4-color grid with black in the top left corner.
+    In all of the above cases, if the reflect setting is True,
+    it will horizontally flip the image before output."""
 
     settings = {"reflect": True, "init_image": "", "prefix": 0}
 
@@ -24,11 +31,15 @@ class GeneratorTest(GeneratorBase):
         return open(url_or_path, "rb")
 
     def do_run(self, prompt, prefix="", input_seed=""):
+        im = None
         if self.settings["init_image"] != "":
             im = Image.open(self.fetch(self.settings["init_image"])).convert("RGB")
         elif prompt != "":
-            im = Image.open(self.fetch(prompt)).convert("RGB")
-        else:
+            try:
+                im = Image.open(self.fetch(prompt)).convert("RGB")
+            except (FileNotFoundError, requests.exceptions.ConnectionError):
+                pass
+        if im is None:
             arr = np.zeros(shape=(512, 512, 3), dtype=np.uint8)
             arr[256:, :, 0] = 255
             arr[:, 256:, 1] = 255
@@ -41,9 +52,6 @@ class GeneratorTest(GeneratorBase):
         im.save(os.path.join("static/output", filename_out))
         return filename_out
 
-    def load_models(self):
-        pass
-
     def init_settings(self, override_settings=None):
 
         settings = self.settings
@@ -54,6 +62,3 @@ class GeneratorTest(GeneratorBase):
     def __init__(self, chain, load_models=True):
         super().__init__(chain)
         self.title = "Test"
-
-        if load_models:
-            self.load_models()
