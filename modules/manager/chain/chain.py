@@ -9,6 +9,7 @@ from modules.generators.generator_go_big.generator import GeneratorGoBig
 from modules.generators.generator_ld.generator import GeneratorLatentDiffusion
 from modules.generators.generator_dalle2_pytorch.generator import GeneratorDALLE2Pytorch
 from modules.generators.generator_test.generator import GeneratorTest
+from modules.generators.generator_arbitrary.generator import GeneratorArbitrary
 
 
 class Chain:
@@ -27,6 +28,7 @@ class Chain:
     generator_go_big = None
     generator_dalle_pytorch = None
     generator_test = None
+    generator_arbitrary = None
 
     def load_cuda(self):
 
@@ -128,6 +130,23 @@ class Chain:
                 if self.generator_dalle_pytorch == None:
                     self.generator_dalle_pytorch = GeneratorDALLE2Pytorch(self)
                 self.output_filename = self.generator_dalle_pytorch.do_run(
+                    generator.settings["prompt"]
+                )
+                self.output_project_image(project, generator)
+
+            if generator.type == 5:
+                if self.generator_arbitrary == None:
+                    self.generator_arbitrary = GeneratorArbitrary(self)
+                generator.settings = json.loads(
+                    json.dumps(generator.settings, default=lambda obj: obj.__dict__)
+                )
+                generator.settings["prefix"] = str(randint(0, 1000000))
+                if self.output_filename != None and len(self.output_filename) > 0:
+                    generator.settings["init_image"] = (
+                        os.getcwd() + "/static/output/" + self.output_filename
+                    )
+                self.generator_arbitrary.init_settings(generator.settings)
+                self.output_filename = self.generator_arbitrary.do_run(
                     generator.settings["prompt"]
                 )
                 self.output_project_image(project, generator)
