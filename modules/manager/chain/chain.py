@@ -8,7 +8,7 @@ from modules.generators.generator_disco.generator import GeneratorDisco
 from modules.generators.generator_go_big.generator import GeneratorGoBig
 from modules.generators.generator_ld.generator import GeneratorLatentDiffusion
 from modules.generators.generator_dalle2_pytorch.generator import GeneratorDALLE2Pytorch
-
+from modules.generators.generator_test.generator import GeneratorTest
 
 class Chain:
 
@@ -69,7 +69,17 @@ class Chain:
         self.output_filename = ""
 
         for generator in project.generators:
-            # print(generator.keys())
+            if generator.type == 0:
+                generator.settings = json.loads(
+                    json.dumps(generator.settings, default=lambda obj: obj.__dict__)
+                )
+                if self.generator_test == None:
+                    self.generator_test = GeneratorTest(self)
+                self.output_filename = self.generator_test.do_run(
+                    generator.settings["prompt"]
+                )
+                self.output_project_image(project, generator)
+
             if generator.type == 1:
                 if self.generator_ld == None:
                     self.generator_ld = GeneratorLatentDiffusion(self)
