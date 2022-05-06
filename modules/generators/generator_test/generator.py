@@ -59,6 +59,6 @@ class GeneratorTest(GeneratorBase):
         if override_settings != None:
             settings = self.json_override(settings, override_settings)
 
-    def __init__(self, chain, load_models=True):
+    def __init__(self, chain):
         super().__init__(chain)
         self.title = "Test"
