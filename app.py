@@ -18,13 +18,13 @@ UPLOAD_FOLDER = 'static/uploads/'
 ALLOWED_EXTENSIONS = set(['mp4', 'mp3', 'wav','.mov'])
 apiURL = "http://localhost:5000"
 
-sys.path.append(f'{PROJECT_DIR}/CLIP')
-sys.path.append(f'{PROJECT_DIR}/MiDaS')
-sys.path.append(f'{PROJECT_DIR}/AdaBins')
-sys.path.append(f'{PROJECT_DIR}/latent-diffusion')
-sys.path.append(f'{PROJECT_DIR}/ResizeRight')
-sys.path.append(f'{PROJECT_DIR}/pytorch3d-lite')
-sys.path.append(f'{PROJECT_DIR}/gl_3_xl')
+sys.path.append(f'{PROJECT_DIR}/lib/gl_3_xl')
+sys.path.append(f'{PROJECT_DIR}/lib/CLIP')
+sys.path.append(f'{PROJECT_DIR}/lib/MiDaS')
+sys.path.append(f'{PROJECT_DIR}/lib/AdaBins')
+sys.path.append(f'{PROJECT_DIR}/lib/latent-diffusion')
+sys.path.append(f'{PROJECT_DIR}/lib/ResizeRight')
+sys.path.append(f'{PROJECT_DIR}/lib/pytorch3d-lite')
 
 
 chain = None
