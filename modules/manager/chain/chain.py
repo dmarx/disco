@@ -69,11 +69,17 @@ class Chain:
 
         for generator in project.generators:
             if generator.type == 0:
+                if self.generator_test == None:
+                    self.generator_test = GeneratorTest(self)
                 generator.settings = json.loads(
                     json.dumps(generator.settings, default=lambda obj: obj.__dict__)
                 )
-                if self.generator_test == None:
-                    self.generator_test = GeneratorTest(self)
+                generator.settings["prefix"] = str(randint(0, 1000000))
+                if self.output_filename != None and len(self.output_filename) > 0:
+                    generator.settings["init_image"] = (
+                        os.getcwd() + "/static/output/" + self.output_filename
+                    )
+                self.generator_test.init_settings(generator.settings)
                 self.output_filename = self.generator_test.do_run(
                     generator.settings["prompt"]
                 )
