@@ -7,7 +7,7 @@
           style="
             margin-top: 14px;
             background-size: auto calc(100% + 10rem);
-            background-position-x: 100%;n
+            background-position-x: 100%;
             background-image: url('/metronic8/demo1/assets/media/illustrations/sketchy-1/4.png');
           "
         >
@@ -120,12 +120,6 @@
         </div>
 
         <div class="card card-flush">
-          <!-- <div class="card-header pt-8" style="">
-            <div class="card-title">
-              <h2>Generator Chain</h2>
-            </div>
-          </div> -->
-
           <div class="card-body" style="">
             <div id="kt_scenes_tab_contents" class="tab-content">
               <div
@@ -136,7 +130,7 @@
                 <div class="row">
                   <div class="col-6">
                     <h2 style="color: #fff">Generator Chain</h2>
-<br />
+                    <br />
                     <div class="flex" v-if="state.project != null">
                       <div
                         v-if="state.project.generators.length == 0"
@@ -146,35 +140,30 @@
                         <br />
                         <br />
                       </div>
-                      <draggable
-                        class="dragArea list-group w-full"
-                        :list="state.project.generators"
-                        @change="log"
+
+                      <div
+                        class="bg-gray-300 m-1 p-3 rounded-md text-center item-generator"
+                        v-for="element in state.project.generators"
+                        :key="element.title"
                       >
-                        <div
-                          class="bg-gray-300 m-1 p-3 rounded-md text-center item-generator"
-                          v-for="element in state.project.generators"
-                          :key="element.title"
-                        >
-                          <h3>
-                            <div style="float: right">
-                              <button
-                                class="btn btn-primary btn-sm"
-                                @click="selectGenerator(element)"
-                              >
-                                Edit
-                              </button>
-                            </div>
-                            {{ element.title }}
-                          </h3>
-                          <p>{{ element.description }}</p>
-                        </div>
-                      </draggable>
+                        <h3>
+                          <div style="float: right">
+                            <button
+                              class="btn btn-primary btn-sm"
+                              @click="selectGenerator(element)"
+                            >
+                              Edit
+                            </button>
+                          </div>
+                          {{ element.title }}
+                        </h3>
+                        <p>{{ element.description }}</p>
+                      </div>
                     </div>
 
                     <br />
                     <br />
-                    <br />\
+                    <br />
 
                     <div v-if="state.project && state.project.generators.length > 0">
                       <h2 style="color: #fff">Preview</h2>
@@ -229,10 +218,58 @@
                         Settings
                       </h2>
                       <div class="item-generator">
-                        <Vue3LiveForm
-                          :schema="state.selectedGenerator.schema"
-                          v-model="state.selectedGenerator.settings"
-                        />
+                        <div
+                          v-if="
+                            state.selectedGenerator.type != 21 && state.loading == false
+                          "
+                        >
+                          <Vue3LiveForm
+                            :schema="state.selectedGenerator.schema"
+                            v-model="state.selectedGenerator.settings"
+                          />
+                        </div>
+                        <div
+                          v-if="state.selectedGenerator.type == 2"
+                          style="padding: 15px"
+                        >
+                          <h3>Scene Tools</h3>
+                          <p>
+                            Create scene items from a list of text lines (e.g.
+                            poem/lyrics).
+                          </p>
+                          <div class="form-group">
+                            <textarea
+                              type="text"
+                              class="form-control"
+                              name="Lines"
+                              placeholder="Lines..."
+                              v-model="state.sceneLines"
+                              style="color: white; border: 1px solid #555"
+                            />
+                          </div>
+                          <br />
+                          <div class="form-group">
+                            <div class="form-label">
+                              Frames per Scene
+                              <input
+                                type="text"
+                                class="form-control"
+                                name="FramePerScene"
+                                placeholder="10"
+                                v-model="state.sceneLinesFramesPerScene"
+                                style="color: white; border: 1px solid #555"
+                              />
+                            </div>
+                          </div>
+                          <br />
+
+                          <button
+                            class="btn btn-primary btn-sm"
+                            @click="createScenesFromLines()"
+                          >
+                            Create Scenes
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -245,132 +282,13 @@
                 role="tabpanel"
               >
                 <div>
-                  <div v-if="!generator_disco" style="color: #fff">
-                    <h3>Animation Tools</h3>
-                    Only visible when a Disco generator is in the chain.
-                  </div>
-                  <div v-show="generator_disco != null">
-                    <div
-                      class="bg-gray-300 m-1 p-3 rounded-md text-center item-generator"
-                    >
-                      <h3
-                        style="
-                          padding: 10px;
-                          padding-bottom: 25px;
-                          line-height: 30px;
-                          margin-bottom: 16px;
-                        "
-                      >
-                        <div style="float: right; white-space: nowrap">
-                          <span
-                            v-if="generator_disco && generator_disco.settings"
-                            style="
-                              display: inline-block;
-                              display: inline-block;
-                              margin-right: 60px;
-                            "
-                            >Mode:&nbsp;
-                            <select
-                              v-model="generator_disco.settings['animation_mode']"
-                              class="form-control"
-                              style="
-                                background: #222;
-                                border: 1px solid #555;
-                                display: inline-block;
-                                color: #fff;
-                              "
-                            >
-                              <option disabled value="">Select animation mode...</option>
-                              <option>None</option>
-                              <option>2D</option>
-                              <option>3D</option>
-                              <option>Video</option>
-                            </select>
-                          </span>
-                          &nbsp;&nbsp;&nbsp;
-                          <button class="btn btn-primary btn-sm" @click="resetFrames()">
-                            Reset
-                          </button>
-                          &nbsp;&nbsp;&nbsp;
-                          <button
-                            class="btn btn-primary btn-sm"
-                            @click="loadPreviewFrame(state.selectedFrame)"
-                          >
-                            Preview
-                          </button>
-                        </div>
-                        Animation Tools&nbsp;&nbsp;&nbsp;
-                        <button
-                          class="btn btn-primary btn-sm"
-                          @click="scrub_start()"
-                          style="margin-right: 8px"
-                        >
-                          <i class="fas fa-backward"></i>
-                        </button>
-                        <button
-                          class="btn btn-primary btn-sm"
-                          @click="scrub_play()"
-                          v-if="state.autoPlay == false"
-                          style="margin-right: 8px"
-                        >
-                          <i class="fas fa-play"></i>
-                        </button>
-                        <button
-                          class="btn btn-primary btn-sm"
-                          @click="scrub_pause()"
-                          v-if="state.autoPlay == true"
-                          style="margin-right: 8px"
-                        >
-                          <i class="fas fa-pause"></i>
-                        </button>
-                        <button
-                          class="btn btn-primary btn-sm"
-                          @click="scrub_end()"
-                          style="margin-right: 8px"
-                        >
-                          <i class="fas fa-fast-forward"></i>
-                        </button>
-                      </h3>
-
-                      <div style="width: 100%">
-                        <label
-                          style="
-                            color: #fff;
-                            width: 100%;
-                            text-align: center;
-                            color: #999;
-                          "
-                        >
-                          Frame Timeline:
-                          <span id="sliderDisplayValue">0</span>
-                        </label>
-                        <fieldset style="width: 100%">
-                          <label id="slider-container" style="width: 100%">
-                            <input
-                              style="width: 100%; display: block"
-                              ref="frameTimelineSlider"
-                              id="frameTimelineSlider"
-                              class="slider"
-                              type="range"
-                              min="0"
-                              max="100"
-                              value="0"
-                              step="1"
-                            />
-                          </label>
-                        </fieldset>
-                      </div>
-                    </div>
-
-                    <div style="position: relative" class="threejs" id="threejs">
-                      <div style="width: 100%; height: 600px; position: relative">
-                        <Renderer ref="renderer" style="width: 100%; height: 600px">
-                          <Camera ref="camera" :fov="70" :near="1" :far="10000" />
-                          <Scene ref="scene"> </Scene>
-                        </Renderer>
-                      </div>
-                    </div>
-                  </div>
+                  <!-- <SearchResults :componentState="componentState" ref="searchResults"></SearchResults> -->
+                  <KeyFrameEditor
+                    :project="state.project"
+                    :generator="generator_disco"
+                    v-if="state.project"
+                    ref="keyframeEditor"
+                  />
                 </div>
               </div>
 
@@ -410,19 +328,17 @@
                         To run from shell:
                         <br /><span>python cli.py --project {{ state.project.id }}</span>
                       </p>
-                   
-                    </div>preview available.
-
-
-                        <div v-if="state.project">
+                    </div>
+                    <div v-if="state.project">
                       <h2 style="color: #fff">Delete Project</h2>
                       <p style="color: #fff">
-                       If you're sure you want to delete the project you can do so below.
-                        <br /><p><button id="btn btn-primary" @click="deleteProject()">Delete Project</button></p>
+                        If you're sure you want to delete the project you can do so below.
+                        <br />
+                        <button id="btn btn-primary" @click="deleteProject()">
+                          Delete Project
+                        </button>
                       </p>
-                   
                     </div>
-
                   </div>
                   <div class="col-6" v-if="state.project">
                     <h2 style="color: #fff">Output</h2>
@@ -450,84 +366,78 @@
                         No preview available.
                       </div>
                     </div>
+
+                    <br />
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <div v-if="state.mounted">
-            <Teleport to="#aside-context">
-              <!-- <AsideDefaultMenu></AsideDefaultMenu> -->
-              <div
-                class="menu-item menu-accordion"
-                data-kt-menu-sub="accordion"
-                data-kt-menu-trigger="click"
-              >
-                <div class="menu-content pt-8 pb-2">
-                  <span class="menu-section text-muted text-uppercase fs-8 ls-1"
-                    >Projects</span
-                  >
-                </div>
-                <router-link to="/projects">
-                  <span class="menu-link">
-                    <span class="menu-icon">
-                      <i class="bi bi-bag-check-fill fs-2x"></i>
-                    </span>
-                    <span class="menu-title">My Projects</span>
-                  </span>
-                </router-link>
-                <router-link to="/projects">
-                  <span class="menu-link">
-                    <span class="menu-icon">
-                      <i class="bi bi-card-list fs-2x"></i>
-                    </span>
-                    <span class="menu-title">Shared Projects</span>
-                  </span>
-                </router-link>
-                <router-link to="/projects">
-                  <span class="menu-link">
-                    <span class="menu-icon">
-                      <i class="bi bi-link-45deg fs-2x"></i>
-                    </span>
-                    <span class="menu-title">Closed Projects</span>
-                  </span>
-                </router-link>
-              </div>
-
-              <div
-                class="menu-item menu-accordion"
-                data-kt-menu-sub="accordion"
-                data-kt-menu-trigger="click"
-              >
-                <div class="menu-content pt-8 pb-2">
-                  <span class="menu-section text-muted text-uppercase fs-8 ls-1"
-                    >Generators</span
-                  >
-                </div>
-                <div
-                  class="card-generator"
-                  v-for="element in state.generators"
-                  :key="element.title"
-                >
-                  <h3>
-                    <div style="float: right">
-                      <button
-                        class="btn btn-primary btn-sm"
-                        @click="addGenerator(element)"
-                      >
-                        Add
-                      </button>
-                    </div>
-                    {{ element.title }}
-                  </h3>
-                  <p>{{ element.description }}</p>
-                </div>
-              </div>
-            </Teleport>
-          </div>
         </div>
       </div>
     </div>
+  </div>
+  <div v-if="state.mounted">
+    <Teleport to="#aside-context">
+      <div
+        class="menu-item menu-accordion"
+        data-kt-menu-sub="accordion"
+        data-kt-menu-trigger="click"
+      >
+        <div class="menu-content pt-8 pb-2">
+          <span class="menu-section text-muted text-uppercase fs-8 ls-1">Projects</span>
+        </div>
+        <router-link to="/projects">
+          <span class="menu-link">
+            <span class="menu-icon">
+              <i class="bi bi-bag-check-fill fs-2x"></i>
+            </span>
+            <span class="menu-title">My Projects</span>
+          </span>
+        </router-link>
+        <router-link to="/projects">
+          <span class="menu-link">
+            <span class="menu-icon">
+              <i class="bi bi-card-list fs-2x"></i>
+            </span>
+            <span class="menu-title">Shared Projects</span>
+          </span>
+        </router-link>
+        <router-link to="/projects">
+          <span class="menu-link">
+            <span class="menu-icon">
+              <i class="bi bi-link-45deg fs-2x"></i>
+            </span>
+            <span class="menu-title">Closed Projects</span>
+          </span>
+        </router-link>
+      </div>
+
+      <div
+        class="menu-item menu-accordion"
+        data-kt-menu-sub="accordion"
+        data-kt-menu-trigger="click"
+      >
+        <div class="menu-content pt-8 pb-2">
+          <span class="menu-section text-muted text-uppercase fs-8 ls-1">Generators</span>
+        </div>
+        <div
+          class="card-generator"
+          v-for="element in state.generators"
+          :key="element.title"
+        >
+          <h3>
+            <div style="float: right">
+              <button class="btn btn-primary btn-sm" @click="addGenerator(element)">
+                Add
+              </button>
+            </div>
+            {{ element.title }}
+          </h3>
+          <p>{{ element.description }}</p>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -541,46 +451,25 @@ import { inject } from "vue";
 import { Vue3LiveForm } from "vue3-live-form";
 import FilterTimeline from "../../components/filters/FilterTimeline.vue";
 import AsideDefaultMenu from "@/components/widgets/menus/AsideDefaultMenu.vue";
+import KeyFrameEditor from "@/views/project/animation/KeyFrameEditor.vue";
 import ApiService from "@/core/services/ApiService";
 import { AxiosResponse, AxiosRequestConfig } from "axios";
 import { useRoute } from "vue-router";
-import { VueDraggableNext } from "vue-draggable-next";
 
-import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { TransformControls } from "three/examples/jsm/controls/TransformControls";
-import {
-  AmbientLight,
-  Scene,
-  SpotLight,
-  Mesh,
-  BufferAttribute,
-  BufferGeometry,
-  Line,
-  CatmullRomCurve3,
-  LineBasicMaterial,
-  MeshLambertMaterial,
-  Vector3,
-  Camera,
-  Renderer,
-  GridHelper,
-  ShadowMaterial,
-  PlaneGeometry,
-} from "three";
 export default defineComponent({
   name: "studio",
 
   components: {
-    FilterTimeline,
+    KeyFrameEditor,
     AsideDefaultMenu,
     Vue3LiveForm,
-    draggable: VueDraggableNext,
     Flow,
   },
 
   setup() {
     // const renderer:any = ref(null);
     // const box:any = ref(null);
+    const keyframeEditor: any = ref(null);
 
     // const box: any = null;
     const timer: any = null;
@@ -612,6 +501,7 @@ export default defineComponent({
         folder: "go_big",
       },
     ];
+    const generator_disco = null;
     const state = reactive({
       count: 0,
       mounted: false,
@@ -620,86 +510,29 @@ export default defineComponent({
       generators: generator_options,
       selectedGenerator: null,
       busy: false,
+      loading: false,
       output: "",
       progress: 0,
       progressPercentage: "",
-      autoUpdate: false,
+      // autoUpdate: false,
       preloadFrame: 0,
       selectedFrame: 0,
       autoPlay: false,
+      sceneLines: "",
+      sceneLinesFramesPerScene: 10,
       // renderer,
       // box
     });
-
-    // const frameTimelineSlider = ref();
-
-    const generator_disco = null;
-
-    const renderer: any = null;
-    const camera: any = null;
-
-    const previewPlanes: any[] = [];
-    const splineHelperObjects: any[] = [];
-    let splinePointsLength = 100;
-    const positions: any[] = [];
-    const point = new THREE.Vector3();
-
-    const raycaster = new THREE.Raycaster();
-    const pointer = new THREE.Vector2();
-    const onUpPosition = new THREE.Vector2();
-    const onDownPosition = new THREE.Vector2();
-
-    const geometry = new THREE.BoxGeometry(5, 5, 5);
-    let transformControl;
-
-    const previewMaterial: any = null;
-    const previewImage: any = null;
-
-    const ARC_SEGMENTS = 100;
-
-    const splines = {};
-    const tween: any = null;
-
-    const params = {
-      uniform: true,
-      tension: 0.75,
-      centripetal: false,
-      chordal: false,
-      addPoint: null,
-      removePoint: null,
-      exportSpline: null,
-    };
-
     return {
       state,
-      generator_disco,
-
       timer,
       enabled: true,
       dragging: false,
       apiUrl,
 
+      keyframeEditor,
+      generator_disco,
       // frameTimelineSlider,
-
-      transformControl,
-      splineHelperObjects,
-      raycaster,
-      pointer,
-      onUpPosition,
-      onDownPosition,
-      splines,
-      params,
-      positions,
-      splinePointsLength,
-      point,
-      ARC_SEGMENTS,
-      geometry,
-      renderer,
-      camera,
-      previewMaterial,
-      previewImage,
-      tween,
-      previewPlanes,
     };
   },
 
@@ -716,13 +549,9 @@ export default defineComponent({
     this.state.mounted = true;
     const route = useRoute();
 
-    if (this.state.autoUpdate) {
-      this.timer = setInterval(this.updateStatus, 5000);
-    }
-
-    this.renderer.onBeforeRender(() => {
-      TWEEN.update();
-    });
+    // if (this.state.autoUpdate) {
+    //   this.timer = setInterval(this.updateStatus, 5000);
+    // }
 
     this.getProject(route.params.id);
   },
@@ -730,53 +559,6 @@ export default defineComponent({
     this.cancelAutoUpdate();
   },
   methods: {
-    updateTimeframe() {
-      let frameTimelineSlider = this.$refs.frameTimelineSlider as any;
-      frameTimelineSlider.value = this.state.selectedFrame;
-      // this.camera.position.copy(this.positions[this.state.selectedFrame]);
-      // this.camera.position.z += 50.0;
-      // console.log(this.state.selectedFrame);
-
-      var from = this.camera.position.clone();
-      var to = new Vector3().copy(this.positions[this.state.selectedFrame]).clone();
-      to.z += 100.0;
-      var lookat =
-        this.state.selectedFrame < this.ARC_SEGMENTS - 2
-          ? new Vector3().copy(this.positions[this.state.selectedFrame + 1]).clone()
-          : null;
-      lookat.z += 100.0;
-      // var cam = new Vector3()
-      //   .copy(this.positions[this.state.selectedFrame])
-      //   .clone()
-      //   .subScalar(100);
-      to.y += 25.0;
-      // cam.y += 25.0;
-      // console.log(from, to, cam);
-      this.tween = new TWEEN.Tween(from)
-        .to(to, 1500)
-        .easing(TWEEN.Easing.Linear.None)
-        .onUpdate((p) => {
-          console.log(p);
-          this.camera.position.set(p.x, p.y, p.z);
-          if (lookat) this.camera.lookAt(to);
-          // controls.update();
-          // controls.target = new THREE.Vector3(
-          //   -2.3990653437361487,
-          //   -3.4148881873690886,
-          //   54.09252756000919
-          // );
-        });
-      this.tween.start();
-      if (this.state.autoPlay) {
-        setTimeout(() => {
-          if (this.state.selectedFrame < this.ARC_SEGMENTS - 1) {
-            this.state.selectedFrame += 1;
-            this.updateTimeframe();
-          }
-        }, 1500);
-      }
-    },
-
     deleteGenerator(generator) {
       this.state.selectedGenerator = null;
       (this.state.project as any).generators = (this.state
@@ -795,14 +577,14 @@ export default defineComponent({
       g.id = (this.state.project as any).generators.length;
       g.enabled = true;
 
-      fetch("/generators/" + g.folder + "/schema.json")
+      fetch(this.apiUrl + "/data/generators/" + g.folder + "/schema.json")
         .then((res) => res.json())
         .then((res) => {
           g.schema = res;
           console.log(res);
         });
 
-      fetch("/generators/" + g.folder + "/defaults.json")
+      fetch(this.apiUrl + "/data/generators/" + g.folder + "/defaults.json")
         .then((res) => res.json())
         .then((res) => {
           g.settings = res;
@@ -817,7 +599,8 @@ export default defineComponent({
 
       (this.state.project as any).generators.push(g);
 
-      this.updateView();
+      this.keyframeEditor.updateView();
+      // this.updateView();
     },
 
     log(event) {
@@ -853,6 +636,12 @@ export default defineComponent({
       clearInterval(this.timer);
     },
 
+    delayLoadAnimation() {
+      setTimeout(() => {
+        this.keyframeEditor.updateView();
+      }, 1000);
+    },
+
     startProject() {
       ApiService.post(
         this.apiUrl + "/api/project/save/" + (this.state.project as any).id.toString(),
@@ -878,7 +667,12 @@ export default defineComponent({
           //(this.state.project as any).chain = data.chain.nodes;
           console.log(data);
 
-          this.updateView();
+          this.generator_disco = (this.state.project as any).generators.find(
+            (x) => x.type == 2
+          );
+
+          this.keyframeEditor.updateView();
+          //this.updateView();
           // const renderer = this.$refs.renderer;
           // const box = (this.$refs.box as any).mesh;
           // // const renderer: any = ref());
@@ -901,6 +695,17 @@ export default defineComponent({
         })
         .catch(({ response }) => {});
     },
+    refreshProject() {
+      console.log(this.apiUrl);
+      ApiService.post(
+        this.apiUrl + "/api/project/save/" + (this.state.project as any).id.toString(),
+        this.state.project as any
+      )
+        .then(({ data }) => {
+          this.getProject((this.state.project as any).id);
+        })
+        .catch(({ response }) => {});
+    },
     deleteProject(id) {
       console.log("delete");
       ApiService.delete(this.apiUrl + "/api/project/" + id.toString())
@@ -911,513 +716,31 @@ export default defineComponent({
         .catch(({ response }) => {});
     },
 
-    updateView() {
-      this.generator_disco = (this.state.project as any).generators.find(
-        (x) => x.type == 2
-      );
-      if (this.generator_disco) {
-        let frameTimelineSlider = this.$refs.frameTimelineSlider as any;
-        frameTimelineSlider.addEventListener("input", () => {
-          const sliderValue = frameTimelineSlider.value;
-          document.getElementById("sliderDisplayValue")!.innerHTML = ` ${sliderValue}`;
+    createScenesFromLines() {
+      this.state.loading = true;
+      let lines = this.state.sceneLines.split("\n");
+      let text_prompts: any[] = [];
+      for (let i = 0; i < lines.length; i++) {
+        text_prompts.push({
+          start: i * this.state.sceneLinesFramesPerScene,
+          prompt: lines[i],
         });
-        // does all filtering once slider has changed and been released
-        frameTimelineSlider!.addEventListener("change", () => {
-          this.state.selectedFrame = frameTimelineSlider.value;
-
-          this.updateTimeframe();
-        });
-        frameTimelineSlider.addEventListener("mouseup", () => {
-          if (this.state.selectedFrame !== frameTimelineSlider.value) {
-            this.state.selectedFrame = frameTimelineSlider.value;
-            this.updateTimeframe();
-          }
-        });
-
-        (this.params as any).addPoint = () => {
-          this.addPoint();
-        };
-        (this.params as any).removePoint = () => {
-          this.removePoint();
-        };
-        (this.params as any).exportSpline = () => {
-          this.exportSpline();
-        };
-
-        console.log("window", window.innerWidth, window.innerHeight);
-        this.initScene();
       }
-    },
-    initScene() {
-      // camera = new PerspectiveCamera(
-      //   70,
-      //   window.innerWidth / window.innerHeight,
-      //   1,
-      //   10000
-      // );
-      // camera.position.set(0, 250, 1000);
-      // scene.add(camera);
+      this.state.loading = false;
 
-      let scene: Scene = (this.$refs.scene as Scene).scene;
-
-      scene.add(new AmbientLight(0xf0f0f0));
-      const light = new SpotLight(0xffffff, 1.5);
-      light.position.set(0, 250, 100);
-      light.angle = Math.PI * 0.2;
-      light.castShadow = true;
-      light.shadow.camera.near = 200;
-      light.shadow.camera.far = 2000;
-      light.shadow.bias = -0.000222;
-      light.shadow.mapSize.width = 1024;
-      light.shadow.mapSize.height = 1024;
-      scene.add(light);
-
-      const planeGeometry = new PlaneGeometry(2000, 2000);
-      planeGeometry.rotateX(-Math.PI / 2);
-      const planeMaterial = new ShadowMaterial({ color: 0x000000, opacity: 0.2 });
-
-      // const plane = new Mesh(planeGeometry, planeMaterial);
-      // plane.position.y = -200;
-      // plane.receiveShadow = true;
-      // scene.add(plane);
-
-      const helper = new GridHelper(10000, 100);
-      helper.position.y = -199;
-      helper.position.z = -(this.ARC_SEGMENTS * 100) / 2.0;
-      helper.material.opacity = 0.25;
-      helper.material.transparent = true;
-      scene.add(helper);
-
-      this.camera = (this.$refs.camera as Camera).camera;
-      this.renderer = (this.$refs.renderer as Renderer).renderer;
-      this.camera.position.set(0, 25, 100);
-
-      // renderer = new WebGLRenderer({ antialias: true });
-      this.renderer.setPixelRatio(window.devicePixelRatio);
-      //renderer.setSize(window.innerWidth, window.innerHeight);
-      this.renderer.shadowMap.enabled = true;
-      // container.appendChild(renderer.domElement);
-
-      const gui = new GUI({
-        container: document.getElementById("threejs"),
-      });
-
-      gui.add(this.params, "uniform").onChange(() => {
-        this.render();
-      });
-      gui
-        .add(this.params, "tension", 0, 1)
-        .step(0.01)
-        .onChange((value) => {
-          (this.splines as any).uniform.tension = value;
-          this.updateSplineOutline();
-          this.render();
-        });
-      gui.add(this.params, "centripetal").onChange(() => {
-        this.render();
-      });
-      gui.add(this.params, "chordal").onChange(() => {
-        this.render();
-      });
-      console.log(1231);
-      gui.add(this.params, "addPoint");
-      gui.add(this.params, "removePoint");
-      gui.add(this.params, "exportSpline");
-      gui.open();
-
-      console.log(123);
-
-      // Controls
-      // console.log("asdasd",(this.$refs.renderer as Renderer).renderer.domElement);
-      const controls = new OrbitControls(this.camera, this.renderer.domElement);
-      controls.damping = 0.2;
-      controls.addEventListener("change", () => {
-        this.render();
-      });
-
-      this.transformControl = new TransformControls(
-        this.camera,
-        this.renderer.domElement
-      );
-      this.transformControl.addEventListener("change", () => {
-        this.render();
-      });
-      this.transformControl.addEventListener("dragging-changed", (event) => {
-        controls.enabled = !event.value;
-      });
-      scene.add(this.transformControl);
-
-      this.transformControl.addEventListener("objectChange", () => {
-        this.updateSplineOutline();
-      });
-
-      document.addEventListener("pointerdown", (e) => {
-        this.onPointerDown(e);
-      });
-      document.addEventListener("pointerup", () => {
-        this.onPointerUp();
-      });
-      document.addEventListener("pointermove", (e) => {
-        this.onPointerMove(e);
-      });
-      window.addEventListener("resize", () => {
-        this.onWindowResize();
-      });
-
-      /*******
-       * Curves
-       *********/
-
-      for (let i = 0; i < this.splinePointsLength; i++) {
-        this.addSplineObject(this.positions[i]);
-      }
-
-      this.positions.length = 0;
-
-      for (let i = 0; i < this.splinePointsLength; i++) {
-        this.positions.push((this.splineHelperObjects[i] as any).position);
-      }
-
-      this.geometry = new BufferGeometry();
-      this.geometry.setAttribute(
-        "position",
-        new BufferAttribute(new Float32Array(this.ARC_SEGMENTS * 3), 3)
-      );
-
-      let curve = new CatmullRomCurve3(this.positions);
-      curve.curveType = "catmullrom";
-      curve.mesh = new Line(
-        this.geometry.clone(),
-        new LineBasicMaterial({
-          color: 0xff0000,
-          opacity: 0.35,
+      let g: any = this.state.selectedGenerator;
+      g.settings.text_prompts = text_prompts;
+      g.settings.max_frames = lines.length * this.state.sceneLinesFramesPerScene;
+      ApiService.post(
+        this.apiUrl + "/api/project/save/" + (this.state.project as any).id.toString(),
+        this.state.project as any
+      )
+        .then(({ data }) => {
+          location.reload();
         })
-      );
-      curve.mesh.castShadow = true;
-      (this.splines as any).uniform = curve;
-
-      curve = new CatmullRomCurve3(this.positions);
-      curve.curveType = "centripetal";
-      curve.mesh = new Line(
-        this.geometry.clone(),
-        new LineBasicMaterial({
-          color: 0x00ff00,
-          opacity: 0.35,
-        })
-      );
-      curve.mesh.castShadow = true;
-      (this.splines as any).centripetal = curve;
-
-      curve = new CatmullRomCurve3(this.positions);
-      curve.curveType = "chordal";
-      curve.mesh = new Line(
-        this.geometry.clone(),
-        new LineBasicMaterial({
-          color: 0x0000ff,
-          opacity: 0.35,
-        })
-      );
-      curve.mesh.castShadow = true;
-      (this.splines as any).chordal = curve;
-
-      for (const k in this.splines) {
-        const spline = this.splines[k];
-        (this.$refs.scene as Scene).scene.add(spline.mesh);
-      }
-
-      this.resetFrames();
-
-      this.onWindowResize();
-    },
-
-    addSplineObject(position) {
-      const material = new MeshLambertMaterial({ color: Math.random() * 0xffffff });
-      const object = new Mesh(this.geometry, material);
-      if (position) {
-        object.position.copy(position);
-      } else {
-        object.position.x = Math.random() * 1000 - 500;
-        object.position.y = Math.random() * 600;
-        object.position.z = Math.random() * 800 - 400;
-        object.position.z = Math.random() * 800 - 400;
-      }
-      object.castShadow = true;
-      object.receiveShadow = true;
-      (this.$refs.scene as Scene).scene.add(object);
-      (this.splineHelperObjects as any).push(object);
-      return object;
-    },
-
-    addPoint() {
-      this.splinePointsLength++;
-      this.positions.push(this.addSplineObject(null).position);
-      this.updateSplineOutline();
-      this.render();
-    },
-
-    removePoint() {
-      if (this.splinePointsLength <= 4) {
-        return;
-      }
-      const point = this.splineHelperObjects.pop();
-      this.splinePointsLength--;
-      this.positions.pop();
-      if (this.transformControl.object === this.point) this.transformControl.detach();
-      (this.$refs.scene as Scene).scene.remove(this.point);
-      this.updateSplineOutline();
-      this.render();
-    },
-
-    updateSplineOutline() {
-      // console.log("updateSplineOutline");
-      let axis = new THREE.Vector3();
-      let up = new THREE.Vector3(0, 0, -1);
-      for (const k in this.splines) {
-        const spline = this.splines[k];
-        const splineMesh = spline.mesh;
-        const position = splineMesh.geometry.attributes.position;
-        for (let i = 0; i < this.ARC_SEGMENTS; i++) {
-          const t = i / (this.ARC_SEGMENTS - 1);
-          spline.getPoint(t, this.point);
-          position.setXYZ(i, this.point.x, this.point.y, this.point.z);
-
-          let pp = this.previewPlanes.find((x) => x.userData.id == i);
-          if (pp) {
-            // console.log(pp,i,this.point)
-            pp.position.set(this.point.x, this.point.y, this.point.z);
-
-            // get the tangent to the curve
-            let tangent = spline.getTangent(t).normalize();
-
-            // calculate the axis to rotate around
-            axis.crossVectors(new THREE.Vector3(0, 0, -1), tangent).normalize();
-
-            // calcluate the angle between the up vector and the tangent
-            let radians = Math.acos(up.dot(tangent));
-
-            // set the quaternion
-            pp.rotation.y = Math.PI / 2;
-            pp.quaternion.setFromAxisAngle(axis, radians);
-          }
-        }
-        position.needsUpdate = true;
-      }
-    },
-
-    exportSpline() {
-      const strplace: any[] = [];
-      for (let i = 0; i < this.splinePointsLength; i++) {
-        const p = this.splineHelperObjects[i].position;
-        strplace.push(`new Vector3(${p.x}, ${p.y}, ${p.z})`);
-      }
-      console.log(strplace.join(",\n"));
-      const code = "[" + strplace.join(",\n\t") + "]";
-      prompt("copy and paste code", code);
-    },
-
-    delayLoadAnimation() {
-      setTimeout(() => {
-        this.onWindowResize();
-        this.render();
-      }, 1000);
-    },
-
-    load(new_positions) {
-      while (new_positions.length > this.positions.length) {
-        this.addPoint();
-      }
-      while (new_positions.length < this.positions.length) {
-        this.removePoint();
-      }
-      for (let i = 0; i < this.positions.length; i++) {
-        this.positions[i].copy(new_positions[i]);
-      }
-      this.updateSplineOutline();
-    },
-
-    render() {
-      if (this.renderer) {
-        // console.log("rendering");
-        (this.splines as any).uniform.mesh.visible = this.params.uniform;
-        (this.splines as any).centripetal.mesh.visible = this.params.centripetal;
-        (this.splines as any).chordal.mesh.visible = this.params.chordal;
-        let scene: Scene = this.renderer.scene;
-        let camera: Scene = this.camera;
-        this.renderer.render(scene, camera);
-      }
-    },
-
-    onPointerDown(event) {
-      this.onDownPosition.x = (event as any).clientX;
-      this.onDownPosition.y = (event as any).clientY;
-    },
-
-    onPointerUp() {
-      this.onUpPosition.x = (event as any).clientX;
-      this.onUpPosition.y = (event as any).clientY;
-
-      if (this.onDownPosition.distanceTo(this.onUpPosition) === 0)
-        (this.transformControl as any).detach();
-    },
-
-    onPointerMove(event) {
-      if (this.$refs.renderer != null) {
-        let renderer = (this.$refs.renderer as Renderer).renderer;
-        //let canvas = renderer.canvas;
-        // this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-        // this.pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-        //console.log(renderer, renderer.domElement);
-
-        var rect = renderer.domElement.getBoundingClientRect();
-        this.pointer.x = ((event.clientX - rect.left) / (rect.right - rect.left)) * 2 - 1;
-        this.pointer.y = -((event.clientY - rect.top) / (rect.bottom - rect.top)) * 2 + 1;
-
-        // this.pointer.x =
-        //   ((event.clientX - renderer.domElement.offsetLeft) /
-        //     renderer.domElement.clientWidth) *
-        //     2 -
-        //   1;
-        // this.pointer.y =
-        //   -(
-        //     (event.clientY - renderer.domElement.offsetTop) /
-        //     renderer.domElement.clientHeight
-        //   ) *
-        //     2 +
-        //   1;
-
-        //console.log((this.renderer as any).three.pointer.intersectObjects.length, (this.renderer as any).three.positionN .intersectObjects.length);
-
-        this.raycaster.setFromCamera(this.pointer, this.camera);
-        const intersects = this.raycaster.intersectObjects(
-          this.splineHelperObjects,
-          false
-        );
-        // console.log("intersects", intersects);
-        if (intersects.length > 0) {
-          const object = intersects[0].object;
-          console.log("intersected");
-          if (object !== (this.transformControl as any).object) {
-            (this.transformControl as any).attach(object);
-          }
-        }
-      }
-    },
-
-    onWindowResize() {
-      // console.log("resize");
-      // //let camera = (this.$refs.camera as Camera).camera;
-      // console.log("camera", this.camera);
-      if (this.camera != null) {
-        this.camera.aspect = window.innerWidth / window.innerHeight;
-        this.camera.updateProjectionMatrix();
-      }
-      if (this.renderer) {
-        try{
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        }catch(e){}
-      }
-      this.render();
-    },
-
-    existsFile(url) {
-      var http = new XMLHttpRequest();
-      http.open("HEAD", url, false);
-      http.send();
-      return http.status != 404;
-    },
-
-    loadPreviewFrame(frame) {
-      let fr = parseInt((Math.round(frame / 20.0) * 5).toString());
-      let path =
-        "/data/projects/" +
-        (this.state.project as any).id.toString() +
-        "/" +
-        "output/2/preview/" +
-        fr.toString() +
-        "/preview.png";
-
-      if (this.existsFile(this.apiUrl + path)) {
-        // console.log("exists", this.apiUrl + path);
-        this.addPreviewToScene(path, frame);
-      } else {
-        ApiService.post(
-          this.apiUrl +
-            "/api/task/preview/" +
-            (this.state.project as any).id.toString() +
-            "/" +
-            fr.toString(),
-          {}
-        )
-          .then((data) => {
-            //console.log("preview", data.data);
-            //this.getProject((this.state.project as any).id);
-            // console.log("fetched", this.apiUrl + path, data.data);
-            if (data.data != "Busy") this.addPreviewToScene(path, frame);
-          })
-          .catch(({ response }) => {});
-      }
-    },
-
-    addPreviewToScene(path, frame) {
-      THREE.ImageUtils.crossOrigin = "";
-
-      console.log(this.apiUrl + path);
-
-      const texture = new THREE.TextureLoader().load(this.apiUrl + path, () => {
-        mat.map.needsUpdate = true; //ADDED
-      });
-
-      const mat = new THREE.MeshBasicMaterial({
-        transparent: true,
-        map: texture,
-        opacity: 0.5,
-        side: THREE.DoubleSide,
-      });
-
-      // console.log("selframe", this.state.selectedFrame);
-      let previewPlane = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), mat);
-      previewPlane.userData.id = frame;
-      previewPlane.position.z = -frame * 100.0;
-      previewPlane.overdraw = true;
-      this.previewPlanes.push(previewPlane);
-      this.renderer.scene.add(previewPlane);
-
-      if (this.state.preloadFrame < 100) {
-        this.state.preloadFrame += 5;
-        // this.state.selectedFrame = this.state.preloadFrame;
-        this.loadPreviewFrame(this.state.preloadFrame);
-      }
-    },
-
-    resetFrames() {
-      let av: any[] = [];
-      for (let i = 0; i < this.splinePointsLength; i++) {
-        av.push(new Vector3(0, 0, -100.0 * i));
-      }
-      this.load(av);
-    },
-
-    scrub_start() {
-      this.state.autoPlay = false;
-      this.state.selectedFrame = 0;
-      this.updateTimeframe();
-    },
-    scrub_play() {
-      this.state.autoPlay = true;
-      this.updateTimeframe();
-    },
-    scrub_pause() {
-      this.state.autoPlay = false;
-      // this.updateTimeframe();
-    },
-    scrub_end() {
-      this.state.autoPlay = false;
-      this.state.selectedFrame = this.ARC_SEGMENTS - 1;
-      this.updateTimeframe();
+        .catch(({ response }) => {});
     },
   },
-
   // watch: {},
 });
 </script>

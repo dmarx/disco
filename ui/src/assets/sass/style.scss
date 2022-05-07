@@ -17,10 +17,17 @@
     .card .fv-row {
         color: #FFF
     }
+    
     .sf-container .sf-row .sf-row-label {
         color: #FFF;
     }
-    .sf-container .sf-row input[type=text], .sf-container .sf-row input[type=password], .sf-container .sf-row input[type=date], .sf-container .sf-row input[type=number], .sf-container .sf-row textarea, .sf-container .sf-row select {
+    
+    .sf-container .sf-row input[type=text],
+    .sf-container .sf-row input[type=password],
+    .sf-container .sf-row input[type=date],
+    .sf-container .sf-row input[type=number],
+    .sf-container .sf-row textarea,
+    .sf-container .sf-row select {
         flex: 1;
         border: none;
         background-color: #FFF !important;
@@ -29,17 +36,21 @@
         font-family: inherit;
         font-size: 0.9em;
     }
+    
     .vue-flow__node-default {
         background: #02d9ad !important;
         border-color: #02d9ad !important;
     }
+    
     .vue-flow__node-input {
         background: #02d9ad !important;
         border-color: #02d9ad !important;
     }
+    
     .card .card-body h3 {
         color: #FFF
     }
+    
     .card-generator {
         background: transparent;
         border-radius: 8px;
@@ -49,30 +60,41 @@
         margin-top: 15px;
         border: 1px solid #333
     }
+    
     .card-generator h3 {
         color: #FFF;
         line-height: 38px;
         font-size: 14px;
     }
+    
     .card-generator p {
         color: #999
     }
+    
     .item-generator {
         background: transparent !important;
         border: 1px solid #333;
         color: #FFF;
         text-align: left !important;
     }
+    
     .item-generator h3 {
         padding: 8px;
         border-bottom: 1px solid #666;
         padding-bottom: 15px;
         line-height: 30px;
     }
+    
     .item-generator p {
         padding: 8px;
     }
-    .sf-container .sf-row input[type=text], .sf-container .sf-row input[type=password], .sf-container .sf-row input[type=date], .sf-container .sf-row input[type=number], .sf-container .sf-row textarea, .sf-container .sf-row select {
+    
+    .sf-container .sf-row input[type=text],
+    .sf-container .sf-row input[type=password],
+    .sf-container .sf-row input[type=date],
+    .sf-container .sf-row input[type=number],
+    .sf-container .sf-row textarea,
+    .sf-container .sf-row select {
         flex: 1;
         border: none;
         background-color: #111 !important;
@@ -82,15 +104,18 @@
         font-size: 0.9em;
         color: #FFF;
     }
+    
     .threejs canvas {
         width: 100% !important;
         height: 100% !important;
     }
+    
     .lil-gui {
         position: absolute;
         top: 0;
         right: 0;
     }
+    
     .slider {
         -webkit-appearance: none;
         width: 100%;
@@ -102,6 +127,7 @@
         -webkit-transition: .2s;
         transition: opacity .2s;
     }
+    
     .slider::-webkit-slider-thumb {
         -webkit-appearance: none;
         appearance: none;
@@ -111,6 +137,7 @@
         background: #04AA6D;
         cursor: pointer;
     }
+    
     .slider::-moz-range-thumb {
         width: 25px;
         height: 25px;
@@ -118,18 +145,22 @@
         background: #04AA6D;
         cursor: pointer;
     }
+    
     .sf-row:first .sf-row-label {
         display: none;
     }
+    
     .sf-container .sf-row.sf-row-flex-column {
         flex-direction: column;
         display: flex;
         align-items: unset !important;
         justify-content: unset !important;
     }
+    
     div.sf-nested-rows tr.sf-nested-row {
         background-color: transparent !important;
     }
+    
     div.sf-nested-rows tr.sf-nested-row.add-row {
         justify-content: center;
         cursor: pointer;
@@ -142,6 +173,20 @@
         color: #FFF;
         margin-top: 15px;
     }
+    
     .sf-nested-rows input[type=text] {
         font-size: 12px
+    }
+    
+    input.form-control,
+    textarea.form-control {
+        background: #111 !important;
+        box-shadow: none !important;
+        color: #FFF;
+        border: 1px solid #444;
+    }
+    
+    input.form-control:focus,
+    textarea.form-control:focus {
+        color: #FFF;
     }

@@ -16,5 +16,6 @@
         "**/__pycache__": true,
     },
     "python.formatting.pvider": "autopep8",
-    "jupyter.jupyterServerType": "remote"
+    "jupyter.jupyterServerType": "remote",
+    "vue3snippets.enable-compile-vue-file-on-did-save-code": true
 }
