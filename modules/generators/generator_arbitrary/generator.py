@@ -7,7 +7,7 @@ class GeneratorArbitrary(GeneratorBase):
     Make sure to assign a value to "filename_out" containing
     the location of the image you want to output."""
 
-    settings = {"prompt": "", "code": "", "init_image": "", "id": 0}
+    settings = {"prompt": "", "code": "", "init_image": "", "i_generator": 0}
 
     def do_run(self, prefix="", input_seed=""):
         loc = {}
@@ -16,7 +16,7 @@ class GeneratorArbitrary(GeneratorBase):
             {
                 "prompt": self.settings["prompt"],
                 "init_image": self.settings["init_image"],
-                "id": self.settings["id"],
+                "i_generator": self.settings["i_generator"],
             },
             loc,
         )

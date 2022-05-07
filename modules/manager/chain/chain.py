@@ -85,11 +85,12 @@ class Chain:
         self.project = project
         self.output_filename = ""
 
-        for generator in project.generators:
+        for i_generator, generator in enumerate(project.generators):
             if generator.enabled:
                 generator.settings = json.loads(
                     json.dumps(generator.settings, default=lambda obj: obj.__dict__)
                 )
+                generator.settings["i_generator"] = i_generator
 
                 if self.output_filename != None and len(self.output_filename) > 0:
                     generator.settings["skip_steps"] = 25

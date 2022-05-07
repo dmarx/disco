@@ -16,7 +16,7 @@ class GeneratorTest(GeneratorBase):
     In all of the above cases, if the reflect setting is True,
     it will horizontally flip the image before output."""
 
-    settings = {"prompt": "", "reflect": True, "init_image": "", "id": 0}
+    settings = {"prompt": "", "reflect": True, "init_image": "", "i_generator": 0}
 
     def fetch(self, url_or_path):
         if str(url_or_path).startswith("http://") or str(url_or_path).startswith(
@@ -47,7 +47,7 @@ class GeneratorTest(GeneratorBase):
 
         if self.settings["reflect"]:
             im = im.transpose(Image.FLIP_LEFT_RIGHT)
-        filename_out = f"{self.settings['id']}_test.png"
+        filename_out = f"{self.settings['i_generator']}_test.png"
         im.save(os.path.join("content/output", filename_out))
         im.save(os.path.join("static/output", filename_out))
         return filename_out
