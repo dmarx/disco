@@ -14,7 +14,7 @@ class GeneratorArbitrary(GeneratorBase):
         exec(
             self.settings["code"],
             {
-                "prompt": self.settings["prompt"],
+                "prompt": prompt,
                 "init_image": self.settings["init_image"],
             },
             loc,
