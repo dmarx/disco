@@ -177,6 +177,7 @@ class Chain:
                 generator.settings["width"] = 640
                 generator.settings["height"] = 376
                 generator.settings["start_frame"] = frame
+                generator.settings["animation_mode"] = "None"
                 # generator.settings['RN50x16']=False
                 if self.generator_disco == None:
                     self.generator_disco = GeneratorDisco(
@@ -188,8 +189,8 @@ class Chain:
                         ],
                         load_models=False,
                     )
-                    self.generator_disco.init_settings(generator.settings)
                     self.generator_disco.load_models(self.generator_disco.settings)
+                    self.generator_disco.init_settings(generator.settings)
                 else:
                     self.generator_disco.init_settings(generator.settings)
                 # self.generator_disco.settings["prompt"] = generator.settings["prompt"]

@@ -27,6 +27,11 @@
             "label": "Height"
         },
         {
+            "type": "text",
+            "field": "steps",
+            "label": "Steps"
+        },
+        {
             "type": "number",
             "field": "cgs",
             "label": "Clip Guidance Scale"
@@ -34,7 +39,7 @@
         {
             "type": "number",
             "field": "tvs",
-            "label": "tv Scale"
+            "label": "TV Scale"
         },
         {
             "type": "number",
@@ -49,13 +54,9 @@
         {
             "type": "checkbox",
             "field": "clamp",
-            "label": "Use clamp"
+            "label": "Use Clamp"
         },
-        {
-            "type": "text",
-            "field": "steps",
-            "label": "Steps"
-        },
+
         {
             "type": "text",
             "field": "eta",
@@ -72,21 +73,6 @@
             "label": "Range scale"
         },
         {
-            "type": "text",
-            "field": "intermediate_save",
-            "label": "Intermediate saves"
-        },
-        {
-            "type": "display_rate",
-            "field": "text",
-            "label": "Display rate"
-        },
-        {
-            "type": "n_batches",
-            "field": "text",
-            "label": "Batches"
-        },
-        {
             "type": "checkbox",
             "field": "skip_augs",
             "label": "Skip Augs"
@@ -99,12 +85,12 @@
         {
             "field": "number",
             "type": "init_scale",
-            "label": "Init scale"
+            "label": "Init Scale"
         },
         {
             "type": "text",
             "field": "set_seed",
-            "label": "random_seed"
+            "label": "Random Seed"
         },
         {
             "type": "text",
@@ -114,23 +100,12 @@
         {
             "type": "text",
             "field": "cut_innercut",
-            "label": "Cut innercut"
+            "label": "Cut Innercut"
         },
         {
             "type": "text",
             "field": "cut_icgray_p",
-            "label": "Cut gray"
-        },
-
-        {
-            "type": "checkbox",
-            "field": "use_secondary_model",
-            "label": "secondary model"
-        },
-        {
-            "type": "checkbox",
-            "field": "use_checkpoint",
-            "label": "Checkpoint"
+            "label": "Cut Gray"
         },
         {
             "type": "checkbox",
@@ -182,6 +157,11 @@
             "field": "animation_mode",
             "label": "Animation Mode",
             "options": ["None", "2D", "3D", "Video"]
+        },
+        {
+            "type": "number",
+            "field": "max_frames",
+            "label": "Max Frames"
         }
 
     ]

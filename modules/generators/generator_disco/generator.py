@@ -1559,7 +1559,7 @@ class GeneratorDisco(GeneratorBase):
         )
 
         model_256_link = "https://openaipublic.blob.core.windows.net/diffusion/jul-2021/256x256_diffusion_uncond.pt"
-        model_512_link = "https://v-diffusion.s3.us-west-2.amazonaws.com/512x512_diffusion_uncond_finetune_008100.pt"
+        model_512_link = "https://huggingface.co/lowlevelware/512x512_diffusion_unconditional_ImageNet/resolve/main/512x512_diffusion_uncond_finetune_008100.pt"
         model_secondary_link = "https://v-diffusion.s3.us-west-2.amazonaws.com/secondary_model_imagenet_2.pth"
 
         model_256_path = f"{self.model_path}/256x256_diffusion_uncond.pt"

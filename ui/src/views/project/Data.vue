@@ -10,9 +10,7 @@
       ></MixedWidget2>
     </div>
     <div class="col-xxl-4">
-      <ListWidget5
-        widget-classes="card-xxl-stretch mb-5 mb-xl-10"
-      ></ListWidget5>
+      <ListWidget5 widget-classes="card-xxl-stretch mb-5 mb-xl-10"></ListWidget5>
     </div>
     <div class="col-xxl-4">
       <MixedWidget7
@@ -33,9 +31,7 @@
       <ListWidget3 widget-classes="card-xxl-stretch mb-xl-3"></ListWidget3>
     </div>
     <div class="col-xxl-8">
-      <TableWidget9
-        widget-classes="card-xxl-stretch mb-5 mb-xl-8"
-      ></TableWidget9>
+      <TableWidget9 widget-classes="card-xxl-stretch mb-5 mb-xl-8"></TableWidget9>
     </div>
   </div>
 
@@ -60,9 +56,7 @@
       ></MixedWidget5>
     </div>
     <div class="col-xxl-8">
-      <TableWidget5
-        widget-classes="card-xxl-stretch mb-5 mb-xxl-8"
-      ></TableWidget5>
+      <TableWidget5 widget-classes="card-xxl-stretch mb-5 mb-xxl-8"></TableWidget5>
     </div>
   </div>
   <!--end::Dashboard-->

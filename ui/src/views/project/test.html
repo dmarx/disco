@@ -1,0 +1,57 @@
+<div id="kt_process_tab_content" class="py-0 tab-pane fade show" role="tabpanel">
+    <div class="row">
+        <div class="col-6">
+            <h2 style="color: #fff">Status</h2>
+            <p style="color: #fff">
+                Currently:
+                <span v-if="state.busy">Running {{ state.progressPercentage }}</span><span v-if="!state.busy">Idle</span>
+            </p>
+            <br />
+            <h3 style="color: #fff">Output</h3>
+            <div style="color: #fff" v-html="state.output"></div>
+            <br />
+            <p>
+                <button class="btn btn-primary btn-sm" @click="startProject()">
+          Run</button>&nbsp;&nbsp;&nbsp;<button class="btn btn-primary btn-sm" @click="updateStatus()">
+          Update
+        </button>
+            </p>
+            <br />
+            <br />
+            <br />
+            <div v-if="state.project">
+                <h2 style="color: #fff">CLI</h2>
+                <p style="color: #fff">
+                    To run from shell:
+                    <br /><span>python cli.py --project {{ state.project.id }}</span>
+                </p>
+
+            </div>
+            <div v-if="state.project">
+                <h2 style="color: #fff">Delete Project</h2>
+                <p style="color: #fff">
+                    If you're sure you want to delete the project you can do so below.
+                    <br />
+                    <button id="btn btn-primary" @click="deleteProject()">Delete Project</button>
+                </p>
+
+            </div>
+
+        </div>
+        <div class="col-6" v-if="state.project">
+            <h2 style="color: #fff">Output</h2>
+
+            <div v-for="element in state.project.generators" :key="element.title">
+                <div v-if="element.type == 2 && state.busy" class="card-generator" style="margin: 15px 0 0 0; display: inline-block">
+                    <img v-bind:src="apiUrl + '/output/progress.png'" alt="" />
+                </div>
+                <div v-if="element.output_path?.length > 0" class="card-generator" style="margin: 15px 0 0 0; display: inline-block">
+                    <img v-bind:src="apiUrl + '/' + element.output_path" alt="" />
+                </div>
+                <div v-if="element.output_path == null" class="card-generator" style="margin: 15px 0 0 0; color: #fff">
+                    No preview available.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
