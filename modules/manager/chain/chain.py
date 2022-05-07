@@ -87,6 +87,10 @@ class Chain:
 
         for i_generator, generator in enumerate(project.generators):
             if generator.enabled:
+                if i_generator == 0:
+                    # Clear if running for a second time so init_image isn't
+                    # left over from previous run
+                    generator.settings["init_image"] = ""
                 generator.settings = json.loads(
                     json.dumps(generator.settings, default=lambda obj: obj.__dict__)
                 )
