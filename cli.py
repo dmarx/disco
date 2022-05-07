@@ -26,26 +26,28 @@ def run_custom():
 
     project = Project(1)
     project.generators = [
-        # SimpleNamespace(**{
-        #    'id':0,
-        #    'type':1,
-        #    'settings':{
-        #        "prompt":prompt,
-        #        "steps":30,
-        #        "width":512,
-        #        "height":512,
-        #    }
-        # }),
+        SimpleNamespace(**{
+           'id':0,
+           'type':1,
+           'enabled':False,
+           'settings':{
+               "prompt":prompt,
+               "steps":30,
+               "width":256,
+               "height":256,
+           }
+        }),
         SimpleNamespace(**{
             'id':1,
             'type':2,
+            'enabled':True,
             'settings':{
                 "text_prompts": [{
                     "start": 0,
                     "prompt": prompt
                 }], 
-                "steps":50,
-                "width":512,
+                "steps":25,
+                "width":640,
                 "height":512,
                 #'ViTB32': True,
                 #'ViTB16': True,

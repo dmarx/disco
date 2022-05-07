@@ -7,6 +7,7 @@ class GeneratorBase:
     type = None
     id = None
     title = None
+    enabled = None
     description = None
     folder = None
     settings = None

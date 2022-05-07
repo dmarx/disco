@@ -61,6 +61,24 @@ class Chain:
 
         return self.output_filename
 
+    def fetch_instanced_generator(self, generator_type):
+        if generator_type == 1:
+            if self.generator_ld == None:
+                self.generator_ld = GeneratorLatentDiffusion(self)
+            return self.generator_ld
+        
+        if generator_type == 2:
+            if self.generator_disco == None:
+                self.generator_disco = GeneratorDisco(self)
+            return self.generator_disco
+        
+        if generator_type == 3:
+            if self.generator_go_big == None:
+                self.generator_go_big = GeneratorGoBig(self)
+            return self.generator_go_big
+        
+        
+                        
     def run_project(self, project):
         self.output_message("Running project " + str(project.id) + ": " + project.title)
         self.progress = 0
@@ -68,93 +86,74 @@ class Chain:
         self.project = project
         self.output_filename = ""
 
+    
         for generator in project.generators:
-            # print(generator.keys())
-            if generator.type == 1:
-                if self.generator_ld == None:
-                    self.generator_ld = GeneratorLatentDiffusion(self)
-                self.generator_ld.args.prefix = str(randint(0, 1000000))
+            if generator.enabled:
                 generator.settings = json.loads(
                     json.dumps(generator.settings, default=lambda obj: obj.__dict__)
                 )
-                self.generator_ld.init_settings(generator.settings)
-                self.output_filename = self.generator_ld.do_run(
-                    generator.settings["prompt"],
-                    self.generator_ld.args.prefix,
-                    str(100),
-                )
-                self.output_project_image(project, generator)
-                # del self.generator_ld
-                # # del self.generator_ld.diffusion
-                # gc.collect()
-                # torch.cuda.empty_cache()
-
-            if generator.type == 2:
-                generator.settings = json.loads(
-                    json.dumps(generator.settings, default=lambda obj: obj.__dict__)
-                )
-                if self.generator_disco == None:
-                    self.generator_disco = GeneratorDisco(
-                        self,
-                        generator.settings["steps"],
-                        [
-                            int(generator.settings["width"]),
-                            int(generator.settings["height"]),
-                        ],
-                    )
-                # self.generator_disco.settings["prompt"] = generator.settings["prompt"]
+                
                 if self.output_filename != None and len(self.output_filename) > 0:
                     generator.settings["skip_steps"] = 25
-                    generator.settings["init_image"] = (
-                        os.getcwd() + "/static/output/" + self.output_filename
-                    )
-                self.generator_disco.init_settings(generator.settings)
-                self.output_filename = self.generator_disco.do_run()
+                    generator.settings["init_image"] = (os.getcwd() + "/static/output/" + self.output_filename)
+        
+                instanced_generator = self.fetch_instanced_generator(generator.type)
+                instanced_generator.init_settings(generator.settings)
+                self.output_filename = instanced_generator.do_run()
                 self.output_project_image(project, generator)
 
-            if generator.type == 3:
+            # #disco
+            # if generator.type == 2:
+            #     if self.generator_disco == None:
+            #         self.generator_disco = GeneratorDisco(
+            #             self,
+            #             generator.settings["steps"],
+            #             [
+            #                 int(generator.settings["width"]),
+            #                 int(generator.settings["height"]),
+            #             ],
+            #         )
+            #     if self.output_filename != None and len(self.output_filename) > 0:
+            #         generator.settings["skip_steps"] = 25
+            #         generator.settings["init_image"] = (
+            #             os.getcwd() + "/static/output/" + self.output_filename
+            #         )
+            #     self.generator_disco.init_settings(generator.settings)
+            #     self.output_filename = self.generator_disco.do_run()
 
-                generator.settings = json.loads(
-                    json.dumps(generator.settings, default=lambda obj: obj.__dict__)
-                )
-                if self.generator_go_big == None:
-                    self.generator_go_big = GeneratorGoBig(self)
-                # self.generator_disco.settings["prompt"] = generator.settings["prompt"]
-                self.generator_go_big.init_settings(generator.settings)
-                if self.output_filename != None and len(self.output_filename) > 0:
-                    self.generator_go_big.settings["init_image"] = (
-                        os.getcwd() + "/static/output/" + self.output_filename
-                    )
-                self.output_filename = self.generator_go_big.do_run()
-                self.output_project_image(project, generator)
+            # #upscaler
+            # if generator.type == 3:
+            #     if self.generator_go_big == None:
+            #         self.generator_go_big = GeneratorGoBig(self)
+            #     # self.generator_disco.settings["prompt"] = generator.settings["prompt"]
+            #     self.generator_go_big.init_settings(generator.settings)
+            #     if self.output_filename != None and len(self.output_filename) > 0:
+            #         self.generator_go_big.settings["init_image"] = (
+            #             os.getcwd() + "/static/output/" + self.output_filename
+            #         )
+            #     self.output_filename = self.generator_go_big.do_run()
 
-            if generator.type == 4:
+            # #dalle2
+            # if generator.type == 4:
+            #     if self.generator_dalle_pytorch == None:
+            #         self.generator_dalle_pytorch = GeneratorDALLE2Pytorch(self)
+            #     self.output_filename = self.generator_dalle_pytorch.do_run(
+            #         generator.settings["prompt"]
+            #     )
 
-                # try:
-                # generator["settings"] = json.loads(json.dumps(generator.settings, default=lambda obj: obj.__dict__))
-                # except Exception:
-                #   pass
+            #clean gpu memory
+            # del self.generator_ld
+            # # del self.generator_ld.diffusion
+            # gc.collect()
+            # torch.cuda.empty_cache()
 
-                generator.settings = json.loads(
-                    json.dumps(generator.settings, default=lambda obj: obj.__dict__)
-                )
-                if self.generator_dalle_pytorch == None:
-                    self.generator_dalle_pytorch = GeneratorDALLE2Pytorch(self)
-                # self.generator_disco.settings["prompt"] = generator.settings["prompt"]
-                # self.generator_dalle_pytorch.init_settings(generator["settings"])
-                #                 if self.output_filename != None and len(self.output_filename) > 0:
-                #                     self.generator_dalle_pytorch.settings["init_image"] = os.getcwd() + "/static/output/" + self.output_filename
-                self.output_filename = self.generator_dalle_pytorch.do_run(
-                    generator.settings["prompt"]
-                )
-                self.output_project_image(project, generator)
 
-            self.output_message(
-                "Finished project " + str(project.id) + ": " + project.title
-            )
-            self.busy = False
-            self.progress = 0
-            print("ad")
+
+        self.output_message(
+            "Finished project " + str(project.id) + ": " + project.title
+        )
+        self.busy = False
+        self.progress = 0
 
         return self.output_filename
 

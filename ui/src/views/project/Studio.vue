@@ -793,6 +793,7 @@ export default defineComponent({
       //http://172.29.230.209:8080/generators/latent_diffusion/schema.json
       const g: any = Object.assign({}, generator);
       g.id = (this.state.project as any).generators.length;
+      g.enabled = true;
 
       fetch("/generators/" + g.folder + "/schema.json")
         .then((res) => res.json())
