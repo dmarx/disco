@@ -16,7 +16,7 @@ class GeneratorTest(GeneratorBase):
     In all of the above cases, if the reflect setting is True,
     it will horizontally flip the image before output."""
 
-    settings = {"reflect": True, "init_image": "", "prefix": 0}
+    settings = {"prompt": "", "reflect": True, "init_image": "", "id": 0}
 
     def fetch(self, url_or_path):
         if str(url_or_path).startswith("http://") or str(url_or_path).startswith(
@@ -30,13 +30,13 @@ class GeneratorTest(GeneratorBase):
             return fd
         return open(url_or_path, "rb")
 
-    def do_run(self, prompt, prefix="", input_seed=""):
+    def do_run(self, prefix="", input_seed=""):
         im = None
         if self.settings["init_image"] != "":
             im = Image.open(self.fetch(self.settings["init_image"])).convert("RGB")
-        elif prompt != "":
+        elif self.settings["init_image"] != "":
             try:
-                im = Image.open(self.fetch(prompt)).convert("RGB")
+                im = Image.open(self.fetch(self.settings["prompt"])).convert("RGB")
             except (FileNotFoundError, requests.exceptions.ConnectionError):
                 pass
         if im is None:
@@ -47,7 +47,7 @@ class GeneratorTest(GeneratorBase):
 
         if self.settings["reflect"]:
             im = im.transpose(Image.FLIP_LEFT_RIGHT)
-        filename_out = f"{self.settings['prefix']}_test.png"
+        filename_out = f"{self.settings['id']}_test.png"
         im.save(os.path.join("content/output", filename_out))
         im.save(os.path.join("static/output", filename_out))
         return filename_out
