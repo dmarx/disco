@@ -2,6 +2,7 @@ import gc
 import io
 import json
 import math
+from random import randint
 import sys
 from types import SimpleNamespace
 from PIL import Image, ImageOps
@@ -39,7 +40,7 @@ class GeneratorLatentDiffusion(GeneratorBase):
         "model_path": "lib/glid_3_xl/finetune.pt",
         "kl_path": "lib/glid_3_xl/kl-f8.pt",
         "bert_path": "lib/glid_3_xl/bert.pt",
-        "text": "",
+        "prompt": "",
         "edit": None,
         "edit_x": 0,
         "edit_y": 0,
@@ -108,12 +109,11 @@ class GeneratorLatentDiffusion(GeneratorBase):
         y_diff = input[..., 1:, :-1] - input[..., :-1, :-1]
         return (x_diff ** 2 + y_diff ** 2).mean([1, 2, 3])
 
-    def do_run(self, prompt, prefix="", input_seed=""):
+    def do_run(self, prefix="", input_seed=""):
         # self.chain.output_message("doing run", prompt, prefix, input_seed)
 
-        self.args.text = prompt
         # if len(input_seed) > 0: self.args.s    eed = int(input_seed)
-        self.args.prefix = prefix
+        # self.args.prefix = prefix
 
         device = self.device
 
@@ -122,7 +122,7 @@ class GeneratorLatentDiffusion(GeneratorBase):
 
         # bert context
         text_emb = (
-            self.bert.encode([self.args.text] * self.args.batch_size).to(device).float()
+            self.bert.encode([self.args.prompt] * self.args.batch_size).to(device).float()
         )
         text_blank = (
             self.bert.encode([self.args.negative] * self.args.batch_size)
@@ -130,7 +130,7 @@ class GeneratorLatentDiffusion(GeneratorBase):
             .float()
         )
 
-        text = clip.tokenize([self.args.text] * self.args.batch_size, truncate=True).to(
+        text = clip.tokenize([self.args.prompt] * self.args.batch_size, truncate=True).to(
             device
         )
         text_clip_blank = clip.tokenize(
@@ -486,11 +486,14 @@ class GeneratorLatentDiffusion(GeneratorBase):
 
         self.args.steps = settings["steps"]
 
+        self.args.prompt = settings["prompt"]
+
         self.update_model_params()
 
     def __init__(self, chain, load_models=True):
         super().__init__(chain)
         self.title = "Latent Diffusion"
+
 
         # parser = argparse.ArgumentParser()
 
@@ -586,6 +589,8 @@ class GeneratorLatentDiffusion(GeneratorBase):
         self.args.width = 256
         self.args.height = 256
         self.args.clip_guidance = True
+
+        self.args.prefix = str(randint(0, 1000000))
 
         # self.device = torch.device('cuda:0' if (
         #     torch.cuda.is_available() and not self.args.cpu) else 'cpu')

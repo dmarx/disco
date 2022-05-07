@@ -1,3 +1,4 @@
+from re import S
 from modules.generators.base.generator import GeneratorBase
 import os
 
@@ -76,11 +77,11 @@ class GeneratorDisco(GeneratorBase):
         "rand_mag": 0.05,
         "cutn_batches": 4,  # 2
         "path": os.getcwd(),
-        "ViTB32": False,
-        "ViTB16": False,
+        "ViTB32": True,
+        "ViTB16": True,
         "ViTL14": False,  # True
-        "ViTL14_336px": True,
-        "RN101": True,
+        "ViTL14_336px": False,
+        "RN101": False,
         "RN50": False,
         "RN50x4": False,
         "RN50x16": False,
@@ -990,6 +991,10 @@ class GeneratorDisco(GeneratorBase):
         if override_settings != None:
             settings = self.json_override(settings, override_settings)
 
+        settings["wh"] = [override_settings["width"], override_settings["height"]]
+        
+        self.update_model_config(settings)
+
         # if not isinstance(settings["prompt"], list): settings['prompt'] =   [settings['prompt']]
 
         # TODO - we want to do this loading more efficiently (doesn't need to be done if not changed and already loaded)
@@ -1770,6 +1775,12 @@ class GeneratorDisco(GeneratorBase):
         )
         self.lpips_model = lpips.LPIPS(net="vgg").to(self.device)
 
+        self.update_model_config(settings)
+        
+      
+
+    def update_model_config(self,settings):
+        
         # Get corrected sizes
         self.steps = settings[
             "steps"
@@ -1794,7 +1805,7 @@ class GeneratorDisco(GeneratorBase):
             }
         )
 
-        self.chain.output_message("Prepping model...")
+        self.chain.output_message("Updating model...")
         self.model, self.diffusion = create_model_and_diffusion(**self.model_config)
         self.model.load_state_dict(
             torch.load(
@@ -1807,7 +1818,8 @@ class GeneratorDisco(GeneratorBase):
                 param.requires_grad_()
         if self.model_config["use_fp16"]:
             self.model.convert_to_fp16()
-
+            
+            
     def save_settings(self):
         setting_list = {
             "text_prompts": self.text_prompts,
@@ -2017,7 +2029,7 @@ class GeneratorDisco(GeneratorBase):
                 "The video is ready and saved to the images folder"
             )
 
-    def __init__(self, chain, steps, wh, load_models=True):
+    def __init__(self, chain, steps = 50, wh = [512,512], load_models=True):
         super().__init__(chain)
         self.title = "Disco Diffusion"
 
