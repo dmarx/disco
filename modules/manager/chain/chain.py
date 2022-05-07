@@ -8,7 +8,7 @@ from modules.generators.generator_disco.generator import GeneratorDisco
 from modules.generators.generator_go_big.generator import GeneratorGoBig
 from modules.generators.generator_ld.generator import GeneratorLatentDiffusion
 from modules.generators.generator_dalle2_pytorch.generator import GeneratorDALLE2Pytorch
-from modules.generators.generator_test.generator import GeneratorTest
+from modules.generators.generator_loader.generator import GeneratorLoader
 from modules.generators.generator_arbitrary.generator import GeneratorArbitrary
 
 
@@ -27,7 +27,7 @@ class Chain:
     generator_ld = None
     generator_go_big = None
     generator_dalle_pytorch = None
-    generator_test = None
+    generator_loader = None
     generator_arbitrary = None
 
     def load_cuda(self):
@@ -40,7 +40,7 @@ class Chain:
             if torch.cuda.get_device_capability(self.DEVICE) == (
                 8,
                 0,
-            ):  ## A100 fix thanks to Emad
+            ):  # A100 fix thanks to Emad
                 print("Disabling CUDNN for A100 gpu", file=sys.stderr)
                 torch.backends.cudnn.enabled = False
 
@@ -49,9 +49,9 @@ class Chain:
 
     def fetch_instanced_generator(self, generator_type):
         if generator_type == 0:
-            if self.generator_test == None:
-                self.generator_test = GeneratorTest(self)
-            return self.generator_test
+            if self.generator_loader == None:
+                self.generator_loader = GeneratorLoader(self)
+            return self.generator_loader
 
         if generator_type == 1:
             if self.generator_ld == None:
