@@ -148,7 +148,7 @@ class Chain:
                     )
                 self.generator_arbitrary.init_settings(generator.settings)
                 self.output_filename = self.generator_arbitrary.do_run(
-                    generator.settings["code"]
+                    generator.settings["prompt"]
                 )
                 self.output_project_image(project, generator)
 
