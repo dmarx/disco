@@ -16,6 +16,12 @@ pip install piq ftfy ipywidgets lpips pytorch_lit pandas timm pip pytorch-lightn
 # install libs
 python install.py
 
+# for vm such as gradient
+apt-get update
+apt-get upgrade
+apt install libgl1-mesa-glx
+pip install opencv-python
+
 # to configure UI
 npm install --global yarn
 cd ui

@@ -1,5 +1,8 @@
 import gc
 import os
+
+# os.system("export TOKENIZERS_PARALLELISM=false")
+
 import random
 from types import SimpleNamespace
 from dotenv import load_dotenv
@@ -17,6 +20,7 @@ from modules.manager.projects.project import Project
 # from generator_disco.generator import GeneratorDisco
 # from generator_ld.generator import GeneratorLatentDiffusion
 # from manager.chain.chain import Chain
+
 
 import openai, sys 
 
@@ -45,6 +49,7 @@ project.generators = [
         **{
             "id": 0,
             "type": 1,
+            "enabled": True,
             "settings": {
                 "prompt": "",
                 "steps": 30,
@@ -92,7 +97,7 @@ async def make(ctx, *, prompt):
 
     project.generators[0].settings["prompt"] = prompt
     # project.generators[1].settings["prompt"] = prompt
-    filename = chain.run_project(project)
+    filename = await chain.run_project(project)
     # filename = chain.run_chain(prompt)
 
     await ctx.send(file=discord.File("static/output/" + filename))
@@ -126,13 +131,50 @@ async def paint(ctx, *, prompt):
 
     project.generators[0].settings["prompt"] = answer
     # project.generators[1].settings["prompt"] = prompt
-    filename = chain.run_project(project)
+    filename = await chain.run_project(project)
     # await ctx.send(answer, file =discord.File("static/output/" + filename))
     await ctx.send(
         discord.utils.escape_mentions(answer)
     )  # , files: [discord.File("static/output/" + filename)]})
     await ctx.send(file=discord.File("static/output/" + filename))
 
+
+
+@bot.command(name="paint2", help="Makes art from topics.")
+async def paint2(ctx, *, prompt):
+    prompt = " ".join(prompt.split())
+    print(prompt)
+
+    answer = openai.Completion.create(
+        model="davinci:ft-personal-2022-05-07-13-30-49",
+        prompt="A painting of "
+        + prompt
+        + " by ",
+        temperature=0.5,
+        max_tokens=60,
+        top_p=1,
+        frequency_penalty=0.25,
+        presence_penalty=0.25,
+    )
+
+    answer = "".join(answer.choices[0]["text"]).strip()
+    answer = (
+        "a painting of " + prompt + ", by " + 
+        answer.replace("“", "").replace("”", "").replace('"', "")
+        + ", matte painting trending on artstation",
+    )
+    answer = answer[0]
+
+    global project, chain
+
+    project.generators[0].settings["prompt"] = answer
+    # project.generators[1].settings["prompt"] = prompt
+    filename = await chain.run_project(project)
+    # await ctx.send(answer, file =discord.File("static/output/" + filename))
+    await ctx.send(
+        discord.utils.escape_mentions(answer)
+    )  # , files: [discord.File("static/output/" + filename)]})
+    await ctx.send(file=discord.File("static/output/" + filename))
 
 
 
@@ -318,6 +360,26 @@ async def complete(ctx, *, prompt):
     )
     answer = prompt + "\n" + "".join(answer.choices[0]["text"]).strip()
     return await ctx.send(discord.utils.escape_mentions(answer))
+
+@bot.command(name="tuneprompt", help="Find good artist modifier embeddings (fine-tune).")
+async def complete(ctx, *, prompt):
+    prompt = " ".join(prompt.split())
+    print(prompt)
+
+    answer = openai.Completion.create(
+        model="davinci:ft-personal-2022-05-07-13-30-49",
+        prompt=""
+        + prompt
+        + "\n",
+        temperature=0.8,
+        max_tokens=50,
+        top_p=1,
+        frequency_penalty=0.1,
+        presence_penalty=0.1,
+    )
+    answer = prompt + "\n" + "".join(answer.choices[0]["text"]).strip()
+    return await ctx.send(discord.utils.escape_mentions(answer))
+
 
 
 @bot.command(name="fixpy", help="Fix dodgy code that nin wrote. (need codex)")

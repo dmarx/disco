@@ -1,3 +1,4 @@
+import asyncio
 import gc
 import io
 import json
@@ -14,18 +15,19 @@ from torchvision import transforms
 from torchvision.transforms import functional as TF
 from tqdm.notebook import tqdm
 import numpy as np
-from lib.glid_3_xl.encoders.modules import BERTEmbedder
-from lib.glid_3_xl.guided_diffusion_ld.script_util import (
+from lib.dalle_flow_glid3.encoders.modules import BERTEmbedder
+from lib.dalle_flow_glid3.guided_diffusion_ld2.script_util import (
     create_model_and_diffusion,
     model_and_diffusion_defaults,
 )
 from einops import rearrange
 from math import log2, sqrt
 import os
-import clip
+# import clip
 from modules.generators.base.generator import GeneratorBase
 from functools import reduce  # py3
 
+from clip_client import Client
 
 class GeneratorLatentDiffusion(GeneratorBase):
 
@@ -109,129 +111,126 @@ class GeneratorLatentDiffusion(GeneratorBase):
         y_diff = input[..., 1:, :-1] - input[..., :-1, :-1]
         return (x_diff ** 2 + y_diff ** 2).mean([1, 2, 3])
 
-    def do_run(self, prefix="", input_seed=""):
-        # self.chain.output_message("doing run", prompt, prefix, input_seed)
+    # async def get_embeds(self):
+    #     self.args.negative = " "
+    #     clip_c = AsyncGRPCClient(server='grpc://demo-cas.jina.ai:51000')
+    #     #text_emb_clip = clip_c.encode([self.args.prompt] * self.args.batch_size)
+        
+        
+    #     t2 = asyncio.create_task(clip_c.aencode([self.args.prompt] * self.args.batch_size))
+    #     t3 = asyncio.create_task(clip_c.aencode([self.args.negative] * self.args.batch_size))
+    #     tasks = t2, t3
+    #     self.text_emb_clip, self.text_emb_clip_blank = asyncio.gather(*tasks)
 
-        # if len(input_seed) > 0: self.args.s    eed = int(input_seed)
-        # self.args.prefix = prefix
+    #     # self.text_emb_clip = await clip_c.encode([self.args.prompt] * self.args.batch_size)
+    #     # self.text_emb_clip_blank = await clip_c.encode([self.args.negative] * self.args.batch_size)
 
-        device = self.device
-
+    #     # responses = loop.run_until_complete(self.get_embeds())
+        
+        
+    #     # asyncio.gather(t2,t3)
+    #     # assert t2.result()
+    #     # self.text_emb_clip = t2.result()
+    #     # assert t3.result()
+    #     # self.text_emb_clip_blank = t3.result()
+    #     # assert t2.result().
+       
+    # async def get_embeds(self):
+    #     self.args.negative = " "
+    #     t1 = asyncio.create_task(self.chain.clip_c.encode([self.args.prompt] * self.args.batch_size))
+    #     t2 = asyncio.create_task(self.chain.clip_c.encode([self.args.negative] * self.args.batch_size))
+    #     # t2 = asyncio.create_task(c.aencode(['hello world'] * 100))
+    #     await asyncio.gather(t1, t2)
+    #     print(t1,t2)
+     
+    async def do_run(self, prefix="", input_seed=""):
+        
+        self.args.output_path = os.getcwd() + "/content/output"
+        
         if self.args.seed >= 0:
             torch.manual_seed(self.args.seed)
 
         # bert context
         text_emb = (
-            self.bert.encode([self.args.prompt] * self.args.batch_size).to(device).float()
+            self.bert.encode([self.args.prompt] * self.args.batch_size).to(self.device).float()
         )
         text_blank = (
             self.bert.encode([self.args.negative] * self.args.batch_size)
-            .to(device)
+            .to(self.device)
             .float()
         )
 
-        text = clip.tokenize([self.args.prompt] * self.args.batch_size, truncate=True).to(
-            device
-        )
-        text_clip_blank = clip.tokenize(
-            [self.args.negative] * self.args.batch_size, truncate=True
-        ).to(device)
+
+        # text = clip.tokenize([self.args.prompt] * self.args.batch_size, truncate=True).to(
+        #     device
+        # )
+        # text_clip_blank = clip.tokenize(
+        #     [self.args.negative] * self.args.batch_size, truncate=True
+        # ).to(device)
+
+        # # clip context
+        # text_emb_clip = self.clip_model.encode_text(text)
+        # text_emb_clip_blank = self.clip_model.encode_text(text_clip_blank)
 
         # clip context
-        text_emb_clip = self.clip_model.encode_text(text)
-        text_emb_clip_blank = self.clip_model.encode_text(text_clip_blank)
+       
+        # loop = asyncio.new_event_loop()
+        # asyncio.set_event_loop(loop)
+        # responses = loop.run_until_complete(self.get_embeds())
+        
+        # loop = asyncio.new_event_loop()
+        # asyncio.set_event_loop(loop)
+        # responses = loop.run_until_complete(self.get_embeds())
+        # self.get_embeds()
+ 
+        # loop = asyncio.new_event_loop()
+        # asyncio.set_event_loop(loop)
+        # responses = loop.run_until_complete(self.get_embeds())
+        
+        # clip_c = Client(server='grpc://demo-cas.jina.ai:51000')
+        # self.args.negative = " "
+        # t1 = asyncio.create_task(clip_c.aencode([self.args.prompt] * self.args.batch_size))
+        # t2 = asyncio.create_task(clip_c.aencode([self.args.negative] * self.args.batch_size))
+        # # t2 = asyncio.create_task(c.aencode(['hello world'] * 100))
+        # self.text_emb_clip, self.text_emb_clip_blank = asyncio.gather(t1, t2).result()
+        
+        clip_c = Client(server='grpc://demo-cas.jina.ai:51000')
+        # clip_c._async_client.post
+        self.args.negative = " "
+        self.text_emb_clip = await clip_c.aencode([self.args.prompt] * self.args.batch_size)
+        self.text_emb_clip_blank = await clip_c.aencode([self.args.negative] * self.args.batch_size)
+        
+        # asyncio.run(self.get_embeds())
+        # loop = asyncio.new_event_loop()
+        # asyncio.set_event_loop(loop)
+        # responses = loop.run_until_complete(self.get_embeds())
+        # self.get_embeds()
+        
+        # torch.Size([8, 77, 1280]) torch.Size([8, 77, 1280]) (1, 768) (1, 768)
 
-        make_cutouts = self.MakeCutouts(
-            self.clip_model.visual.input_resolution, self.args.cutn
-        )
-
-        text_emb_norm = text_emb_clip[0] / text_emb_clip[0].norm(dim=-1, keepdim=True)
-
+        print(self.text_emb_clip.shape, type(self.text_emb_clip))
         image_embed = None
 
         # image context
-        # if args.edit:
-        #     if args.edit.endswith('.npy'):
-        #         with open(args.edit, 'rb') as f:
-        #             im = np.load(f)
-        #             im = torch.from_numpy(im).unsqueeze(0).to(device)
-
-        #             input_image = torch.zeros(1, 4, args.height//8, args.width//8, device=device)
-
-        #             y = args.edit_y//8
-        #             x = args.edit_x//8
-
-        #             ycrop = y + im.shape[2] - input_image.shape[2]
-        #             xcrop = x + im.shape[3] - input_image.shape[3]
-
-        #             ycrop = ycrop if ycrop > 0 else 0
-        #             xcrop = xcrop if xcrop > 0 else 0
-
-        #             input_image[0,:,y if y >=0 else 0:y+im.shape[2],x if x >=0 else 0:x+im.shape[3]] = im[:,:,0 if y > 0 else -y:im.shape[2]-ycrop,0 if x > 0 else -x:im.shape[3]-xcrop]
-
-        #             input_image_pil = ldm.decode(input_image)
-        #             input_image_pil = TF.to_pil_image(input_image_pil.squeeze(0).add(1).div(2).clamp(0, 1))
-
-        #             input_image *= 0.18215
-        #     else:
-        #         w = args.edit_width if args.edit_width else args.width
-        #         h = args.edit_height if args.edit_height else args.height
-
-        #         input_image_pil = Image.open(fetch(args.edit)).convert('RGB')
-        #         input_image_pil = ImageOps.fit(input_image_pil, (w, h))
-
-        #         input_image = torch.zeros(1, 4, args.height//8, args.width//8, device=device)
-
-        #         im = transforms.ToTensor()(input_image_pil).unsqueeze(0).to(device)
-        #         im = 2*im-1
-        #         im = ldm.encode(im).sample()
-
-        #         y = args.edit_y//8
-        #         x = args.edit_x//8
-
-        #         input_image = torch.zeros(1, 4, args.height//8, args.width//8, device=device)
-
-        #         ycrop = y + im.shape[2] - input_image.shape[2]
-        #         xcrop = x + im.shape[3] - input_image.shape[3]
-
-        #         ycrop = ycrop if ycrop > 0 else 0
-        #         xcrop = xcrop if xcrop > 0 else 0
-
-        #         input_image[0,:,y if y >=0 else 0:y+im.shape[2],x if x >=0 else 0:x+im.shape[3]] = im[:,:,0 if y > 0 else -y:im.shape[2]-ycrop,0 if x > 0 else -x:im.shape[3]-xcrop]
-
-        #         input_image_pil = ldm.decode(input_image)
-        #         input_image_pil = TF.to_pil_image(input_image_pil.squeeze(0).add(1).div(2).clamp(0, 1))
-
-        #         input_image *= 0.18215
-
-        #     if args.mask:
-        #         mask_image = Image.open(fetch(args.mask)).convert('L')
-        #         mask_image = mask_image.resize((args.width//8,args.height//8), Image.ANTIALIAS)
-        #         mask = transforms.ToTensor()(mask_image).unsqueeze(0).to(device)
-        #     else:
-        #         self.chain.output_message('draw the area for inpainting, then close the window')
-        #         app = QApplication(sys.argv)
-        #         d = Draw(args.width, args.height, input_image_pil)
-        #         app.exec_()
-        #         mask_image = d.getCanvas().convert('L').point( lambda p: 255 if p < 1 else 0 )
-        #         mask_image.save('mask.png')
-        #         mask_image = mask_image.resize((args.width//8,args.height//8), Image.ANTIALIAS)
-        #         mask = transforms.ToTensor()(mask_image).unsqueeze(0).to(device)
-
-        #     mask1 = (mask > 0.5)
-        #     mask1 = mask1.float()
-
-        #     input_image *= mask1
-
-        #     image_embed = torch.cat(args.batch_size*2*[input_image], dim=0).float()
-        # elif self.model_params['image_condition']:
-        #     # using inpaint model but no image is provided
-        #     image_embed = torch.zeros(args.batch_size*2, 4, args.height//8, args.width//8, device=device)
+        if self.model_params['image_condition']:
+            # using inpaint model but no image is provided
+            image_embed = torch.zeros(
+                self.args.batch_size * 2,
+                4,
+                self.args.height // 8,
+                self.args.width // 8,
+                device=self.device,
+            )
 
         kwargs = {
             "context": torch.cat([text_emb, text_blank], dim=0).float(),
-            "clip_embed": torch.cat([text_emb_clip, text_emb_clip_blank], dim=0).float()
-            if self.model_params["clip_embed_dim"]
+            "clip_embed": torch.cat(
+                [torch.from_numpy(self.text_emb_clip), torch.from_numpy(self.text_emb_clip_blank)],
+                dim=0,
+            )
+            .to(self.device)
+            .float()
+            if self.model_params['clip_embed_dim']
             else None,
             "image_embed": image_embed,
         }
@@ -247,55 +246,6 @@ class GeneratorLatentDiffusion(GeneratorBase):
             eps = torch.cat([half_eps, half_eps], dim=0)
             return torch.cat([eps, rest], dim=1)
 
-        cur_t = None
-
-        def spherical_dist_loss(x, y):
-            x = F.normalize(x, dim=-1)
-            y = F.normalize(y, dim=-1)
-            return (x - y).norm(dim=-1).div(2).arcsin().pow(2).mul(2)
-
-        def cond_fn(x, t, context=None, clip_embed=None, image_embed=None):
-            with torch.enable_grad():
-                x = x[: self.args.batch_size].detach().requires_grad_()
-
-                n = x.shape[0]
-
-                my_t = torch.ones([n], device=device, dtype=torch.long) * cur_t
-
-                kw = {
-                    "context": context[: self.args.batch_size],
-                    "clip_embed": clip_embed[: self.args.batch_size]
-                    if self.model_params["clip_embed_dim"]
-                    else None,
-                    "image_embed": image_embed[: self.args.batch_size]
-                    if image_embed is not None
-                    else None,
-                }
-
-                out = self.diffusion.p_mean_variance(
-                    self.model, x, my_t, clip_denoised=False, model_kwargs=kw
-                )
-
-                fac = self.diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
-                x_in = out["pred_xstart"] * fac + x * (1 - fac)
-
-                x_in /= 0.18215
-
-                x_img = self.ldm.decode(x_in)
-
-                clip_in = self.normalize(make_cutouts(x_img.add(1).div(2)))
-                clip_embeds = self.clip_model.encode_image(clip_in).float()
-                dists = spherical_dist_loss(
-                    clip_embeds.unsqueeze(1), text_emb_clip.unsqueeze(0)
-                )
-                dists = dists.view([self.args.cutn, n, -1])
-
-                losses = dists.sum(2).mean(0)
-
-                loss = losses.sum() * self.args.clip_guidance_scale
-
-                return -torch.autograd.grad(loss, x)[0]
-
         if self.args.ddpm:
             sample_fn = self.diffusion.ddpm_sample_loop_progressive
         elif self.args.ddim:
@@ -303,43 +253,28 @@ class GeneratorLatentDiffusion(GeneratorBase):
         else:
             sample_fn = self.diffusion.plms_sample_loop_progressive
 
-        def save_sample(i, sample, clip_score=False):
-            for k, image in enumerate(sample["pred_xstart"][: self.args.batch_size]):
+        def save_sample(i, sample):
+            for k, image in enumerate(sample['pred_xstart'][: self.args.batch_size]):
                 image /= 0.18215
                 im = image.unsqueeze(0)
                 out = self.ldm.decode(im)
 
-                npy_filename = f"content/output_npy/{self.args.prefix}{i * self.args.batch_size + k:05}.npy"
-                with open(npy_filename, "wb") as outfile:
-                    np.save(outfile, image.detach().cpu().numpy())
-
                 out = TF.to_pil_image(out.squeeze(0).add(1).div(2).clamp(0, 1))
 
-                filename = f"content/output/{self.args.prefix}{i * self.args.batch_size + k:05}.png"
+                # self.Path(self.args.output_path).mkdir(exist_ok=True)
+
+                filename = os.path.join(
+                    self.args.output_path,
+                    f'{self.args.prefix}{i * self.args.batch_size + k:05}.png',
+                )
                 out.save(filename)
 
-                if clip_score:
-                    image_emb = self.clip_model.encode_image(
-                        self.clip_preprocess(out).unsqueeze(0).to(device)
-                    )
-                    image_emb_norm = image_emb / image_emb.norm(dim=-1, keepdim=True)
-
-                    similarity = torch.nn.functional.cosine_similarity(
-                        image_emb_norm, text_emb_norm, dim=-1
-                    )
-
-                    final_filename = f"content/output/{self.args.prefix}_{similarity.item():0.3f}_{i * self.args.batch_size + k:05}.png"
-                    os.rename(filename, final_filename)
-
-                    npy_final = f"content/output_npy/{self.args.prefix}_{similarity.item():0.3f}_{i * self.args.batch_size + k:05}.npy"
-                    os.rename(npy_filename, npy_final)
-
         if self.args.init_image:
-            init = Image.open(self.args.init_image).convert("RGB")
+            init = Image.open(self.args.init_image).convert('RGB')
             init = init.resize(
                 (int(self.args.width), int(self.args.height)), Image.LANCZOS
             )
-            init = TF.to_tensor(init).to(device).unsqueeze(0).clamp(0, 1)
+            init = TF.to_tensor(init).to(self.device).unsqueeze(0).clamp(0, 1)
             h = self.ldm.encode(init * 2 - 1).sample() * 0.18215
             init = torch.cat(self.args.batch_size * 2 * [h], dim=0)
         else:
@@ -358,24 +293,20 @@ class GeneratorLatentDiffusion(GeneratorBase):
                 ),
                 clip_denoised=False,
                 model_kwargs=kwargs,
-                cond_fn=cond_fn if self.args.clip_guidance else None,
-                device=device,
+                cond_fn=None,
+                device=self.device,
                 progress=True,
                 init_image=init,
                 skip_timesteps=self.args.skip_timesteps,
             )
 
             for j, sample in enumerate(samples):
-                if self.chain.project != None:
-                    self.chain.progress += (1.0 / self.diffusion.num_timesteps) / len(
-                        self.chain.project.generators
-                    )
                 cur_t -= 1
                 if j % 5 == 0 and j != self.diffusion.num_timesteps - 1:
                     save_sample(i, sample)
 
-            save_sample(i, sample, self.args.clip_score)
-
+            save_sample(i, sample)
+        
         filename_gen = self.args.prefix + "00000.png"
         filename_out = self.args.prefix + "_" + str(self.args.seed) + "_00000.png"
         os.system(
@@ -389,93 +320,126 @@ class GeneratorLatentDiffusion(GeneratorBase):
 
     def load_models(self):
 
-        self.model_state_dict = torch.load(self.args.model_path, map_location="cuda")
+            
+        self.model_state_dict = torch.load(self.args.model_path, map_location='cpu')
 
-        self.update_model_params()
+        self.model_params = {
+            'attention_resolutions': '32,16,8',
+            'class_cond': False,
+            'diffusion_steps': 1000,
+            'rescale_timesteps': True,
+            'timestep_respacing': '45',  # Modify this value to decrease the number of
+            # timesteps.
+            'image_size': 32,
+            'learn_sigma': False,
+            'noise_schedule': 'linear',
+            'num_channels': 320,
+            'num_heads': 8,
+            'num_res_blocks': 2,
+            'resblock_updown': False,
+            'use_fp16': False,
+            'use_scale_shift_norm': False,
+            'clip_embed_dim': 768 if 'clip_proj.weight' in self.model_state_dict else None,
+            'image_condition': True
+            if self.model_state_dict['input_blocks.0.0.weight'].shape[1] == 8
+            else False,
+            'super_res_condition': True
+            if 'external_block.0.0.weight' in self.model_state_dict
+            else False,
+        }
+
+        if self.args.ddpm:
+            self.model_params['timestep_respacing'] = 1000
+        if self.args.ddim:
+            if self.args.steps:
+                self.model_params['timestep_respacing'] = 'ddim' + os.environ.get(
+                    'GLID3_STEPS', str(self.args.steps)
+                )
+            else:
+                self.model_params['timestep_respacing'] = 'ddim50'
+        elif self.args.steps:
+            self.model_params['timestep_respacing'] = os.environ.get(
+                'GLID3_STEPS', str(self.args.steps)
+            )
+
+        self.model_config = model_and_diffusion_defaults()
+        self.model_config.update(self.model_params)
 
         if self.args.cpu:
-            self.model_config["use_fp16"] = False
+            self.model_config['use_fp16'] = False
 
         # Load models
         self.model, self.diffusion = create_model_and_diffusion(**self.model_config)
         self.model.load_state_dict(self.model_state_dict, strict=False)
         self.model.requires_grad_(self.args.clip_guidance).eval().to(self.device)
 
-        if self.model_config["use_fp16"]:
+        if self.model_config['use_fp16']:
             self.model.convert_to_fp16()
         else:
             self.model.convert_to_fp32()
+
 
         def set_requires_grad(model, value):
             for param in model.parameters():
                 param.requires_grad = value
 
+
         # vae
-        self.ldm = torch.load(self.args.kl_path, map_location="cuda")
+        self.ldm = torch.load(self.args.kl_path, map_location="cpu")
         self.ldm.to(self.device)
         self.ldm.eval()
         self.ldm.requires_grad_(self.args.clip_guidance)
         set_requires_grad(self.ldm, self.args.clip_guidance)
 
         self.bert = BERTEmbedder(1280, 32)
-        sd = torch.load(self.args.bert_path, map_location="cuda")
-        self.bert.load_state_dict(sd)
+        self.sd = torch.load(self.args.bert_path, map_location="cpu")
+        self.bert.load_state_dict(self.sd)
 
         self.bert.to(self.device)
         self.bert.half().eval()
         set_requires_grad(self.bert, False)
 
-        # clip
-        # self.clip_model, self.clip_preprocess = clip.load('ViT-L/14@336px', device=self.device, jit=False)
-        self.clip_model, self.clip_preprocess = clip.load(
-            "ViT-L/14", device=self.device, jit=False
-        )
-        self.clip_model.eval().requires_grad_(False)
-        self.normalize = transforms.Normalize(
-            mean=[0.48145466, 0.4578275, 0.40821073],
-            std=[0.26862954, 0.26130258, 0.27577711],
-        )
 
-    def update_model_params(self):
-        self.model_params = {
-            "attention_resolutions": "32,16,8",
-            "class_cond": False,
-            "diffusion_steps": 1000,
-            "rescale_timesteps": True,
-            "timestep_respacing": "27",  # Modify this value to decrease the number of
-            # timesteps.
-            "image_size": 32,
-            "learn_sigma": False,
-            "noise_schedule": "linear",
-            "num_channels": 320,
-            "num_heads": 8,
-            "num_res_blocks": 2,
-            "resblock_updown": False,
-            "use_fp16": False,
-            "use_scale_shift_norm": False,
-            "clip_embed_dim": 768
-            if "clip_proj.weight" in self.model_state_dict
-            else None,
-            "image_condition": True
-            if self.model_state_dict["input_blocks.0.0.weight"].shape[1] == 8
-            else False,
-            "super_res_condition": True
-            if "external_block.0.0.weight" in self.model_state_dict
-            else False,
-        }
+    #def update_model_params(self):
+        # self.model_params = {
+        #     "attention_resolutions": "32,16,8",
+        #     "class_cond": False,
+        #     "diffusion_steps": 1000,
+        #     "rescale_timesteps": True,
+        #     "timestep_respacing": "45",  # Modify this value to decrease the number of
+        #     # timesteps.
+        #     "image_size": 32,
+        #     "learn_sigma": False,
+        #     "noise_schedule": "linear",
+        #     "num_channels": 320,
+        #     "num_heads": 8,
+        #     "num_res_blocks": 2,
+        #     "resblock_updown": False,
+        #     "use_fp16": False,
+        #     "use_scale_shift_norm": False,
+        #     "clip_embed_dim": 768
+        #     if "clip_proj.weight" in self.model_state_dict
+        #     else None,
+        #     "image_condition": True
+        #     if self.model_state_dict["input_blocks.0.0.weight"].shape[1] == 8
+        #     else False,
+        #     "super_res_condition": True
+        #     if "external_block.0.0.weight" in self.model_state_dict
+        #     else False,
+        # }
 
-        if self.args.ddpm:
-            self.model_params["timestep_respacing"] = 1000
-        if self.args.ddim:
-            if self.args.steps:
-                self.model_params["timestep_respacing"] = "ddim" + str(self.args.steps)
-            else:
-                self.model_params["timestep_respacing"] = "ddim50"
-        elif self.args.steps:
-            self.model_params["timestep_respacing"] = str(self.args.steps)
+        # if self.args.ddpm:
+        #     self.model_params["timestep_respacing"] = 1000
+        # if self.args.ddim:
+        #     if self.args.steps:
+        #         self.model_params["timestep_respacing"] = "ddim" + str(self.args.steps)
+        #     else:
+        #         self.model_params["timestep_respacing"] = "ddim50"
+        # elif self.args.steps:
+        #     self.model_params["timestep_respacing"] = str(self.args.steps)
 
-        self.model_config = model_and_diffusion_defaults()
-        self.model_config.update(self.model_params)
+        # self.model_config = model_and_diffusion_defaults()
+        # self.model_config.update(self.model_params)
 
     def init_settings(self, override_settings=None):
 
@@ -488,7 +452,7 @@ class GeneratorLatentDiffusion(GeneratorBase):
 
         self.args.prompt = settings["prompt"]
 
-        self.update_model_params()
+        #self.update_model_params()
 
     def __init__(self, chain, load_models=True):
         super().__init__(chain)

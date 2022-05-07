@@ -9,6 +9,9 @@ from modules.generators.generator_go_big.generator import GeneratorGoBig
 from modules.generators.generator_ld.generator import GeneratorLatentDiffusion
 from modules.generators.generator_dalle2_pytorch.generator import GeneratorDALLE2Pytorch
 
+# import asyncio
+# from clip_client import Client
+
 
 class Chain:
 
@@ -26,11 +29,16 @@ class Chain:
     generator_go_big = None
     generator_dalle_pytorch = None
 
+    # clip_c = None
+
+
     # run_disco = True
     # run_ld = True
 
     def load_cuda(self):
 
+        # self.clip_c = Client(server='grpc://demo-cas.jina.ai:51000')
+        
         self.DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         print("Using device:", self.DEVICE)
         self.device = self.DEVICE  # At least one of the modules expects this name..
@@ -79,7 +87,7 @@ class Chain:
         
         
                         
-    def run_project(self, project):
+    async def run_project(self, project):
         self.output_message("Running project " + str(project.id) + ": " + project.title)
         self.progress = 0
         self.busy = True
@@ -99,7 +107,7 @@ class Chain:
         
                 instanced_generator = self.fetch_instanced_generator(generator.type)
                 instanced_generator.init_settings(generator.settings)
-                self.output_filename = instanced_generator.do_run()
+                self.output_filename = await instanced_generator.do_run()
                 self.output_project_image(project, generator)
 
             # #disco

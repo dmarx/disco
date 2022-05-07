@@ -13,6 +13,22 @@
             "justMyCode": true
         },
         {
+            "name": "Python: BOT",
+            "type": "python",
+            "request": "launch",
+            "program": "bot.py",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Python: Test CLI",
+            "type": "python",
+            "request": "launch",
+            "program": "test_cli.py",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",

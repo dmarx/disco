@@ -83,7 +83,7 @@
           </button>
         </h3>
 
-        <div style="width: 100%">
+        <div style="width: 100%" v-if="generator && generator.settings">
           <label style="color: #fff; width: 100%; text-align: center; color: #999">
             Frame Timeline:
             <span id="sliderDisplayValue">0</span>
