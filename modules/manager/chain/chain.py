@@ -31,6 +31,7 @@ class Chain:
     generator_dalle_pytorch = None
     generator_loader = None
     generator_arbitrary = None
+    generator_vqgan = None
 
     def load_cuda(self):
 
