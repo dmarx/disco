@@ -12,6 +12,7 @@ from modules.generators.generator_ld.generator import GeneratorLatentDiffusion
 from modules.generators.generator_loader.generator import GeneratorLoader
 from modules.generators.generator_arbitrary.generator import GeneratorArbitrary
 from modules.generators.generator_vqgan.generator import GeneratorVQGAN
+from modules.generators.generator_antarctic.generator import GeneratorAntarctic
 
 
 class Chain:
@@ -32,6 +33,7 @@ class Chain:
     generator_loader = None
     generator_arbitrary = None
     generator_vqgan = None
+    generator_antarctic = None
 
     def load_cuda(self):
 
@@ -85,6 +87,11 @@ class Chain:
             if self.generator_vqgan == None:
                 self.generator_vqgan = GeneratorVQGAN(self)
             return self.generator_vqgan
+
+        if generator_type == 7:
+            if self.generator_antarctic == None:
+                self.generator_antarctic = GeneratorAntarctic(self)
+            return self.generator_antarctic
 
     def run_project(self, project):
         self.output_message("Running project " + str(project.id) + ": " + project.title)
