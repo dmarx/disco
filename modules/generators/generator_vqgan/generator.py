@@ -1315,7 +1315,7 @@ class ModelHost:
         working_dir = self.args.folder_name
 
         if self.args.init_image != "":
-            img_0 = cv2.imread(init_image)
+            img_0 = cv2.imread(self.args.init_image)
             z, *_ = model.encode(TF.to_tensor(img_0).to(device).unsqueeze(0) * 2 - 1)
         elif not os.path.isfile(f"{working_dir}/static/output/vqgan_steps/{i:04d}.png"):
             one_hot = F.one_hot(
