@@ -80,7 +80,7 @@ class Chain:
                 self.generator_disco = GeneratorDisco(self)
             return self.generator_disco
         
-        if generator_type == 3:
+        if generator_type == 4:
             if self.generator_go_big == None:
                 self.generator_go_big = GeneratorGoBig(self)
             return self.generator_go_big

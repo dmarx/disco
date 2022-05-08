@@ -113,6 +113,23 @@ def api_task_preview(id,frame):
     return "Busy"
 
 
+@app.route('/api/task/reset', methods=['POST'])
+@cross_origin()
+def api_task_reset():
+    global proc, chain
+    global session,stdout,stderr
+
+    chain = Chain()
+    proc = None
+ 
+    res = {
+            'output':chain.output.replace("\n","<br />") if chain != None else "",
+            'busy':chain.busy if chain != None else False,
+            'progress':chain.progress if chain != None else 0,
+            }
+
+    return res
+
 @app.route('/api/task/update', methods=['POST'])
 @cross_origin()
 def api_task_update():

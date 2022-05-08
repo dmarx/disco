@@ -256,7 +256,7 @@
                         >
                           <img
                             style="width: 100%"
-                            v-bind:src="apiUrl + '/output/progress.png'"
+                            v-bind:src="apiUrl + '/output/progress.png?' + Math.random()"
                             alt=""
                           />
                         </div>
@@ -267,7 +267,8 @@
                         >
                           <img
                             style="width: 100%"
-                            v-bind:src="apiUrl + '/' + element.output_path "
+                            v-bind:src="
+                              apiUrl + '/' + element.output_path + '?' + Math.random()" 
                             alt=""
                           />
                         </div>
@@ -394,6 +395,11 @@
                         @click="updateStatus()"
                       >
                         Update
+                      </button>&nbsp;&nbsp;&nbsp;<button
+                        class="btn btn-primary btn-sm"
+                        @click="resetStatus()"
+                      >
+                        Reset
                       </button>
                     </p>
                     <br />
@@ -426,14 +432,22 @@
                         class="card-generator"
                         style="margin: 15px 0 0 0; display: inline-block"
                       >
-                        <img v-bind:src="apiUrl + '/output/progress.png'" alt="" />
+                        <img
+                          v-bind:src="apiUrl + '/output/progress.png?' + Math.random()"
+                          alt=""
+                        />
                       </div>
                       <div
                         v-if="element.output_path?.length > 0"
                         class="card-generator"
                         style="margin: 15px 0 0 0; display: inline-block"
                       >
-                        <img v-bind:src="apiUrl + '/' + element.output_path" alt="" />
+                        <img
+                          v-bind:src="
+                            apiUrl + '/' + element.output_path + '?' + Math.random()
+                          "
+                          alt=""
+                        />
                       </div>
                       <div
                         v-if="element.output_path == null"
@@ -565,12 +579,12 @@ export default defineComponent({
         description: "Disco diffusion network",
         folder: "disco_diffusion",
       },
-      {
-        type: 3,
-        title: "DALLE2 Pytorch",
-        description: "Open DALLE2 + Extras",
-        folder: "dalle2_pytorch",
-      },
+      // {
+      //   type: 3,
+      //   title: "DALLE2 Pytorch",
+      //   description: "Open DALLE2 + Extras",
+      //   folder: "dalle2_pytorch",
+      // },
       {
         type: 4,
         title: "Upscale",
@@ -627,7 +641,7 @@ export default defineComponent({
     const route = useRoute();
 
     if (this.state.autoUpdate) {
-      this.timer = setInterval(this.updateStatus, 1000);
+      this.timer = setInterval(this.updateStatus, 5000);
     }
 
     this.getProject(route.params.id);
@@ -699,6 +713,19 @@ export default defineComponent({
 
     updateStatus() {
       ApiService.post(this.apiUrl + "/api/task/update", {})
+        .then(({ data }) => {
+          console.log(data);
+          this.state.output = data["output"];
+          this.state.progress = data["progress"];
+          this.state.busy = data["busy"];
+          this.state.progressPercentage = Math.round(this.state.progress * 100) + "%";
+          // this.state.status = data.length > 0 ? "Running" : "Idle"; // if ("_False" in data) else "Running";
+        })
+        .catch(({ response }) => {});
+    },
+    
+    resetStatus() {
+      ApiService.post(this.apiUrl + "/api/task/reset", {})
         .then(({ data }) => {
           console.log(data);
           this.state.output = data["output"];
