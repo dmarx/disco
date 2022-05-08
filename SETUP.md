@@ -11,7 +11,8 @@ If you need to, setup pytorch etc for your GPU, e.g.
 pip install torch==1.10.0+cu111 torchvision==0.11.0+cu111 torchaudio==0.10.0 -f https://download.pytorch.org/whl/torch_stable.html
 
 # pip things
-pip install piq ftfy ipywidgets lpips pytorch_lit pandas timm pip pytorch-lightning einops omegaconf flask_cors dependency-injector twilio encoders dill dalle2_pytorch matplotlib opencv-python
+pip install piq ftfy ipywidgets lpips pytorch_lit pandas timm pip pytorch-lightning einops omegaconf flask_cors dependency-injector twilio encoders dill dalle2_pytorch matplotlib opencv-python clip_client discord openai
+
 
 # install libs
 python install.py
