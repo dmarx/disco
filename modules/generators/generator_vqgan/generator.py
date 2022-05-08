@@ -1054,8 +1054,8 @@ class MultiClipLoss(nn.Module):
 
         # Make Cutouts
         self.max_cut_size = self.perceptors[0]["res"]
-        # self.make_cuts = flavordict[flavor](self.max_cut_size, cutn, cut_pow)
-        # cutouts = flavordict[flavor](self.max_cut_size, cutn, cut_pow=cut_pow, augs=args.augs)
+        # self.make_cuts = flavordict[self.args.flavor](self.max_cut_size, cutn, cut_pow)
+        # cutouts = flavordict[self.args.flavor](self.max_cut_size, cutn, cut_pow=cut_pow, augs=self.args.augs)
 
         # Get Prompt Embedings
         # texts = [phrase.strip() for phrase in text_prompt.split("|")]
@@ -1200,6 +1200,7 @@ class ModelHost:
             f"{PROJECT_DIR}/content/models/pretrained/{self.args.vqgan_model}.yaml",
             f"{PROJECT_DIR}/content/models/pretrained/{self.args.vqgan_model}.ckpt",
         ).to(device)
+        os.makedirs(f"{PROJECT_DIR}/static/output/vqgan_steps/", exist_ok=True)
 
         active_clips = (
             bool(self.args.clip_model2)
@@ -1254,7 +1255,7 @@ class ModelHost:
 
         # [0].eval().requires_grad_(False)
         perceptor = (
-            clip.load(args.clip_model, jit=False)[0]
+            clip.load(self.args.clip_model, jit=False)[0]
             .eval()
             .requires_grad_(False)
             .to(device)
@@ -1270,24 +1271,30 @@ class ModelHost:
 
         f = 2 ** (model.decoder.num_resolutions - 1)
 
-        make_cutouts = flavordict[flavor](
-            cut_size, args.mse_cutn, cut_pow=args.mse_cut_pow, augs=args.augs
+        make_cutouts = flavordict[self.args.flavor](
+            cut_size,
+            self.args.mse_cutn,
+            cut_pow=self.args.mse_cut_pow,
+            augs=self.args.augs,
         )
 
-        # make_cutouts = MakeCutouts(cut_size, args.mse_cutn, cut_pow=args.mse_cut_pow,augs=args.augs)
-        if args.altprompts:
+        # make_cutouts = MakeCutouts(cut_size, self.args.mse_cutn, cut_pow=self.args.mse_cut_pow,augs=self.args.augs)
+        if self.args.altprompts:
             self.usealtprompts = True
-            self.alt_make_cutouts = flavordict[flavor](
-                cut_size, args.mse_cutn, cut_pow=args.alt_mse_cut_pow, augs=args.altaugs
+            self.alt_make_cutouts = flavordict[self.args.flavor](
+                cut_size,
+                self.args.mse_cutn,
+                cut_pow=self.args.alt_mse_cut_pow,
+                augs=self.args.altaugs,
             )
-            # self.alt_make_cutouts = MakeCutouts(cut_size, args.mse_cutn, cut_pow=args.alt_mse_cut_pow,augs=args.altaugs)
+            # self.alt_make_cutouts = MakeCutouts(cut_size, self.args.mse_cutn, cut_pow=self.args.alt_mse_cut_pow,augs=self.args.altaugs)
 
         if self.args.is_gumbel:
             n_toks = model.quantize.n_embed
         else:
             n_toks = model.quantize.n_e
 
-        toksX, toksY = args.size[0] // f, args.size[1] // f
+        toksX, toksY = self.args.size[0] // f, self.args.size[1] // f
         sideX, sideY = toksX * f, toksY * f
 
         if self.args.is_gumbel:
@@ -1310,7 +1317,7 @@ class ModelHost:
         if self.args.init_image != "":
             img_0 = cv2.imread(init_image)
             z, *_ = model.encode(TF.to_tensor(img_0).to(device).unsqueeze(0) * 2 - 1)
-        elif not os.path.isfile(f"{working_dir}/steps/{i:04d}.png"):
+        elif not os.path.isfile(f"{working_dir}/static/output/vqgan_steps/{i:04d}.png"):
             one_hot = F.one_hot(
                 torch.randint(n_toks, [toksY * toksX], device=device), n_toks
             ).float()
@@ -1322,11 +1329,13 @@ class ModelHost:
         else:
             if save_all_iterations:
                 img_0 = cv2.imread(
-                    f"{working_dir}/steps/{i:04d}_{iterations_per_frame}.png"
+                    f"{working_dir}/static/output/vqgan_steps/{i:04d}_{iterations_per_frame}.png"
                 )
             else:
                 # Hack to prevent colour inversion on every frame
-                img_temp = cv2.imread(f"{working_dir}/steps/{i}.png")
+                img_temp = cv2.imread(
+                    f"{working_dir}/static/output/vqgan_steps/{i}.png"
+                )
                 imageio.imwrite("inverted_temp.png", img_temp)
                 img_0 = cv2.imread("inverted_temp.png")
             center = (1 * img_0.shape[1] // 2, 1 * img_0.shape[0] // 2)
@@ -1346,15 +1355,13 @@ class ModelHost:
             z, *_ = model.encode(TF.to_tensor(img_0).to(device).unsqueeze(0) * 2 - 1)
 
             def save_output(i, img, suffix="zoomed"):
-                filename = (
-                    f"{working_dir}/steps/{i:04}{'_' + suffix if suffix else ''}.png"
-                )
+                filename = f"{working_dir}/static/output/vqgan_steps/{i:04}{'_' + suffix if suffix else ''}.png"
                 imageio.imwrite(filename, np.array(img))
 
             save_output(i, img_0)
         # -------
-        if args.init_image:
-            pil_image = Image.open(args.init_image).convert("RGB")
+        if self.args.init_image:
+            pil_image = Image.open(self.args.init_image).convert("RGB")
             pil_image = pil_image.resize((sideX, sideY), Image.LANCZOS)
             z, *_ = model.encode(
                 TF.to_tensor(pil_image).to(device).unsqueeze(0) * 2 - 1
@@ -1368,30 +1375,30 @@ class ModelHost:
             else:
                 z = one_hot @ model.quantize.embedding.weight
             z = z.view([-1, toksY, toksX, e_dim]).permute(0, 3, 1, 2)
-        z = EMATensor(z, args.ema_val)
+        z = EMATensor(z, self.args.ema_val)
 
-        if args.mse_with_zeros and not args.init_image:
+        if self.args.mse_with_zeros and not self.args.init_image:
             z_orig = torch.zeros_like(z.tensor)
         else:
             z_orig = z.tensor.clone()
         z.requires_grad_(True)
-        # opt = optim.AdamW(z.parameters(), lr=args.mse_step_size, weight_decay=0.00000000)
+        # opt = optim.AdamW(z.parameters(), lr=self.args.mse_step_size, weight_decay=0.00000000)
         if self.normal_flip_optim == True:
             if randint(1, 2) == 1:
                 opt = torch.optim.AdamW(
-                    z.parameters(), lr=args.step_size, weight_decay=0.00000000
+                    z.parameters(), lr=self.args.step_size, weight_decay=0.00000000
                 )
-                # opt = Ranger21(z.parameters(), lr=args.step_size, weight_decay=0.00000000)
+                # opt = Ranger21(z.parameters(), lr=self.args.step_size, weight_decay=0.00000000)
             else:
                 opt = optim.DiffGrad(
-                    z.parameters(), lr=args.step_size, weight_decay=0.00000000
+                    z.parameters(), lr=self.args.step_size, weight_decay=0.00000000
                 )
         else:
             opt = torch.optim.AdamW(
-                z.parameters(), lr=args.step_size, weight_decay=0.00000000
+                z.parameters(), lr=self.args.step_size, weight_decay=0.00000000
             )
 
-        self.cur_step_size = args.mse_step_size
+        self.cur_step_size = self.args.mse_step_size
 
         normalize = transforms.Normalize(
             mean=[0.48145466, 0.4578275, 0.40821073],
@@ -1401,26 +1408,28 @@ class ModelHost:
         pMs = []
         altpMs = []
 
-        for prompt in args.prompts:
+        for prompt in self.args.prompts:
             txt, weight, stop = parse_prompt(prompt)
             embed = perceptor.encode_text(clip.tokenize(txt).to(device)).float()
             pMs.append(Prompt(embed, weight, stop).to(device))
 
-        for prompt in args.altprompts:
+        for prompt in self.args.altprompts:
             txt, weight, stop = parse_prompt(prompt)
             embed = perceptor.encode_text(clip.tokenize(txt).to(device)).float()
             altpMs.append(Prompt(embed, weight, stop).to(device))
 
         from PIL import Image
 
-        for prompt in args.image_prompts:
+        for prompt in self.args.image_prompts:
             path, weight, stop = parse_prompt(prompt)
             img = resize_image(Image.open(path).convert("RGB"), (sideX, sideY))
             batch = make_cutouts(TF.to_tensor(img).unsqueeze(0).to(device))
             embed = perceptor.encode_image(normalize(batch)).float()
             pMs.append(Prompt(embed, weight, stop).to(device))
 
-        for seed, weight in zip(args.noise_prompt_seeds, args.noise_prompt_weights):
+        for seed, weight in zip(
+            self.args.noise_prompt_seeds, self.args.noise_prompt_weights
+        ):
             gen = torch.Generator().manual_seed(seed)
             embed = torch.empty([1, perceptor.visual.output_dim]).normal_(generator=gen)
             pMs.append(Prompt(embed, weight).to(device))
@@ -1461,68 +1470,79 @@ class ModelHost:
     @torch.no_grad()
     def checkin(self, i, losses, x):
         losses_str = ", ".join(f"{loss.item():g}" for loss in losses)
-        if i < args.mse_end:
+        if i < self.args.mse_end:
             tqdm.write(f"i: {i}, loss: {sum(losses).item():g}, losses: {losses_str}")
         else:
             tqdm.write(
-                f"i: {i-args.mse_end} ({i}), loss: {sum(losses).item():g}, losses: {losses_str}"
+                f"i: {i-self.args.mse_end} ({i}), loss: {sum(losses).item():g}, losses: {losses_str}"
             )
         tqdm.write(
             f"cutn: {self.make_cutouts.cutn}, cut_pow: {self.make_cutouts.cut_pow}, step_size: {self.cur_step_size}"
         )
         out = self.synth(self.z.average)
         if i == self.args.max_iterations:
-            if save_to_drive == True:
-                batchpath = self.unique_index(
-                    "./drive/MyDrive/VQGAN_Output/" + folder_name
-                )
-            else:
-                batchpath = self.unique_index("./" + folder_name)
+            batchpath = self.unique_index("./" + self.args.folder_name)
             TF.to_pil_image(out[0].cpu()).save(batchpath)
         # TF.to_pil_image(out[0].cpu()).save('progress.png')
         # self.add_metadata('progress.png', i)
         # display.display(display.Image('progress.png'))
         if self.args.png == True:
-            TF.to_pil_image(out[0].cpu()).save("png_progress.png")
-            self.add_metadata("png_progress.png", i)
-            TF.to_pil_image(out[0].cpu()).save("progress.png")
-            self.add_metadata("progress.png", i)
+            TF.to_pil_image(out[0].cpu()).save(
+                f"{working_dir}/static/output/vqgan_steps/progress.png"
+            )
+            self.add_metadata(
+                f"{working_dir}/static/output/vqgan_steps/progress.png", i
+            )
+            TF.to_pil_image(out[0].cpu()).save(
+                f"{working_dir}/static/output/vqgan_steps/progress.png"
+            )
+            self.add_metadata(
+                f"{working_dir}/static/output/vqgan_steps/progress.png", i
+            )
             # I know it's a mess, BUT, it works, right? RIGHT?!
             from PIL import Image, ImageDraw, ImageFilter, ImageEnhance, ImageOps
             import PIL.ImageOps
 
-            castle = Image.open(args.init_image).convert("RGB")
+            castle = Image.open(self.args.init_image).convert("RGB")
             # castle = Image.open('castle.png')
             castle = ImageEnhance.Brightness(castle)
-            castle.enhance(100000).save("/content/png_processing/brightness.png")
+            castle.enhance(100000).save(
+                f"{working_dir}/static/output/vqgan_steps/brightness.png"
+            )
 
-            im = Image.open("/content/png_processing/brightness.png")
+            im = Image.open(f"{working_dir}/static/output/vqgan_steps/brightness.png")
             im_invert = ImageOps.invert(im)
-            im_invert.save("/content/png_processing/work.png")
+            im_invert.save(f"{working_dir}/static/output/vqgan_steps/work.png")
 
-            image = Image.open("/content/png_processing/work.png").convert("RGB")
+            image = Image.open(
+                f"{working_dir}/static/output/vqgan_steps/work.png"
+            ).convert("RGB")
             inverted_image = PIL.ImageOps.invert(image)
-            inverted_image.save("/content/png_processing/last.png")
+            inverted_image.save(f"{working_dir}/static/output/vqgan_steps/last.png")
 
-            im_rgb = Image.open("progress.png")
+            im_rgb = Image.open(f"{working_dir}/static/output/vqgan_steps/progress.png")
             im_a = (
-                Image.open("/content/png_processing/last.png")
+                Image.open(f"{working_dir}/static/output/vqgan_steps/last.png")
                 .convert("L")
                 .resize(im_rgb.size)
             )
             im_rgb.putalpha(im_a)
 
             # im_rgb.save('/content/png_progress.png')
-            im_rgb.save("/content/png_processing/progress.png")
+            im_rgb.save(f"{working_dir}/static/output/vqgan_steps/progress.png")
             # display(Image.open('/content/png_progress.png').convert('RGB'))
-            display(Image.open("/content/png_processing/progress.png"))
+            display(Image.open(f"{working_dir}/static/output/vqgan_steps/progress.png"))
 
         else:
-            TF.to_pil_image(out[0].cpu()).save("progress.png")
-            self.add_metadata("progress.png", i)
+            TF.to_pil_image(out[0].cpu()).save(
+                f"{working_dir}/static/output/vqgan_steps/progress.png"
+            )
+            self.add_metadata(
+                f"{working_dir}/static/output/vqgan_steps/progress.png", i
+            )
             from PIL import Image
 
-            display(Image.open("progress.png"))
+            display(Image.open(f"{working_dir}/static/output/vqgan_steps/progress.png"))
 
     def unique_index(self, batchpath):
         i = 0
@@ -1556,8 +1576,14 @@ class ModelHost:
             out.mul(255).clamp(0, 255)[0].cpu().detach().numpy().astype(np.uint8)
         )[:, :, :]
         img = np.transpose(img, (1, 2, 0))
-        im_path = f"./steps/{i}.png"
+        im_path = f"./static/output/vqgan_steps/{i}.png"
         imageio.imwrite(im_path, np.array(img))
+
+        # XXX: Change this so we only save the final image, rather than overwriting again and again
+        imageio.imwrite(
+            f"./static/output/{self.args.i_generator}_vqgan.png", np.array(img)
+        )
+
         self.add_metadata(im_path, i)
         return result
 
@@ -1568,11 +1594,14 @@ class ModelHost:
 
         lossAll = self.ascend_txt(i)
 
-        if i < args.mse_end and i % args.mse_display_freq == 0:
+        if i < self.args.mse_end and i % self.args.mse_display_freq == 0:
             self.checkin(i, lossAll, x)
-        if i == args.mse_end:
+        if i == self.args.mse_end:
             self.checkin(i, lossAll, x)
-        if i > args.mse_end and (i - args.mse_end) % args.display_freq == 0:
+        if (
+            i > self.args.mse_end
+            and (i - self.args.mse_end) % self.args.display_freq == 0
+        ):
             self.checkin(i, lossAll, x)
 
         loss = sum(lossAll)
@@ -1599,28 +1628,33 @@ class ModelHost:
                     print(f"updated mse weight: {self.mse_weight}")
                 else:
                     self.mse_weight = 0
-                    self.make_cutouts = flavordict[flavor](
+                    self.make_cutouts = flavordict[self.args.flavor](
                         self.perceptor.visual.input_resolution,
-                        args.cutn,
-                        cut_pow=args.cut_pow,
-                        augs=args.augs,
+                        self.args.cutn,
+                        cut_pow=self.args.cut_pow,
+                        augs=self.args.augs,
                     )
                     if self.usealtprompts:
-                        self.alt_make_cutouts = flavordict[flavor](
+                        self.alt_make_cutouts = flavordict[self.args.flavor](
                             self.perceptor.visual.input_resolution,
-                            args.cutn,
-                            cut_pow=args.alt_cut_pow,
-                            augs=args.altaugs,
+                            self.args.cutn,
+                            cut_pow=self.args.alt_cut_pow,
+                            augs=self.args.altaugs,
                         )
-                    self.z = EMATensor(self.z.average, args.ema_val)
-                    self.new_step_size = args.step_size
+                    self.z = EMATensor(self.z.average, self.args.ema_val)
+                    self.new_step_size = self.args.step_size
                     self.opt = torch.optim.AdamW(
-                        self.z.parameters(), lr=args.step_size, weight_decay=0.00000000
+                        self.z.parameters(),
+                        lr=self.args.step_size,
+                        weight_decay=0.00000000,
                     )
                     print(f"updated mse weight: {self.mse_weight}")
-            if i > args.mse_end:
-                if args.step_size != args.final_step_size and args.max_iterations > 0:
-                    progress = (i - args.mse_end) / (args.max_iterations)
+            if i > self.args.mse_end:
+                if (
+                    self.args.step_size != self.args.final_step_size
+                    and self.args.max_iterations > 0
+                ):
+                    progress = (i - self.args.mse_end) / (self.args.max_iterations)
                     self.cur_step_size = lerp(step_size, final_step_size, progress)
                     for g in self.opt.param_groups:
                         g["lr"] = self.cur_step_size
@@ -1629,18 +1663,18 @@ class ModelHost:
     def run(self, x):
         i = 0
         try:
-            pbar = tqdm(range(int(args.max_iterations + args.mse_end)))
+            pbar = tqdm(range(int(self.args.max_iterations + self.args.mse_end)))
             while True:
                 self.train(i, x)
-                if i > 0 and i % args.mse_decay_rate == 0 and self.mse_weight > 0:
-                    self.z = EMATensor(self.z.average, args.ema_val)
+                if i > 0 and i % self.args.mse_decay_rate == 0 and self.mse_weight > 0:
+                    self.z = EMATensor(self.z.average, self.args.ema_val)
                     self.opt = torch.optim.AdamW(
                         self.z.parameters(),
-                        lr=args.mse_step_size,
+                        lr=self.args.mse_step_size,
                         weight_decay=0.00000000,
                     )
-                    # self.opt = optim.Adgarad(self.z.parameters(), lr=args.mse_step_size, weight_decay=0.00000000)
-                if i >= args.max_iterations + args.mse_end:
+                    # self.opt = optim.Adgarad(self.z.parameters(), lr=self.args.mse_step_size, weight_decay=0.00000000)
+                if i >= self.args.max_iterations + self.args.mse_end:
                     pbar.close()
                     break
                 self.z.update()
@@ -2135,6 +2169,7 @@ class GeneratorVQGAN(GeneratorBase):
             noise_prompt_seeds=[],
             noise_prompt_weights=[],
             size=[self.settings["width"], self.settings["height"]],
+            flavor=self.settings["flavor"],
             init_image=self.settings["init_image"],
             png=self.settings["transparent_png"],
             init_weight=self.settings["mse_init_weight"],
@@ -2153,7 +2188,6 @@ class GeneratorVQGAN(GeneratorBase):
             mse_end=0,
             seed=self.settings["seed"],
             folder_name=self.outDirPath,
-            # save_to_drive=save_to_drive,
             mse_decay_rate=self.settings["mse_decay_rate"],
             mse_decay=self.settings["mse_decay"],
             mse_with_zeros=self.settings["mse_with_zeros"],
@@ -2172,13 +2206,14 @@ class GeneratorVQGAN(GeneratorBase):
             clip_model6=self.settings["clip_model6"],
             gen_seed=self.settings["gen_seed"],
             device=self.settings["device"],
+            i_generator=self.settings["i_generator"],
         )
 
         mh = ModelHost(args)
         mh.setup_model(0)
         mh.run(0)
 
-        filename_out = "vqgan.png"
+        filename_out = f"{args.i_generator}_vqgan.png"
         return filename_out
 
     def init_settings(self, override_settings=None):
