@@ -67,7 +67,83 @@
                   <!-- <a href="#">Studio</a> -->
                   <span class="mx-3">|</span>Status
                   <span class="mx-3"
-                    ><span v-if="state.busy">Running {{ state.progressPercentage }}</span
+                    ><span v-if="state.busy"
+                      >Running {{ state.progressPercentage }}&nbsp;
+                      <div style="display: inline-block">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          xmlns:xlink="http://www.w3.org/1999/xlink"
+                          style="
+                            margin: auto;
+                            background: transparen;
+                            width: 36px;
+                            display: inline-block;
+                            margin-top: -3px;
+                          "
+                          width="200px"
+                          height="200px"
+                          viewBox="0 0 100 100"
+                          preserveAspectRatio="xMidYMid"
+                        >
+                          <circle
+                            cx="50"
+                            cy="50"
+                            r="0"
+                            fill="none"
+                            stroke="#03d8ae"
+                            stroke-width="12"
+                          >
+                            <animate
+                              attributeName="r"
+                              repeatCount="indefinite"
+                              dur="2.4390243902439024s"
+                              values="0;40"
+                              keyTimes="0;1"
+                              keySplines="0 0.2 0.8 1"
+                              calcMode="spline"
+                              begin="0s"
+                            ></animate>
+                            <animate
+                              attributeName="opacity"
+                              repeatCount="indefinite"
+                              dur="2.4390243902439024s"
+                              values="1;0"
+                              keyTimes="0;1"
+                              keySplines="0.2 0 0.8 1"
+                              calcMode="spline"
+                              begin="0s"
+                            ></animate>
+                          </circle>
+                          <circle
+                            cx="50"
+                            cy="50"
+                            r="0"
+                            fill="none"
+                            stroke="#03d8ae"
+                            stroke-width="12"
+                          >
+                            <animate
+                              attributeName="r"
+                              repeatCount="indefinite"
+                              dur="2.4390243902439024s"
+                              values="0;40"
+                              keyTimes="0;1"
+                              keySplines="0 0.2 0.8 1"
+                              calcMode="spline"
+                              begin="-1.2195121951219512s"
+                            ></animate>
+                            <animate
+                              attributeName="opacity"
+                              repeatCount="indefinite"
+                              dur="2.4390243902439024s"
+                              values="1;0"
+                              keyTimes="0;1"
+                              keySplines="0.2 0 0.8 1"
+                              calcMode="spline"
+                              begin="-1.2195121951219512s"
+                            ></animate>
+                          </circle>
+                        </svg></div></span
                     ><span v-if="!state.busy">Idle</span></span
                   >
                 </div>
@@ -514,7 +590,7 @@ export default defineComponent({
       output: "",
       progress: 0,
       progressPercentage: "",
-      // autoUpdate: false,
+      autoUpdate: true,
       preloadFrame: 0,
       selectedFrame: 0,
       autoPlay: false,
@@ -549,9 +625,9 @@ export default defineComponent({
     this.state.mounted = true;
     const route = useRoute();
 
-    // if (this.state.autoUpdate) {
-    //   this.timer = setInterval(this.updateStatus, 5000);
-    // }
+    if (this.state.autoUpdate) {
+      this.timer = setInterval(this.updateStatus, 1000);
+    }
 
     this.getProject(route.params.id);
   },

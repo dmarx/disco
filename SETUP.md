@@ -35,4 +35,9 @@ flask run
 # to run debug version of ui
 yarn serve
 
-
+# ngrok - to serve from a vm
+download ngrok binary to project root
+chmod 0777 ngrok
+./ngrok config add-authtoken <get new auth token from ngrok site>
+ngrok http 5000 --host-header="localhost:5000"
+then (from a different process/terminal) flask run
