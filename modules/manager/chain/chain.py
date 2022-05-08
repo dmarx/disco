@@ -187,12 +187,19 @@ class Chain:
             'cp "static/output/'
             + self.output_filename
             + '" "'
-            + out_path
-            + "/"
-            + out_filename
+            + os.path.join(out_path, out_filename)
             + '"'
         )
-        generator.output_path = out_path.replace("static/", "") + "/" + out_filename
+        os.system(
+            'cp "static/output/'
+            + self.output_filename
+            + '" "'
+            + os.path.join("content/output", out_filename)
+            + '"'
+        )
+        generator.output_path = os.path.join(
+            out_path.replace("static/", ""), out_filename
+        )
         project.save()
 
     def output_message(self, msg):
