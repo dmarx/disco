@@ -7,7 +7,7 @@ import torch
 from modules.generators.generator_disco.generator import GeneratorDisco
 from modules.generators.generator_go_big.generator import GeneratorGoBig
 from modules.generators.generator_ld.generator import GeneratorLatentDiffusion
-from modules.generators.generator_dalle2_pytorch.generator import GeneratorDALLE2Pytorch
+# from modules.generators.generator_dalle2_pytorch.generator import GeneratorDALLE2Pytorch
 
 # import asyncio
 # from clip_client import Client

@@ -1,5 +1,6 @@
 import os, sys
 PROJECT_DIR=os.getcwd()
+import asyncio
 
 sys.path.append(f'{PROJECT_DIR}/lib/glid_3_xl')
 sys.path.append(f'{PROJECT_DIR}/lib/CLIP')
@@ -21,7 +22,7 @@ from modules.manager.projects.api import Api
 from modules.manager.projects.project import Project
 
 
-def run_custom():
+async def run_custom():
     prompt = "A scenic view over a landscape of magical architecture, by David Noton and Asher Brown Durand, matte painting trending on artstation HQ."
 
     project = Project(1)
@@ -29,7 +30,7 @@ def run_custom():
         SimpleNamespace(**{
            'id':0,
            'type':1,
-           'enabled':True,
+           'enabled':False,
            'settings':{
                "prompt":prompt,
                "steps":30,
@@ -40,13 +41,13 @@ def run_custom():
         SimpleNamespace(**{
             'id':1,
             'type':2,
-            'enabled':False,
+            'enabled':True,
             'settings':{
                 "text_prompts": [{
                     "start": 0,
                     "prompt": prompt
                 }], 
-                "steps":100,
+                "steps":40,
                 "width":640,
                 "height":380,
                 'ViTB32': True,
@@ -63,7 +64,7 @@ def run_custom():
                 'turbo_mode':True,
                 'turbo_steps':"3",
                 'skip_steps':10, # was 20
-                'animation_mode':'3D',
+                'animation_mode':'None',
                 'max_frames':10000,
             }
         }),
@@ -106,7 +107,7 @@ def run_custom():
    
     print("running project chain...")
     chain = Chain()
-    chain.filename = chain.run_project(project)
+    chain.filename = await chain.run_project(project)
     
 
 parser = argparse.ArgumentParser()
@@ -121,7 +122,10 @@ if args.project > 0:
     chain.output = ""
     filename = chain.run_project(project)
 else:
-    run_custom()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    responses = loop.run_until_complete(run_custom())
+    # await run_custom()
     
     
     

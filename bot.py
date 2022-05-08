@@ -55,31 +55,32 @@ project.generators = [
                 "steps": 30,
                 "width": 256,
                 "height": 256,
-                # 'ViTB32': True,
-                # 'ViTB16': True,
-                # 'ViTL14': False, # True
-                # 'ViTL14_336px':False,
-                # 'RN101': False,
-                # 'RN50': False,
-                # 'RN50x4': False,
-                # 'RN50x16': False,
-                # 'RN50x64': False,
             },
         }
     ),
-    # SimpleNamespace(**{
-    #     "id":1,
-    #     "type":2,
-    #     "settings":{
-    #         "text_prompts": [{
-    #         "start": 0,
-    #         "prompt": ""
-    #         }],
-    #         "steps":50,
-    #         "width":512,
-    #         "height":512,
-    #         }
-    # })
+    SimpleNamespace(**{
+        "id":1,
+        "type":2,
+        "enabled": True,
+        "settings":{
+            "text_prompts": [{
+                "start": 0,
+                "prompt": ""
+            }],
+            "steps":15,
+            "width":256,
+            "height":256,
+            'ViTB32': True,
+            'ViTB16': True,
+            #'ViTL14': False,
+            'ViTL14_336px':False,
+            # 'RN101': False,
+            # 'RN50': False,
+            #  'RN50x4': False,
+            'RN50x16': False,
+            # 'RN50x64': False,
+            }
+    })
 ]
 chain = Chain()
 
@@ -96,7 +97,7 @@ async def make(ctx, *, prompt):
     print(prompt)
 
     project.generators[0].settings["prompt"] = prompt
-    # project.generators[1].settings["prompt"] = prompt
+    project.generators[1].settings["text_prompts"][0]['prompt'] = prompt
     filename = await chain.run_project(project)
     # filename = chain.run_chain(prompt)
 
@@ -130,6 +131,7 @@ async def paint(ctx, *, prompt):
     global project, chain
 
     project.generators[0].settings["prompt"] = answer
+    project.generators[1].settings["text_prompts"]['prompt'] = answer
     # project.generators[1].settings["prompt"] = prompt
     filename = await chain.run_project(project)
     # await ctx.send(answer, file =discord.File("static/output/" + filename))
@@ -168,6 +170,7 @@ async def paint2(ctx, *, prompt):
     global project, chain
 
     project.generators[0].settings["prompt"] = answer
+    project.generators[1].settings["text_prompts"]['prompt'] = answer
     # project.generators[1].settings["prompt"] = prompt
     filename = await chain.run_project(project)
     # await ctx.send(answer, file =discord.File("static/output/" + filename))
@@ -186,13 +189,11 @@ async def paint(ctx, *, prompt):
     global project, chain
 
     project.generators[0].settings["prompt"] = prompt + ", made entirely of chocolate"
+    project.generators[1].settings["text_prompts"]['prompt'] = prompt + ", made entirely of chocolate"
     # project.generators[1].settings["prompt"] = prompt
     filename = chain.run_project(project)
     # filename = chain.run_chain(prompt)
     
-    filename = chain.run_project(project)
-    # filename = chain.run_chain(prompt)
-
     await ctx.send(file=discord.File("static/output/" + filename))
 
 
