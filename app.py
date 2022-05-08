@@ -58,7 +58,7 @@ async def run_base(id):
     project =Api.fetch(id)
     if chain == None: chain = Chain()
     chain.output = ""
-    filename = chain.run_project(project)
+    filename = await chain.run_project(project)
     return filename
     
 async def run_base_preview(id,frame):
@@ -66,7 +66,7 @@ async def run_base_preview(id,frame):
     project =Api.fetch(id)
     if chain == None: chain = Chain()
     chain.output = ""
-    filename = chain.run_project_preview(project,frame)
+    filename = await chain.run_project_preview(project,frame)
     return filename
     
 async def run_project(id):

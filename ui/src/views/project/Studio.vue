@@ -77,6 +77,7 @@
                             margin: auto;
                             background: transparen;
                             width: 36px;
+                            height: 36px;
                             display: inline-block;
                             margin-top: -3px;
                           "
@@ -266,7 +267,7 @@
                         >
                           <img
                             style="width: 100%"
-                            v-bind:src="apiUrl + '/' + element.output_path"
+                            v-bind:src="apiUrl + '/' + element.output_path "
                             alt=""
                           />
                         </div>
