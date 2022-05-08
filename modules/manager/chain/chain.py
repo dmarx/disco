@@ -7,9 +7,11 @@ import torch
 from modules.generators.generator_disco.generator import GeneratorDisco
 from modules.generators.generator_go_big.generator import GeneratorGoBig
 from modules.generators.generator_ld.generator import GeneratorLatentDiffusion
-from modules.generators.generator_dalle2_pytorch.generator import GeneratorDALLE2Pytorch
+
+# from modules.generators.generator_dalle2_pytorch.generator import GeneratorDALLE2Pytorch
 from modules.generators.generator_loader.generator import GeneratorLoader
 from modules.generators.generator_arbitrary.generator import GeneratorArbitrary
+from modules.generators.generator_vqgan.generator import GeneratorVQGAN
 
 
 class Chain:
@@ -77,6 +79,11 @@ class Chain:
             if self.generator_arbitrary == None:
                 self.generator_arbitrary = GeneratorArbitrary(self)
             return self.generator_arbitrary
+
+        if generator_type == 6:
+            if self.generator_vqgan == None:
+                self.generator_vqgan = GeneratorVQGAN(self)
+            return self.generator_vqgan
 
     def run_project(self, project):
         self.output_message("Running project " + str(project.id) + ": " + project.title)
