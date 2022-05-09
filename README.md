@@ -1,40 +1,68 @@
-Flask must be kicked off using:
-flask run --host=0.0.0.0
+# first
+```python3 -m pip install --upgrade pip```
 
-To avoid CORS issue.`
+# env
+First, create a venv: `python3 -m venv env`
 
-"console": "integratedTerminal",
-"justMyCode": true,
-"args" :  ["run" ,"--host=0.0.0.0"] 
+Then activate the venv: `source env/bin/activate`
 
-INSTALL
+Activate or create your conda env, e.g `conda activate disco`
 
-pip install 
-piq install ftfy 
-pip install ipywidgets 
-pip install lpips 
-pip install pytorch_lit 
-pip install pandas 
-pip install timm 
-pip install pytorch-lightning 
-pip install einops 
-pip install omegaconf
-dll
+# pytorch
+If you need to, setup pytorch etc for your GPU, e.g.
+```
+pip install torch==1.10.0+cu111 torchvision==0.11.0+cu111 torchaudio==0.10.0 -f https://download.pytorch.org/whl/torch_stable.html
+```
 
+# pip things
+```
+pip install Cython
+pip install piq ftfy ipywidgets lpips
+pip install pytorch_lit pandas timm pip pytorch-lightning
+pip install einops omegaconf flask_cors dependency-injector twilio encoders dill dalle2_pytorch matplotlib opencv-python
+```
 
-cpythn install CMD
+# install libs
+```
+python install.py
+```
 
-#Pytorch3d
-git clone https://github.com/facebookresearch/pytorch3d.git
-cd pytorch3d 
-python3 setup.py install
+# for vm such as gradient
+```
+apt-get update
+apt-get upgrade
+apt install libgl1-mesa-glx
+pip install opencv-python
+```
 
+# to configure UI
+```
+npm install --global yarn
+cd ui
+yarn install
+yarn build
+cd ..
+```
 
-#Glid-3-xl
-git clone https://github.com/Jack000/glid-3-xl
-rename this folder to underscores
-cd glid-3-xl
-pip install -e .
+# to run api (and serve built UI)
+```
+flask run
+```
 
+# to run debug version of ui
+```
+yarn serve
+```
 
-
+# ngrok - to serve from a vm
+download ngrok binary to project root
+get new auth token from ngrok site
+```
+chmod 0777 ngrok
+./ngrok config add-authtoken
+ngrok http 5000 --host-header="localhost:5000"
+```
+then (from a different process/terminal)
+```
+flask run
+```
