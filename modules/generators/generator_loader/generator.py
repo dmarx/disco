@@ -26,7 +26,7 @@ class GeneratorLoader(GeneratorBase):
             return fd
         return open(url_or_path, "rb")
 
-    def do_run(self, prefix="", input_seed=""):
+    async def do_run(self, prefix="", input_seed=""):
         try:
             im = Image.open(self.fetch(self.settings["prompt"])).convert("RGB")
         except (FileNotFoundError, requests.exceptions.ConnectionError):

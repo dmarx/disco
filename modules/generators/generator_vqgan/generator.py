@@ -1947,7 +1947,7 @@ class GeneratorVQGAN(GeneratorBase):
         "device": "cuda:0",
     }
 
-    def do_run(self, prefix="", input_seed=""):
+    async def do_run(self, prefix="", input_seed=""):
         PROJECT_DIR = os.getcwd()
 
         def wget(url, outputdir, filename=None):

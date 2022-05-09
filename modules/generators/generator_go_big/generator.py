@@ -31,7 +31,7 @@ class GeneratorGoBig(GeneratorBase):
     global slices_todo
     slices_todo = 5  # Number of chunks to slice up from the original image
 
-    def do_run(self):
+    async def do_run(self):
 
         # curl -i -F files[]=@yourfile.jpeg https://tmp.ninja/upload.php (JSON Response)
 

@@ -9,7 +9,7 @@ class GeneratorArbitrary(GeneratorBase):
 
     settings = {"prompt": "", "code": "", "init_image": "", "i_generator": 0}
 
-    def do_run(self, prefix="", input_seed=""):
+    async def do_run(self, prefix="", input_seed=""):
         loc = {}
         exec(
             self.settings["code"],
