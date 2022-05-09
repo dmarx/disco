@@ -83,7 +83,7 @@
           </button>
         </h3>
 
-        <div style="width: 100%">
+        <div style="width: 100%" v-if="generator && generator.settings">
           <label style="color: #fff; width: 100%; text-align: center; color: #999">
             Frame Timeline:
             <span id="sliderDisplayValue">0</span>
@@ -263,6 +263,12 @@ export default defineComponent({
 
   mounted() {
     // setCurrentPageTitle("Studio");
+
+    if (location.host.indexOf("localhost") > -1) {
+      this.apiUrl = "http://localhost:5000";
+    } else {
+      this.apiUrl = "";
+    }
 
     this.renderer.onBeforeRender(() => {
       TWEEN.update();
@@ -794,7 +800,7 @@ export default defineComponent({
     },
 
     loadPreviewFrame(frame) {
-      let fr = parseInt((Math.round(frame / 20.0) * 5).toString());
+      let fr = parseInt(Math.round(frame).toString());
       let path =
         "/data/projects/" +
         (this.project as any).id.toString() +

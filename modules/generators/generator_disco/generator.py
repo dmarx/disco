@@ -65,7 +65,7 @@ class GeneratorDisco(GeneratorBase):
             ]
         ],
         "clip_guidance_scale": 5000,
-        "steps": 150,
+        "steps": 15,
         "cut_ic_pow": 1,
         "range_scale": 150,
         "n_batches": 5,
@@ -115,6 +115,7 @@ class GeneratorDisco(GeneratorBase):
     model_path = ""
     clip_models = None
     os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+    requires_reloading = True
 
     stop_on_next_loop = False  # Make sure GPU memory doesn't get corrupted from cancelling the run mid-way through, allow a full frame to complete
     trans_scale = 1.0 / 200.0
@@ -780,7 +781,7 @@ class GeneratorDisco(GeneratorBase):
         )
         return filename
 
-    def do_run(self):
+    async def do_run(self):
 
         self.resume_run = False  # @param{type: 'boolean'}
         run_to_resume = "latest"  # @param{type: 'string'}
@@ -993,7 +994,8 @@ class GeneratorDisco(GeneratorBase):
 
         settings["wh"] = [override_settings["width"], override_settings["height"]]
         
-        self.update_model_config(settings)
+        if (self.requires_reloading):
+            self.update_model_config(settings)
 
         # if not isinstance(settings["prompt"], list): settings['prompt'] =   [settings['prompt']]
 
@@ -1503,6 +1505,7 @@ class GeneratorDisco(GeneratorBase):
 
             self.batch_size = 1
 
+        
     def load_models(self, settings):
 
         model_256_downloaded = False
@@ -1776,7 +1779,7 @@ class GeneratorDisco(GeneratorBase):
         self.lpips_model = lpips.LPIPS(net="vgg").to(self.device)
 
         self.update_model_config(settings)
-        
+        self.requires_reloading = False
       
 
     def update_model_config(self,settings):
@@ -2029,7 +2032,7 @@ class GeneratorDisco(GeneratorBase):
                 "The video is ready and saved to the images folder"
             )
 
-    def __init__(self, chain, steps = 50, wh = [512,512], load_models=True):
+    def __init__(self, chain, steps = 35, wh = [512,512], load_models=True):
         super().__init__(chain)
         self.title = "Disco Diffusion"
 

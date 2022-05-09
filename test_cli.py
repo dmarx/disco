@@ -1,5 +1,6 @@
 import os, sys
 PROJECT_DIR=os.getcwd()
+import asyncio
 
 sys.path.append(f'{PROJECT_DIR}/lib/glid_3_xl')
 sys.path.append(f'{PROJECT_DIR}/lib/CLIP')
@@ -21,8 +22,8 @@ from modules.manager.projects.api import Api
 from modules.manager.projects.project import Project
 
 
-def run_custom():
-    prompt = "A scenic view underwater of large sea monsters and volumetric light, by David Noton and Asher Brown Durand, matte painting trending on artstation HQ."
+async def run_custom():
+    prompt = "A scenic view over a landscape of magical architecture, by David Noton and Asher Brown Durand, matte painting trending on artstation HQ."
 
     project = Project(1)
     project.generators = [
@@ -46,18 +47,25 @@ def run_custom():
                     "start": 0,
                     "prompt": prompt
                 }], 
-                "steps":100,
-                "width":512,
-                "height":512,
+                "steps":40,
+                "width":640,
+                "height":380,
                 'ViTB32': True,
                 'ViTB16': True,
                 #'ViTL14': False,
-                'ViTL14_336px':True,
+                'ViTL14_336px':False,
                # 'RN101': False,
                # 'RN50': False,
               #  'RN50x4': False,
-                'RN50x16': True,
+                'RN50x16': False,
                # 'RN50x64': False,
+                'frames_scale': 1500, #@param{type: 'integer'}
+                'frames_skip_steps':'65%',
+                'turbo_mode':True,
+                'turbo_steps':"3",
+                'skip_steps':10, # was 20
+                'animation_mode':'None',
+                'max_frames':10000,
             }
         }),
         #      SimpleNamespace(**{
@@ -99,7 +107,7 @@ def run_custom():
    
     print("running project chain...")
     chain = Chain()
-    chain.filename = chain.run_project(project)
+    chain.filename = await chain.run_project(project)
     
 
 parser = argparse.ArgumentParser()
@@ -114,7 +122,10 @@ if args.project > 0:
     chain.output = ""
     filename = chain.run_project(project)
 else:
-    run_custom()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    responses = loop.run_until_complete(run_custom())
+    # await run_custom()
     
     
     

@@ -67,7 +67,84 @@
                   <!-- <a href="#">Studio</a> -->
                   <span class="mx-3">|</span>Status
                   <span class="mx-3"
-                    ><span v-if="state.busy">Running {{ state.progressPercentage }}</span
+                    ><span v-if="state.busy"
+                      >Running {{ state.progressPercentage }}&nbsp;
+                      <div style="display: inline-block">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          xmlns:xlink="http://www.w3.org/1999/xlink"
+                          style="
+                            margin: auto;
+                            background: transparen;
+                            width: 36px;
+                            height: 36px;
+                            display: inline-block;
+                            margin-top: -3px;
+                          "
+                          width="200px"
+                          height="200px"
+                          viewBox="0 0 100 100"
+                          preserveAspectRatio="xMidYMid"
+                        >
+                          <circle
+                            cx="50"
+                            cy="50"
+                            r="0"
+                            fill="none"
+                            stroke="#03d8ae"
+                            stroke-width="12"
+                          >
+                            <animate
+                              attributeName="r"
+                              repeatCount="indefinite"
+                              dur="2.4390243902439024s"
+                              values="0;40"
+                              keyTimes="0;1"
+                              keySplines="0 0.2 0.8 1"
+                              calcMode="spline"
+                              begin="0s"
+                            ></animate>
+                            <animate
+                              attributeName="opacity"
+                              repeatCount="indefinite"
+                              dur="2.4390243902439024s"
+                              values="1;0"
+                              keyTimes="0;1"
+                              keySplines="0.2 0 0.8 1"
+                              calcMode="spline"
+                              begin="0s"
+                            ></animate>
+                          </circle>
+                          <circle
+                            cx="50"
+                            cy="50"
+                            r="0"
+                            fill="none"
+                            stroke="#03d8ae"
+                            stroke-width="12"
+                          >
+                            <animate
+                              attributeName="r"
+                              repeatCount="indefinite"
+                              dur="2.4390243902439024s"
+                              values="0;40"
+                              keyTimes="0;1"
+                              keySplines="0 0.2 0.8 1"
+                              calcMode="spline"
+                              begin="-1.2195121951219512s"
+                            ></animate>
+                            <animate
+                              attributeName="opacity"
+                              repeatCount="indefinite"
+                              dur="2.4390243902439024s"
+                              values="1;0"
+                              keyTimes="0;1"
+                              keySplines="0.2 0 0.8 1"
+                              calcMode="spline"
+                              begin="-1.2195121951219512s"
+                            ></animate>
+                          </circle>
+                        </svg></div></span
                     ><span v-if="!state.busy">Idle</span></span
                   >
                 </div>
@@ -179,7 +256,7 @@
                         >
                           <img
                             style="width: 100%"
-                            v-bind:src="apiUrl + '/output/progress.png'"
+                            v-bind:src="apiUrl + '/output/progress.png?' + Math.random()"
                             alt=""
                           />
                         </div>
@@ -190,7 +267,8 @@
                         >
                           <img
                             style="width: 100%"
-                            v-bind:src="apiUrl + '/' + element.output_path"
+                            v-bind:src="
+                              apiUrl + '/' + element.output_path + '?' + Math.random()" 
                             alt=""
                           />
                         </div>
@@ -317,6 +395,11 @@
                         @click="updateStatus()"
                       >
                         Update
+                      </button>&nbsp;&nbsp;&nbsp;<button
+                        class="btn btn-primary btn-sm"
+                        @click="resetStatus()"
+                      >
+                        Reset
                       </button>
                     </p>
                     <br />
@@ -349,14 +432,22 @@
                         class="card-generator"
                         style="margin: 15px 0 0 0; display: inline-block"
                       >
-                        <img v-bind:src="apiUrl + '/output/progress.png'" alt="" />
+                        <img
+                          v-bind:src="apiUrl + '/output/progress.png?' + Math.random()"
+                          alt=""
+                        />
                       </div>
                       <div
                         v-if="element.output_path?.length > 0"
                         class="card-generator"
                         style="margin: 15px 0 0 0; display: inline-block"
                       >
-                        <img v-bind:src="apiUrl + '/' + element.output_path" alt="" />
+                        <img
+                          v-bind:src="
+                            apiUrl + '/' + element.output_path + '?' + Math.random()
+                          "
+                          alt=""
+                        />
                       </div>
                       <div
                         v-if="element.output_path == null"
@@ -488,12 +579,12 @@ export default defineComponent({
         description: "Disco diffusion network",
         folder: "disco_diffusion",
       },
-      {
-        type: 3,
-        title: "DALLE2 Pytorch",
-        description: "Open DALLE2 + Extras",
-        folder: "dalle2_pytorch",
-      },
+      // {
+      //   type: 3,
+      //   title: "DALLE2 Pytorch",
+      //   description: "Open DALLE2 + Extras",
+      //   folder: "dalle2_pytorch",
+      // },
       {
         type: 4,
         title: "Upscale",
@@ -514,7 +605,7 @@ export default defineComponent({
       output: "",
       progress: 0,
       progressPercentage: "",
-      // autoUpdate: false,
+      autoUpdate: true,
       preloadFrame: 0,
       selectedFrame: 0,
       autoPlay: false,
@@ -549,9 +640,9 @@ export default defineComponent({
     this.state.mounted = true;
     const route = useRoute();
 
-    // if (this.state.autoUpdate) {
-    //   this.timer = setInterval(this.updateStatus, 5000);
-    // }
+    if (this.state.autoUpdate) {
+      this.timer = setInterval(this.updateStatus, 5000);
+    }
 
     this.getProject(route.params.id);
   },
@@ -622,6 +713,19 @@ export default defineComponent({
 
     updateStatus() {
       ApiService.post(this.apiUrl + "/api/task/update", {})
+        .then(({ data }) => {
+          console.log(data);
+          this.state.output = data["output"];
+          this.state.progress = data["progress"];
+          this.state.busy = data["busy"];
+          this.state.progressPercentage = Math.round(this.state.progress * 100) + "%";
+          // this.state.status = data.length > 0 ? "Running" : "Idle"; // if ("_False" in data) else "Running";
+        })
+        .catch(({ response }) => {});
+    },
+    
+    resetStatus() {
+      ApiService.post(this.apiUrl + "/api/task/reset", {})
         .then(({ data }) => {
           console.log(data);
           this.state.output = data["output"];
