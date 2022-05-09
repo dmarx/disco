@@ -1,6 +1,9 @@
 from modules.generators.base.generator import GeneratorBase
 
+import os
+import subprocess
 import argparse
+import shutil
 import io
 import numpy as np
 import torch
@@ -10,13 +13,13 @@ import pytorch_lightning as pl
 import matplotlib.pyplot as plt
 import torchvision.transforms.functional as F
 
-from CLIP import clip
+from lib.CLIP import clip
 from PIL import Image
 from pytorch_lightning.callbacks import ModelCheckpoint
 from torchvision.utils import make_grid
 
 
-class GeneratorArbitrary(GeneratorBase):
+class GeneratorAntarctic(GeneratorBase):
     """This generator will caption an image using Antarctic captions."""
 
     settings = {
@@ -87,10 +90,13 @@ class GeneratorArbitrary(GeneratorBase):
 
         gitclone(
             "https://github.com/dzryk/antarctic-captions.git",
-            path="lib/antarctic_captions",
+            path="lib",
         )
+        shutil.move('lib/antarctic-captions', 'lib/antarctic_captions')
+        os.system("sed -i 's/CLIP/lib.CLIP/g' lib/antarctic_captions/model.py")
 
         import lib.antarctic_captions.model, lib.antarctic_captions.utils
+
 
         device = torch.device(
             settings["device"] if torch.cuda.is_available() else "cpu"
