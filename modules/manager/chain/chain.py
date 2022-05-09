@@ -7,9 +7,11 @@ import torch
 from modules.generators.generator_disco.generator import GeneratorDisco
 from modules.generators.generator_go_big.generator import GeneratorGoBig
 from modules.generators.generator_ld.generator import GeneratorLatentDiffusion
-from modules.generators.generator_dalle2_pytorch.generator import GeneratorDALLE2Pytorch
+
+# from modules.generators.generator_dalle2_pytorch.generator import GeneratorDALLE2Pytorch
 from modules.generators.generator_loader.generator import GeneratorLoader
 from modules.generators.generator_arbitrary.generator import GeneratorArbitrary
+from modules.generators.generator_vqgan.generator import GeneratorVQGAN
 
 
 class Chain:
@@ -29,6 +31,7 @@ class Chain:
     generator_dalle_pytorch = None
     generator_loader = None
     generator_arbitrary = None
+    generator_vqgan = None
 
     def load_cuda(self):
 
@@ -77,6 +80,11 @@ class Chain:
             if self.generator_arbitrary == None:
                 self.generator_arbitrary = GeneratorArbitrary(self)
             return self.generator_arbitrary
+
+        if generator_type == 6:
+            if self.generator_vqgan == None:
+                self.generator_vqgan = GeneratorVQGAN(self)
+            return self.generator_vqgan
 
     def run_project(self, project):
         self.output_message("Running project " + str(project.id) + ": " + project.title)
@@ -179,12 +187,19 @@ class Chain:
             'cp "static/output/'
             + self.output_filename
             + '" "'
-            + out_path
-            + "/"
-            + out_filename
+            + os.path.join(out_path, out_filename)
             + '"'
         )
-        generator.output_path = out_path.replace("static/", "") + "/" + out_filename
+        os.system(
+            'cp "static/output/'
+            + self.output_filename
+            + '" "'
+            + os.path.join("content/output", out_filename)
+            + '"'
+        )
+        generator.output_path = os.path.join(
+            out_path.replace("static/", ""), out_filename
+        )
         project.save()
 
     def output_message(self, msg):
