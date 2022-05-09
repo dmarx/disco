@@ -1486,6 +1486,7 @@ class ModelHost:
         # TF.to_pil_image(out[0].cpu()).save('progress.png')
         # self.add_metadata('progress.png', i)
         # display.display(display.Image('progress.png'))
+        working_dir = os.getcwd()  # XXX: Hack, really should get rid of working_dir variable completely
         if self.args.png == True:
             TF.to_pil_image(out[0].cpu()).save(
                 f"{working_dir}/static/output/vqgan_steps/progress.png"
