@@ -7,11 +7,12 @@ import torch
 from modules.generators.generator_disco.generator import GeneratorDisco
 from modules.generators.generator_go_big.generator import GeneratorGoBig
 from modules.generators.generator_ld.generator import GeneratorLatentDiffusion
-# from modules.generators.generator_dalle2_pytorch.generator import GeneratorDALLE2Pytorch
+from modules.generators.generator_loader.generator import GeneratorLoader
+from modules.generators.generator_arbitrary.generator import GeneratorArbitrary
+from modules.generators.generator_vqgan.generator import GeneratorVQGAN
 
 # import asyncio
 # from clip_client import Client
-
 
 class Chain:
 
@@ -28,12 +29,10 @@ class Chain:
     generator_ld = None
     generator_go_big = None
     generator_dalle_pytorch = None
-
+    generator_loader = None
+    generator_arbitrary = None
+    generator_vqgan = None
     # clip_c = None
-
-
-    # run_disco = True
-    # run_ld = True
 
     def load_cuda(self):
 
@@ -41,51 +40,55 @@ class Chain:
         
         self.DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         print("Using device:", self.DEVICE)
-        self.device = self.DEVICE  # At least one of the modules expects this name..
+        self.device = self.DEVICE  # At least one of the modules expects this name.
 
-        if torch.cuda.get_device_capability(self.DEVICE) == (
-            8,
-            0,
-        ):  ## A100 fix thanks to Emad
-            print("Disabling CUDNN for A100 gpu", file=sys.stderr)
-            torch.backends.cudnn.enabled = False
+        if torch.cuda.is_available():
+            if torch.cuda.get_device_capability(self.DEVICE) == (
+                8,
+                0,
+            ):  # A100 fix thanks to Emad
+                print("Disabling CUDNN for A100 gpu", file=sys.stderr)
+                torch.backends.cudnn.enabled = False
 
     def run_chain(self, prompt):
-        # print (prompt)
-
-        # if self.run_ld:
-        #     if self.generator_ld == None: self.generator_ld =  GeneratorLatentDiffusion(self)
-        #     self.generator_ld.args.prefix = str(randint(0,1000000))
-        #     self.output_filename = self.generator_ld.do_run(prompt,self.generator_ld.args.prefix,str(100))
-
-        # if self.run_disco:
-        # if self.generator_disco == None: self.generator_disco = GeneratorDisco(self,150,[512,512])
-        # self.generator_disco.settings["prompt"] = [prompt]
-        # if self.run_ld:
-        #     self.generator_disco.settings["skip_steps"] = 25
-        #     self.generator_disco.settings["init_image"] = os.getcwd() + "/static/output/" + self.output_filename
-        # self.generator_disco.init_settings()
-        # self.output_filename = self.generator_disco.do_run()
-
         return self.output_filename
 
     def fetch_instanced_generator(self, generator_type):
+        if generator_type == 0:
+            if self.generator_loader == None:
+                self.generator_loader = GeneratorLoader(self)
+            return self.generator_loader
+
         if generator_type == 1:
             if self.generator_ld == None:
                 self.generator_ld = GeneratorLatentDiffusion(self)
             return self.generator_ld
-        
+
         if generator_type == 2:
             if self.generator_disco == None:
                 self.generator_disco = GeneratorDisco(self)
             return self.generator_disco
-        
+
         if generator_type == 4:
             if self.generator_go_big == None:
                 self.generator_go_big = GeneratorGoBig(self)
             return self.generator_go_big
-        
-        
+
+        # if generator_type == 4:
+        #     if self.generator_dalle_pytorch == None:
+        #         self.generator_dalle_pytorch = GeneratorDALLE2Pytorch(self)
+        #     return self.generator_dalle_pytorch
+
+        if generator_type == 5:
+            if self.generator_arbitrary == None:
+                self.generator_arbitrary = GeneratorArbitrary(self)
+            return self.generator_arbitrary
+
+        if generator_type == 6:
+            if self.generator_vqgan == None:
+                self.generator_vqgan = GeneratorVQGAN(self)
+            return self.generator_vqgan
+
                         
     async def run_project(self, project):
         self.output_message("Running project " + str(project.id) + ": " + project.title)
@@ -94,68 +97,27 @@ class Chain:
         self.project = project
         self.output_filename = ""
 
-    
-        for generator in project.generators:
+        for i_generator, generator in enumerate(project.generators):
             if generator.enabled:
+                if i_generator == 0:
+                    # Clear if running for a second time so init_image isn't
+                    # left over from previous run
+                    generator.settings["init_image"] = ""
                 generator.settings = json.loads(
                     json.dumps(generator.settings, default=lambda obj: obj.__dict__)
                 )
-                
+                generator.settings["i_generator"] = i_generator
+
                 if self.output_filename != None and len(self.output_filename) > 0:
                     generator.settings["skip_steps"] = 25
-                    generator.settings["init_image"] = (os.getcwd() + "/static/output/" + self.output_filename)
-        
+                    generator.settings["init_image"] = (
+                        os.getcwd() + "/static/output/" + self.output_filename
+                    )
+
                 instanced_generator = self.fetch_instanced_generator(generator.type)
                 instanced_generator.init_settings(generator.settings)
                 self.output_filename = await instanced_generator.do_run()
                 self.output_project_image(project, generator)
-
-            # #disco
-            # if generator.type == 2:
-            #     if self.generator_disco == None:
-            #         self.generator_disco = GeneratorDisco(
-            #             self,
-            #             generator.settings["steps"],
-            #             [
-            #                 int(generator.settings["width"]),
-            #                 int(generator.settings["height"]),
-            #             ],
-            #         )
-            #     if self.output_filename != None and len(self.output_filename) > 0:
-            #         generator.settings["skip_steps"] = 25
-            #         generator.settings["init_image"] = (
-            #             os.getcwd() + "/static/output/" + self.output_filename
-            #         )
-            #     self.generator_disco.init_settings(generator.settings)
-            #     self.output_filename = self.generator_disco.do_run()
-
-            # #upscaler
-            # if generator.type == 3:
-            #     if self.generator_go_big == None:
-            #         self.generator_go_big = GeneratorGoBig(self)
-            #     # self.generator_disco.settings["prompt"] = generator.settings["prompt"]
-            #     self.generator_go_big.init_settings(generator.settings)
-            #     if self.output_filename != None and len(self.output_filename) > 0:
-            #         self.generator_go_big.settings["init_image"] = (
-            #             os.getcwd() + "/static/output/" + self.output_filename
-            #         )
-            #     self.output_filename = self.generator_go_big.do_run()
-
-            # #dalle2
-            # if generator.type == 4:
-            #     if self.generator_dalle_pytorch == None:
-            #         self.generator_dalle_pytorch = GeneratorDALLE2Pytorch(self)
-            #     self.output_filename = self.generator_dalle_pytorch.do_run(
-            #         generator.settings["prompt"]
-            #     )
-
-            #clean gpu memory
-            # del self.generator_ld
-            # # del self.generator_ld.diffusion
-            # gc.collect()
-            # torch.cuda.empty_cache()
-
-
 
         self.output_message(
             "Finished project " + str(project.id) + ": " + project.title
@@ -186,7 +148,6 @@ class Chain:
                 generator.settings["height"] = 376
                 generator.settings["start_frame"] = frame
                 generator.settings["animation_mode"] = "None"
-                # generator.settings['RN50x16']=False
                 if self.generator_disco == None:
                     self.generator_disco = GeneratorDisco(
                         self,
@@ -201,11 +162,6 @@ class Chain:
                     self.generator_disco.init_settings(generator.settings)
                 else:
                     self.generator_disco.init_settings(generator.settings)
-                # self.generator_disco.settings["prompt"] = generator.settings["prompt"]
-
-                # if self.output_filename != None and len(self.output_filename) > 0:
-                #     self.generator_disco.settings["skip_steps"] = 25
-                #     self.generator_disco.settings["init_image"] = os.getcwd() + "/static/output/" + self.output_filename
                 self.output_filename = self.generator_disco.do_run()
                 self.output_project_image(
                     project, generator, "preview/" + str(frame), "preview.png"
@@ -235,12 +191,19 @@ class Chain:
             'cp "static/output/'
             + self.output_filename
             + '" "'
-            + out_path
-            + "/"
-            + out_filename
+            + os.path.join(out_path, out_filename)
             + '"'
         )
-        generator.output_path = out_path.replace("static/", "") + "/" + out_filename
+        os.system(
+            'cp "static/output/'
+            + self.output_filename
+            + '" "'
+            + os.path.join("content/output", out_filename)
+            + '"'
+        )
+        generator.output_path = os.path.join(
+            out_path.replace("static/", ""), out_filename
+        )
         project.save()
 
     def output_message(self, msg):
