@@ -1,3 +1,14 @@
+import os, sys
+
+PROJECT_DIR = os.getcwd()
+
+sys.path.append(f"{PROJECT_DIR}/lib/glid_3_xl")
+sys.path.append(f"{PROJECT_DIR}/lib/CLIP")
+sys.path.append(f"{PROJECT_DIR}/lib/MiDaS")
+sys.path.append(f"{PROJECT_DIR}/lib/AdaBins")
+sys.path.append(f"{PROJECT_DIR}/lib/latent-diffusion")
+sys.path.append(f"{PROJECT_DIR}/lib/ResizeRight")
+sys.path.append(f"{PROJECT_DIR}/lib/pytorch3d-lite")
 # import os, sys
 # PROJECT_DIR=os.getcwd()
 
@@ -21,9 +32,100 @@
 # from modules.manager.projects.project import Project
 
 
-# def run_custom():
-#     prompt = "A scenic view underwater of large sea monsters and volumetric light, by David Noton and Asher Brown Durand, matte painting trending on artstation HQ."
+def run_custom():
+    prompt = "A scenic view underwater of large sea monsters and volumetric light, by David Noton and Asher Brown Durand, matte painting trending on artstation HQ."
 
+    arbitrary_code_to_run = """
+# Converts output of previous generator to black and white (dithering)
+# and adds prompt as text in top left corner
+import numpy as np
+import os
+from PIL import Image
+from PIL import ImageDraw
+
+im = Image.open(init_image)
+im = im.convert('1')
+draw = ImageDraw.Draw(im)
+draw.text((0, 0), prompt, (255))
+
+filename_out = f"{i_generator}_arbitrary.png"
+im.save(os.path.join("content/output", filename_out))
+im.save(os.path.join("static/output", filename_out))
+    """
+
+    project = Project(1)
+    project.generators = [
+        SimpleNamespace(
+            **{
+                "type": 0,
+                "enabled": False,
+                "settings": {
+                    "prompt": "https://cdn.discordapp.com/attachments/970060442774958151/970073453052985445/BeepleBrandingConsultancy-PANCE-9.png",
+                },
+            }
+        ),
+        SimpleNamespace(
+            **{
+                "type": 1,
+                "enabled": False,
+                "settings": {
+                    "prompt": prompt,
+                    "steps": 30,
+                    "width": 256,
+                    "height": 256,
+                },
+            }
+        ),
+        SimpleNamespace(
+            **{
+                "type": 2,
+                "enabled": True,
+                "settings": {
+                    "text_prompts": [{"start": 0, "prompt": prompt}],
+                    "steps": 25,
+                    "width": 640,
+                    "height": 512,
+                    # 'ViTB32': True,
+                    # 'ViTB16': True,
+                    # 'ViTL14': False,
+                    # 'ViTL14_336px':False,
+                    # 'RN101': False,
+                    # 'RN50': False,
+                    # 'RN50x4': False,
+                    # 'RN50x16': False,
+                    # 'RN50x64': False,
+                },
+            }
+        ),
+        SimpleNamespace(
+            **{
+                "type": 5,
+                "enabled": False,
+                "settings": {
+                    "code": arbitrary_code_to_run,
+                    "prompt": "",
+                },
+            }
+        ),
+    ]
+
+    print("running project chain...")
+    chain = Chain()
+    chain.filename = chain.run_project(project)
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--project", type=int, default="0", help="project id")
+args = parser.parse_args(args=[], namespace=None)
+
+args.project = 0
+if args.project > 0:
+    project = Api.fetch(args.project)
+    chain = Chain()
+    chain.output = ""
+    filename = chain.run_project(project)
+else:
+    run_custom()
 #     project = Project(1)
 #     project.generators = [
 #         SimpleNamespace(**{
@@ -115,6 +217,4 @@
 #     filename = chain.run_project(project)
 # else:
 #     run_custom()
-    
-    
     

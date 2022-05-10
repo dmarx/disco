@@ -31,6 +31,10 @@ class Project:
                 self.title = data.title
                 self.created = data.created
                 self.generators = data.generators
+                for generator in self.generators:
+                    # Settings need to be dict, not SimpleNamespace
+                    # XXX: Better to do this in the object_hook of json.load above
+                    generator.settings = vars(generator.settings)
 
             # file_data = dill.load(open(self.project_dir() + "/data.obj", "rb"))
             # file_data = json.loads(open(self.project_dir() + "/data.obj", "rb"))
