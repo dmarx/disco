@@ -34,3 +34,5 @@ ui/dist/media
 *.Identifier
 *ipynb_checkpoints*
 .env
+.env
+.env
