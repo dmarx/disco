@@ -16,6 +16,7 @@ pip install piq ftfy ipywidgets lpips imageio imgtag stegano GPUtil
 pip install pytorch_lit pandas timm pip pytorch-lightning transformers
 pip install einops omegaconf flask_cors dependency-injector twilio encoders dill dalle2_pytorch matplotlib opencv-python kornia
 pip install -U clip_client
+pip install taming-transformers
 pip install git+https://github.com/CompVis/taming-transformers
 
 # install libs
