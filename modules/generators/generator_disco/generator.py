@@ -994,8 +994,8 @@ class GeneratorDisco(GeneratorBase):
 
         settings["wh"] = [override_settings["width"], override_settings["height"]]
         
-        if (self.requires_reloading):
-            self.update_model_config(settings)
+        #'if (self.requires_reloading):
+        self.update_model_config(settings)
 
         # if not isinstance(settings["prompt"], list): settings['prompt'] =   [settings['prompt']]
 

@@ -12,9 +12,10 @@ pip install torch==1.10.0+cu111 torchvision==0.11.0+cu111 torchaudio==0.10.0 -f 
 
 # pip things
 pip install Cython
-pip install piq ftfy ipywidgets lpips 
+pip install piq ftfy ipywidgets lpips imageio imgtag stegano GPUtil
 pip install pytorch_lit pandas timm pip pytorch-lightning 
-pip install einops omegaconf flask_cors dependency-injector twilio encoders dill dalle2_pytorch matplotlib opencv-python
+pip install einops omegaconf flask_cors dependency-injector twilio encoders dill dalle2_pytorch matplotlib opencv-python kornia
+pip install -U clip_client
 
 # install libs
 python install.py

@@ -34,11 +34,14 @@ class Chain:
     generator_vqgan = None
     # clip_c = None
 
-    def load_cuda(self):
+    def load_cuda(self,cudaDeviceOverride=""):
 
         # self.clip_c = Client(server='grpc://demo-cas.jina.ai:51000')
         
-        self.DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        cudaDevice = "cuda:0" if torch.cuda.is_available() else "cpu"
+        if (cudaDeviceOverride!=""): cudaDevice = cudaDeviceOverride
+
+        self.DEVICE = torch.device(cudaDevice)
         print("Using device:", self.DEVICE)
         self.device = self.DEVICE  # At least one of the modules expects this name.
 
@@ -210,6 +213,6 @@ class Chain:
         print(msg)
         self.output += msg + "\n"
 
-    def __init__(self):
+    def __init__(self,cudaDeviceOverride=""):
         seed(1)
-        self.load_cuda()
+        self.load_cuda(cudaDeviceOverride)

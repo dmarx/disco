@@ -1,4 +1,6 @@
 import os, sys
+import asyncio
+
 PROJECT_DIR=os.getcwd()
 
 sys.path.append(f'{PROJECT_DIR}/lib/glid_3_xl')
@@ -21,8 +23,9 @@ from modules.manager.projects.api import Api
 from modules.manager.projects.project import Project
 
 
-def run_custom():
-    prompt = "A scenic view over a landscape of magical architecture looking towards the sky, by David Noton and Asher Brown Durand, matte painting trending on artstation HQ."
+async def run_custom(
+    prompt="A scenic view over a landscape of magical architecture, by David Noton and Asher Brown Durand, matte painting trending on artstation HQ.",
+):
 
     project = Project(1)
     project.generators = [
@@ -56,10 +59,10 @@ def run_custom():
                # 'RN101': False,
                # 'RN50': False,
               #  'RN50x4': False,
-                #'RN50x16': False,
+                'RN50x16': True,
                 'RN50x64': True,
                 'frames_scale': 1500, #@param{type: 'integer'}
-                'frames_skip_steps':'65%',
+                'frames_skip_steps':'70%',
                 'turbo_mode':True,
                 'turbo_steps':"3",
                 'skip_steps':10, # was 20
@@ -105,23 +108,22 @@ def run_custom():
     ]
    
     print("running project chain...")
-    chain = Chain()
-    chain.filename = chain.run_project(project)
+    chain = Chain("cuda:1")
+    chain.filename = await chain.run_project(project)
     
+
+
+default_prompt = "A scenic view over a landscape of magical architecture, by David Noton and Asher Brown Durand, matte painting trending on artstation HQ."
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--project', type=int, default='0',
-                    help='project id')
-args = parser.parse_args(args = [],namespace=None)
+parser.add_argument("--project", type=int, default="0", help="project id")
+parser.add_argument("--prompt", type=str, default=default_prompt, help="prompt")
+args = parser.parse_args()
 
-args.project = 0
+loop = asyncio.new_event_loop()
+asyncio.set_event_loop(loop)
 if args.project > 0:
-    project = Api.fetch(args.project)
-    chain = Chain()
-    chain.output = ""
-    filename = chain.run_project(project)
+    responses = loop.run_until_complete(run_external_project(args.project))
 else:
-    run_custom()
-    
-    
-    
+    responses = loop.run_until_complete(run_custom(args.prompt))
+
