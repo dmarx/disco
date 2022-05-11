@@ -24,15 +24,15 @@ sys.path.append(f"{PROJECT_DIR}/lib/pytorch3d-lite")
 # #from modules.generators.generator_ld.generator import GeneratorLatentDiffusion
 # # # from manager.chain.chain import Chain
 
-# import argparse
-# import json
-# from types import SimpleNamespace
-# from modules.manager.chain.chain import Chain
-# from modules.manager.projects.api import Api
-# from modules.manager.projects.project import Project
+import argparse, asyncio
+import json
+from types import SimpleNamespace
+from modules.manager.chain.chain import Chain
+from modules.manager.projects.api import Api
+from modules.manager.projects.project import Project
 
 
-def run_custom():
+async def run_custom():
     prompt = "A scenic view underwater of large sea monsters and volumetric light, by David Noton and Asher Brown Durand, matte painting trending on artstation HQ."
 
     arbitrary_code_to_run = """
@@ -67,7 +67,7 @@ im.save(os.path.join("static/output", filename_out))
         SimpleNamespace(
             **{
                 "type": 1,
-                "enabled": False,
+                "enabled": True,
                 "settings": {
                     "prompt": prompt,
                     "steps": 30,
@@ -79,7 +79,7 @@ im.save(os.path.join("static/output", filename_out))
         SimpleNamespace(
             **{
                 "type": 2,
-                "enabled": True,
+                "enabled": False,
                 "settings": {
                     "text_prompts": [{"start": 0, "prompt": prompt}],
                     "steps": 25,
@@ -111,21 +111,30 @@ im.save(os.path.join("static/output", filename_out))
 
     print("running project chain...")
     chain = Chain()
-    chain.filename = chain.run_project(project)
+    chain.filename = await chain.run_project(project)
 
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--project", type=int, default="0", help="project id")
 args = parser.parse_args(args=[], namespace=None)
 
-args.project = 0
+# args.project = 0
+loop = asyncio.new_event_loop()
+asyncio.set_event_loop(loop)
 if args.project > 0:
-    project = Api.fetch(args.project)
-    chain = Chain()
-    chain.output = ""
-    filename = chain.run_project(project)
+    responses = loop.run_until_complete(run_external_project(args.project))
 else:
-    run_custom()
+    responses = loop.run_until_complete(run_custom())
+
+
+
+# if args.project > 0:
+#     project = Api.fetch(args.project)
+#     chain = Chain()
+#     chain.output = ""
+#     filename = chain.run_project(project)
+# else:
+#     run_custom()
 #     project = Project(1)
 #     project.generators = [
 #         SimpleNamespace(**{

@@ -2,22 +2,42 @@
 # first
 python3 -m pip install --upgrade pip
 
+sudo apt update &&   sudo apt upgrade
+curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+python3 get-pip.py --force-reinstall
+sudo apt-get install python3.9-dev
+
 # env
-Firstly, create a venv: python3 -m venv env ... then activate the venv: source env/bin/activate
+apt-get install python3-venv
+python3 -m venv env 
+source env/bin/activate
 Activate or create your conda env, e.g conda activate disco
 
 # pytorch
 If you need to, setup pytorch etc for your GPU, e.g.
-pip install torch==1.10.0+cu111 torchvision==0.11.0+cu111 torchaudio==0.10.0 -f https://download.pytorch.org/whl/torch_stable.html
+# pip install torch==1.10.0+cu111 torchvision==0.11.0+cu111 torchaudio==0.10.0 -f https://download.pytorch.org/whl/torch_stable.html
+pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu113
 
 # pip things
+sudo pip3 install --upgrade pip
+python -m pip install --upgrade pip
+sudo apt install python3-pip
+sudo apt install python3.9-distutils
+
+python3 -m pip install opencv-python
 pip install Cython
-pip install piq ftfy ipywidgets lpips imageio imgtag stegano GPUtil
+pip install  ftfy ipywidgets lpips imageio imgtag stegano GPUtil
 pip install pytorch_lit pandas timm pip pytorch-lightning transformers
-pip install einops omegaconf flask_cors dependency-injector twilio encoders dill dalle2_pytorch matplotlib opencv-python kornia
-pip install -U clip_client
+pip install einops omegaconf flask_cors twilio encoders dill  matplotlib opencv-python kornia 
+pip install clip_client discord regex requests timm
 pip install taming-transformers
 pip install git+https://github.com/CompVis/taming-transformers
+
+sudo add-apt-repository ppa:deadsnakes/ppa
+sudo apt-get update
+sudo apt-get install python3.9
+sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 2
+
 
 # install libs
 python install.py
@@ -29,7 +49,13 @@ apt install libgl1-mesa-glx
 pip install opencv-python
 
 # to configure UI
-npm install --global yarn
+sudo apt install nodejs
+sudo apt-get install nodejs-dev node-gyp libssl1.0-dev
+sudo apt-get install build-essential checkinstall libssl-dev
+sudo apt-get install npm
+sudo n stable
+sudo npm install npm@latest -g 
+sudo npm install --global yarn
 cd ui
 yarn install
 yarn build
@@ -53,3 +79,5 @@ then (from a different process/terminal) flask run
 nvm install v14.7.0
 nvm use --delete-prefix v14.7.0
 npm install --global yarn
+
+# other 

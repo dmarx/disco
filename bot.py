@@ -52,7 +52,7 @@ project.generators = [
             "enabled": True,
             "settings": {
                 "prompt": "",
-                "steps": 45,
+                "steps": 30,
                 "width": 256,
                 "height": 256,
             },
