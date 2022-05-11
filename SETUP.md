@@ -45,3 +45,9 @@ chmod 0777 ngrok
 ./ngrok config add-authtoken <get new auth token from ngrok site>
 ngrok http 5000 --host-header="localhost:5000"
 then (from a different process/terminal) flask run
+
+
+#yarn issue
+nvm install v14.7.0
+nvm use --delete-prefix v14.7.0
+npm install --global yarn
