@@ -30,8 +30,9 @@ pip install  ftfy ipywidgets lpips imageio imgtag stegano GPUtil imgtag
 pip install pytorch_lit pandas timm pip pytorch-lightning transformers
 pip install einops omegaconf flask_cors twilio encoders dill  matplotlib opencv-python kornia 
 pip install clip_client discord regex requests timm
-pip install taming-transformers
-pip install git+https://github.com/CompVis/taming-transformers
+#pip install taming-transformers
+#pip install git+https://github.com/CompVis/taming-transformers
+cd lib/latent-diffusion; git clone https://github.com/CompVis/taming-transformers; pip install -e taming-transformers/.; cd ../..
 
 sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt-get update
