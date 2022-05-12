@@ -679,12 +679,14 @@ export default defineComponent({
     },
 
     addGenerator(generator) {
+      console.log("folder" ,generator.folder,(this.state.project as any));
       var fs = require("fs");
       //http://172.29.230.209:8080/generators/latent_diffusion/schema.json
       const g: any = Object.assign({}, generator);
       g.id = (this.state.project as any).generators.length;
       g.enabled = true;
 
+      
       fetch(this.apiUrl + "/data/generators/" + g.folder + "/schema.json")
         .then((res) => res.json())
         .then((res) => {

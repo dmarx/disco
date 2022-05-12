@@ -38,7 +38,8 @@ class GeneratorLoader(GeneratorBase):
         filename_out = f"{self.settings['i_generator']}_loader.png"
         im.save(os.path.join("content/output", filename_out))
         im.save(os.path.join("static/output", filename_out))
-        return filename_out
+        # return filename_out
+        self.output_filename = filename_out
 
     def init_settings(self, override_settings=None):
         settings = self.settings

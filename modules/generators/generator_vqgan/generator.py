@@ -1481,7 +1481,8 @@ class ModelHost:
         )
         out = self.synth(self.z.average)
         if i == self.args.max_iterations:
-            batchpath = self.unique_index("./" + self.args.folder_name)
+            # batchpath = self.unique_index("./" + self.args.folder_name)
+            batchpath = self.unique_index(self.args.folder_name)
             TF.to_pil_image(out[0].cpu()).save(batchpath)
         # TF.to_pil_image(out[0].cpu()).save('progress.png')
         # self.add_metadata('progress.png', i)
@@ -2215,7 +2216,9 @@ class GeneratorVQGAN(GeneratorBase):
         mh.run(0)
 
         filename_out = f"{args.i_generator}_vqgan.png"
-        return filename_out
+        # return filename_out
+        self.output_filename = filename_out
+    
 
     def init_settings(self, override_settings=None):
 

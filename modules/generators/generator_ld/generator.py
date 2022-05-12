@@ -313,7 +313,9 @@ class GeneratorLatentDiffusion(GeneratorBase):
             "cp content/output/" + filename_gen + " static/output/" + filename_out
         )
 
-        return filename_out
+        # return filename_out
+        self.output_filename = filename_out
+    
 
     # gc.collect()
     # do_run()

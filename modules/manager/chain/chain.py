@@ -120,7 +120,8 @@ class Chain:
 
                 instanced_generator = self.fetch_instanced_generator(generator.type)
                 instanced_generator.init_settings(generator.settings)
-                self.output_filename = instanced_generator.do_run()
+                await instanced_generator.do_run()
+                self.output_filename = instanced_generator.output_filename
                 self.output_project_image(project, generator)
 
         self.output_message(

@@ -65,7 +65,9 @@ class GeneratorGoBig(GeneratorBase):
         #     print(r.json())
         # print(r.json()['tid'])
 
-        return "output_go_big.png"
+        # return "output_go_big.png"
+        self.output_filename = "output_go_big.png"
+    
 
     def init_settings(self, override_settings=None):
 

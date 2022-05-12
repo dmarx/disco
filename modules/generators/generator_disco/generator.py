@@ -780,7 +780,7 @@ class GeneratorDisco(GeneratorBase):
         )
         return filename
 
-    def do_run(self):
+    async def do_run(self):
 
         self.resume_run = False  # @param{type: 'boolean'}
         run_to_resume = "latest"  # @param{type: 'string'}
@@ -982,7 +982,9 @@ class GeneratorDisco(GeneratorBase):
             self.chain.output_message("Seed used:" + str(self.seed))
             gc.collect()
             torch.cuda.empty_cache()
-        return filename
+        # return filename
+        self.output_filename = filename
+    
 
     def init_settings(self, override_settings=None):
 
