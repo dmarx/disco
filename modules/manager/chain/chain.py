@@ -11,6 +11,7 @@ from modules.generators.generator_loader.generator import GeneratorLoader
 from modules.generators.generator_arbitrary.generator import GeneratorArbitrary
 from modules.generators.generator_vqgan.generator import GeneratorVQGAN
 from modules.generators.generator_cli.generator import GeneratorCLI
+from modules.generators.generator_pytti.generator import GeneratorPytti
 
 # import asyncio
 # from clip_client import Client
@@ -34,6 +35,7 @@ class Chain:
     generator_arbitrary = None
     generator_vqgan = None
     generator_cli = None
+    generator_pytti = None
     # clip_c = None
 
     def load_cuda(self,cudaDeviceOverride=""):
@@ -99,7 +101,12 @@ class Chain:
             if self.generator_cli == None:
                 self.generator_cli = GeneratorCLI(self)
             return self.generator_cli
-                        
+
+        if generator_type == 8:
+            if self.generator_pytti == None:
+                self.generator_pytti = GeneratorPytti(self)
+            return self.generator_pytti
+
     async def run_project(self, project):
         self.output_message("Running project " + str(project.id) + ": " + project.title)
         self.progress = 0

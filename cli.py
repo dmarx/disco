@@ -97,9 +97,19 @@ im.save(os.path.join("static/output", filename_out))
         SimpleNamespace(
             **{
                 "type": 7,
+                "enabled": False,
+                "settings": {
+                    "command": "python -m pytti.workhorse scenes=VanGogh",
+                },
+            }
+        ),
+        SimpleNamespace(
+            **{
+                "type": 8,
                 "enabled": True,
                 "settings": {
-                    "command": "python -m pytti.warmup",
+                    "conf":"_empty",
+                    "scenes": "a photograph of an apple",
                 },
             }
         ),

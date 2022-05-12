@@ -46,6 +46,7 @@ python install.py
 mv ./modules/generators/generator_ld/glid_3_xl ./lib/
 
 # Install PyTTI-Tools
+pip install gdown loguru einops seaborn PyGLM ftfy regex tqdm hydra-core adjustText exrex matplotlib-label-lines
 pip install --upgrade git+https://github.com/pytti-tools/AdaBins.git
 pip install --upgrade git+https://github.com/pytti-tools/GMA.git
 #pip install --upgrade git+https://github.com/pytti-tools/taming-transformers.git
