@@ -1,57 +1,22 @@
-<div id="kt_process_tab_content" class="py-0 tab-pane fade show" role="tabpanel">
-    <div class="row">
-        <div class="col-6">
-            <h2 style="color: #fff">Status</h2>
-            <p style="color: #fff">
-                Currently:
-                <span v-if="state.busy">Running {{ state.progressPercentage }}</span><span v-if="!state.busy">Idle</span>
-            </p>
-            <br />
-            <h3 style="color: #fff">Output</h3>
-            <div style="color: #fff" v-html="state.output"></div>
-            <br />
-            <p>
-                <button class="btn btn-primary btn-sm" @click="startProject()">
-          Run</button>&nbsp;&nbsp;&nbsp;<button class="btn btn-primary btn-sm" @click="updateStatus()">
-          Update
-        </button>
-            </p>
-            <br />
-            <br />
-            <br />
-            <div v-if="state.project">
-                <h2 style="color: #fff">CLI</h2>
-                <p style="color: #fff">
-                    To run from shell:
-                    <br /><span>python cli.py --project {{ state.project.id }}</span>
-                </p>
+<!doctype html>
+<html lang="en">
 
-            </div>
-            <div v-if="state.project">
-                <h2 style="color: #fff">Delete Project</h2>
-                <p style="color: #fff">
-                    If you're sure you want to delete the project you can do so below.
-                    <br />
-                    <button id="btn btn-primary" @click="deleteProject()">Delete Project</button>
-                </p>
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/favicon.png" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="ShadowDragon SocialNet API" />
+    <link rel="manifest" href="/manifest.json" />
+    <title>SocialNet API</title>
+    <link href="/static/css/2.757e2b37.chunk.css" rel="stylesheet">
+</head>
 
-            </div>
+<body><noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <script>!function (e) {function r(r) {for (var n, i, a = r[0], c = r[1], l = r[2], s = 0, p = []; s < a.length; s++)i = a[s], Object.prototype.hasOwnProperty.call(o, i) && o[i] && p.push(o[i][0]), o[i] = 0; for (n in c) Object.prototype.hasOwnProperty.call(c, n) && (e[n] = c[n]); for (f && f(r); p.length;)p.shift()(); return u.push.apply(u, l || []), t()} function t() {for (var e, r = 0; r < u.length; r++) {for (var t = u[r], n = !0, a = 1; a < t.length; a++) {var c = t[a]; 0 !== o[c] && (n = !1)} n && (u.splice(r--, 1), e = i(i.s = t[0]))} return e} var n = {}, o = {1: 0}, u = []; function i(r) {if (n[r]) return n[r].exports; var t = n[r] = {i: r, l: !1, exports: {}}; return e[r].call(t.exports, t, t.exports, i), t.l = !0, t.exports} i.e = function (e) {var r = [], t = o[e]; if (0 !== t) if (t) r.push(t[2]); else {var n = new Promise((function (r, n) {t = o[e] = [r, n]})); r.push(t[2] = n); var u, a = document.createElement("script"); a.charset = "utf-8", a.timeout = 120, i.nc && a.setAttribute("nonce", i.nc), a.src = function (e) {return i.p + "static/js/" + ({}[e] || e) + "." + {3: "c0cfdc3b"}[e] + ".chunk.js"}(e); var c = new Error; u = function (r) {a.onerror = a.onload = null, clearTimeout(l); var t = o[e]; if (0 !== t) {if (t) {var n = r && ("load" === r.type ? "missing" : r.type), u = r && r.target && r.target.src; c.message = "Loading chunk " + e + " failed.\n(" + n + ": " + u + ")", c.name = "ChunkLoadError", c.type = n, c.request = u, t[1](c)} o[e] = void 0} }; var l = setTimeout((function () {u({type: "timeout", target: a})}), 12e4); a.onerror = a.onload = u, document.head.appendChild(a)} return Promise.all(r)}, i.m = e, i.c = n, i.d = function (e, r, t) {i.o(e, r) || Object.defineProperty(e, r, {enumerable: !0, get: t})}, i.r = function (e) {"undefined" != typeof Symbol && Symbol.toStringTag && Object.defineProperty(e, Symbol.toStringTag, {value: "Module"}), Object.defineProperty(e, "__esModule", {value: !0})}, i.t = function (e, r) {if (1 & r && (e = i(e)), 8 & r) return e; if (4 & r && "object" == typeof e && e && e.__esModule) return e; var t = Object.create(null); if (i.r(t), Object.defineProperty(t, "default", {enumerable: !0, value: e}), 2 & r && "string" != typeof e) for (var n in e) i.d(t, n, function (r) {return e[r]}.bind(null, n)); return t}, i.n = function (e) {var r = e && e.__esModule ? function () {return e.default} : function () {return e}; return i.d(r, "a", r), r}, i.o = function (e, r) {return Object.prototype.hasOwnProperty.call(e, r)}, i.p = "/", i.oe = function (e) {throw console.error(e), e}; var a = this.webpackJsonpdocs = this.webpackJsonpdocs || [], c = a.push.bind(a); a.push = r, a = a.slice(); for (var l = 0; l < a.length; l++)r(a[l]); var f = c; t()}([])</script>
+    <script src="/static/js/2.c1fd44c2.chunk.js"></script>
+    <script src="/static/js/main.b4571773.chunk.js"></script>
+</body>
 
-        </div>
-        <div class="col-6" v-if="state.project">
-            <h2 style="color: #fff">Output</h2>
-
-            <div v-for="element in state.project.generators" :key="element.title">
-                <div v-if="element.type == 2 && state.busy" class="card-generator" style="margin: 15px 0 0 0; display: inline-block">
-                    <img v-bind:src="apiUrl + '/output/progress.png'" alt="" />
-                </div>
-                <div v-if="element.output_path?.length > 0" class="card-generator" style="margin: 15px 0 0 0; display: inline-block">
-                    <img v-bind:src="apiUrl + '/' + element.output_path" alt="" />
-                </div>
-                <div v-if="element.output_path == null" class="card-generator" style="margin: 15px 0 0 0; color: #fff">
-                    No preview available.
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+</html>

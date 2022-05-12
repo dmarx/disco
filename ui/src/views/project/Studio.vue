@@ -596,6 +596,18 @@ export default defineComponent({
         description: "BigJpg Upscaler API",
         folder: "go_big",
       },
+        {
+        type: 5,
+        title: "Arbitrary",
+        description: "Run arbitrary code",
+        folder: "arbitrary",
+      },
+        {
+        type: 6,
+        title: "VQGAN",
+        description: "VQGAN generator network",
+        folder: "vqgan",
+      },
     ];
     const generator_disco = null;
     const state = reactive({
