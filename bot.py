@@ -98,7 +98,8 @@ async def make(ctx, *, prompt):
 
     project.generators[0].settings["prompt"] = prompt
     # project.generators[1].settings["text_prompts"][0]['prompt'] = prompt
-    filename = await chain.run_project(project)
+    await chain.run_project(project)
+    filename = chain.output_filename
     # filename = chain.run_chain(prompt)
 
     await ctx.send(file=discord.File("static/output/" + filename))
@@ -133,7 +134,8 @@ async def paint(ctx, *, prompt):
     project.generators[0].settings["prompt"] = answer
     # project.generators[1].settings["text_prompts"]['prompt'] = answer
     # project.generators[1].settings["prompt"] = prompt
-    filename = await chain.run_project(project)
+    await chain.run_project(project)
+    filename = chain.output_filename
     # await ctx.send(answer, file =discord.File("static/output/" + filename))
     await ctx.send(
         discord.utils.escape_mentions(answer)
@@ -172,7 +174,9 @@ async def paint2(ctx, *, prompt):
     project.generators[0].settings["prompt"] = answer
     # project.generators[1].settings["text_prompts"]['prompt'] = answer
     # project.generators[1].settings["prompt"] = prompt
-    filename = await chain.run_project(project)
+    await chain.run_project(project)
+    filename = chain.output_filename
+    
     # await ctx.send(answer, file =discord.File("static/output/" + filename))
     await ctx.send(
         discord.utils.escape_mentions(answer)
@@ -191,7 +195,8 @@ async def paint(ctx, *, prompt):
     project.generators[0].settings["prompt"] = prompt + ", made entirely of chocolate"
     # project.generators[1].settings["text_prompts"]['prompt'] = prompt + ", made entirely of chocolate"
     # project.generators[1].settings["prompt"] = prompt
-    filename = chain.run_project(project)
+    await chain.run_project(project)
+    filename = chain.output_filename
     # filename = chain.run_chain(prompt)
     
     await ctx.send(file=discord.File("static/output/" + filename))

@@ -130,7 +130,7 @@ class Chain:
         self.busy = False
         self.progress = 0
 
-        return self.output_filename
+        # self.output_filename
 
     def run_project_preview(self, project, frame=0):
         self.output_message(
