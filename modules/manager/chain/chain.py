@@ -10,6 +10,7 @@ from modules.generators.generator_ld.generator import GeneratorLatentDiffusion
 from modules.generators.generator_loader.generator import GeneratorLoader
 from modules.generators.generator_arbitrary.generator import GeneratorArbitrary
 from modules.generators.generator_vqgan.generator import GeneratorVQGAN
+from modules.generators.generator_cli.generator import GeneratorCLI
 
 # import asyncio
 # from clip_client import Client
@@ -32,6 +33,7 @@ class Chain:
     generator_loader = None
     generator_arbitrary = None
     generator_vqgan = None
+    generator_cli = None
     # clip_c = None
 
     def load_cuda(self,cudaDeviceOverride=""):
@@ -93,6 +95,10 @@ class Chain:
                 self.generator_vqgan = GeneratorVQGAN(self)
             return self.generator_vqgan
 
+        if generator_type == 7:
+            if self.generator_cli == None:
+                self.generator_cli = GeneratorCLI(self)
+            return self.generator_cli
                         
     async def run_project(self, project):
         self.output_message("Running project " + str(project.id) + ": " + project.title)
@@ -122,7 +128,8 @@ class Chain:
                 instanced_generator.init_settings(generator.settings)
                 await instanced_generator.do_run()
                 self.output_filename = instanced_generator.output_filename
-                self.output_project_image(project, generator)
+                if self.output_filename:
+                    self.output_project_image(project, generator)
 
         self.output_message(
             "Finished project " + str(project.id) + ": " + project.title
