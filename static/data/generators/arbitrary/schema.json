@@ -6,45 +6,14 @@
             "label": "Prompt"
         },
         {
-            "type": "number",
-            "field": "width",
-            "label": "Width"
-        },
-        {
-            "type": "number",
-            "field": "height",
-            "label": "Height"
+            "type": "text",
+            "field": "code",
+            "label": "code"
         },
         {
             "type": "text",
-            "field": "steps",
-            "label": "Steps"
+            "field": "init_image",
+            "label": "init_image"
         },
-        {
-            "type": "text",
-            "field": "eta",
-            "label": "ETA"
-        },
-        {
-            "type": "text",
-            "field": "iterations",
-            "label": "Iterations"
-        },
-        {
-            "type": "text",
-            "field": "samples_in_parallel",
-            "label": "Sample in parallel"
-        },
-        {
-            "type": "text",
-            "field": "diversity",
-            "label": "Diversity"
-        },
-        {
-            "type": "select",
-            "field": "plms_ddim",
-            "label": "plms/ddim",
-            "options": ["ddim", "plms"]
-        }
     ]
 }

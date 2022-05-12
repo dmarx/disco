@@ -1,11 +1,21 @@
 {
     "prompt": "a scenic view of a beautiful tropical beach by David Noton, bright sunny day",
-    "width": 256,
-    "height": 256,
-    "steps": 50,
-    "eta": 0,
-    "iterations": 3,
-    "samples_in_parallel": 4,
-    "diversity": 10,
-    "plms_ddim": "ddim"
+    "code": "
+    # Converts output of previous generator to black and white (dithering)
+    # and adds prompt as text in top left corner
+    import numpy as np
+    import os
+    from PIL import Image
+    from PIL import ImageDraw
+    
+    im = Image.open(init_image)
+    im = im.convert('1')
+    draw = ImageDraw.Draw(im)
+    draw.text((0, 0), prompt, (255))
+    
+    filename_out = f\"{i_generator}_arbitrary.png\"
+    im.save(os.path.join(\"content/output\", filename_out))
+    im.save(os.path.join(\"static/output\", filename_out))
+        ",
+    "init_image": "",
 }
