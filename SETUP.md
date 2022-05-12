@@ -26,7 +26,7 @@ sudo apt install python3.9-distutils
 
 python3 -m pip install opencv-python
 pip install Cython
-pip install  ftfy ipywidgets lpips imageio imgtag stegano GPUtil
+pip install  ftfy ipywidgets lpips imageio imgtag stegano GPUtil imgtag
 pip install pytorch_lit pandas timm pip pytorch-lightning transformers
 pip install einops omegaconf flask_cors twilio encoders dill  matplotlib opencv-python kornia 
 pip install clip_client discord regex requests timm

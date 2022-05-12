@@ -15,9 +15,10 @@
             },
             "args": [
                 "run",
-        "--port=5001"
+                "--no-debugger"
             ],
-
+            "jinja": true,
+            "justMyCode": true
         },
         {
             "name": "Python: CLI",

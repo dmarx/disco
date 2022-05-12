@@ -9,6 +9,7 @@ from subprocess import check_output
 import asyncio
 import sys
 from flask_cors import CORS
+import gc, torch
 
 os.system("export TOKENIZERS_PARALLELISM=false")
 
@@ -25,7 +26,6 @@ sys.path.append(f'{PROJECT_DIR}/lib/latent-diffusion')
 sys.path.append(f'{PROJECT_DIR}/lib/ResizeRight')
 sys.path.append(f'{PROJECT_DIR}/lib/pytorch3d-lite')
 
-
 chain = None
 session = None
 stdout, stderr = None, None
@@ -36,17 +36,12 @@ app = Flask(__name__, static_url_path="", static_folder="static")
 CORS(app)
 cors = CORS(app, resource={r"/*": {"origins": "*"}})
 
-
 def main():
     print("Use flask run to correctly launch the api.")
 
-
-# import bot;
 @app.route("/")
 def serve_results():
-    # Haven't used the secure way to send files yet
     return send_file("static/index.html")
-
 
 async def run_base(id):
     global chain
@@ -54,8 +49,8 @@ async def run_base(id):
     if chain == None:
         chain = Chain()
     chain.output = ""
-    filename = await chain.run_project(project)
-    return filename
+    await chain.run_project(project)
+    return chain.output_filename
 
 
 async def run_base_preview(id, frame):
@@ -120,8 +115,14 @@ def api_task_reset():
     global proc, chain
     global session,stdout,stderr
 
+    gc.collect()
+    torch.cuda.empty_cache()
+    
     chain = Chain()
     proc = None
+    
+    gc.collect()
+    torch.cuda.empty_cache()
  
     res = {
             'output':chain.output.replace("\n","<br />") if chain != None else "",
@@ -206,10 +207,6 @@ def project_delete(id):
     Api.delete(id)
     return jsonify(None)
 
-
-# '
-# if __name__ == '__main__':
-#     this.reate_app();
 
 if __name__ == "__main__":
     main()

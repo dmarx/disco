@@ -1782,9 +1782,9 @@ class GeneratorDisco(GeneratorBase):
     def update_model_config(self,settings):
         
         # Get corrected sizes
-        self.steps = settings[
+        self.steps = int(settings[
             "steps"
-        ]  # @param [25,50,100,150,250,500,1000]{type: 'raw', allow-input: true}
+        ])  # @param [25,50,100,150,250,500,1000]{type: 'raw', allow-input: true}
         self.width_height = settings["wh"]  # @param{type: 'raw'}
         self.side_x = (self.width_height[0] // 64) * 64
         self.side_y = (self.width_height[1] // 64) * 64

@@ -2,7 +2,7 @@ from datetime import datetime
 import os
 from random import seed
 from random import randint
-
+import shutil
 from modules.manager.projects.project import Project
 
 
@@ -52,7 +52,8 @@ class Api:
 
     def delete(id):
         item = Project(id)
-        os.rmdir(item.dir())
+        shutil.rmtree(item.project_dir(), ignore_errors=True)
+        # os.rmdir(item.project_dir())
         return True
 
     # @staticmethod
