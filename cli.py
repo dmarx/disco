@@ -1,7 +1,11 @@
 import os, sys
+import argparse, asyncio
+import json
+from types import SimpleNamespace
+
+os.system("export TOKENIZERS_PARALLELISM=false")
 
 PROJECT_DIR = os.getcwd()
-
 sys.path.append(f"{PROJECT_DIR}/lib/glid_3_xl")
 sys.path.append(f"{PROJECT_DIR}/lib/CLIP")
 sys.path.append(f"{PROJECT_DIR}/lib/MiDaS")
@@ -9,24 +13,7 @@ sys.path.append(f"{PROJECT_DIR}/lib/AdaBins")
 sys.path.append(f"{PROJECT_DIR}/lib/latent-diffusion")
 sys.path.append(f"{PROJECT_DIR}/lib/ResizeRight")
 sys.path.append(f"{PROJECT_DIR}/lib/pytorch3d-lite")
-# import os, sys
-# PROJECT_DIR=os.getcwd()
 
-# sys.path.append(f'{PROJECT_DIR}/lib/glid_3_xl')
-# sys.path.append(f'{PROJECT_DIR}/lib/CLIP')
-# sys.path.append(f'{PROJECT_DIR}/lib/MiDaS')
-# sys.path.append(f'{PROJECT_DIR}/lib/AdaBins')
-# sys.path.append(f'{PROJECT_DIR}/lib/latent-diffusion')
-# sys.path.append(f'{PROJECT_DIR}/lib/ResizeRight')
-# sys.path.append(f'{PROJECT_DIR}/lib/pytorch3d-lite')
-
-# # # from generator_disco.generator import GeneratorDisco
-# #from modules.generators.generator_ld.generator import GeneratorLatentDiffusion
-# # # from manager.chain.chain import Chain
-
-import argparse, asyncio
-import json
-from types import SimpleNamespace
 from modules.manager.chain.chain import Chain
 from modules.manager.projects.api import Api
 from modules.manager.projects.project import Project
@@ -109,14 +96,22 @@ im.save(os.path.join("static/output", filename_out))
         ),
     ]
 
+    print("running custom chain...")
+    chain = Chain()
+    chain.filename = await chain.run_project(project)
+
+async def run_external_project(project_id):
+    project = Api.fetch(args.project)
     print("running project chain...")
     chain = Chain()
     chain.filename = await chain.run_project(project)
 
-
+# default run
+default_prompt = "A scenic view over a landscape of magical architecture, by David Noton and Asher Brown Durand, matte painting trending on artstation HQ."
 parser = argparse.ArgumentParser()
 parser.add_argument("--project", type=int, default="0", help="project id")
-args = parser.parse_args(args=[], namespace=None)
+parser.add_argument("--prompt", type=str, default=default_prompt, help="prompt")
+args = parser.parse_args()
 
 # args.project = 0
 loop = asyncio.new_event_loop()
