@@ -12,8 +12,8 @@
             <!-- <buttom  v-iftitleitem.length>0">{{ item.tietle }}</h3> -->
             <br />
             <br />
-            <button class="btn btn-primary" @click="showProject(item.id)">View</button
-            ><!-- <router-link to="item.id"> Launch </router-link> -->
+            <button class="btn btn-primary" @click="showProject(item.id)">View</button>
+            <!-- <router-link to="item.id"> Launch </router-link> -->
           </div>
           <br />
           <!-- <span style="color: #fff !important">{{ item.id }}</span>
@@ -59,11 +59,7 @@
         </span>
       </div> -->
 
-      <div
-        class="menu-item menu-accordion"
-        data-kt-menu-sub="accordion"
-        data-kt-menu-trigger="click"
-      >
+      <div class="menu-item menu-accordion" data-kt-menu-sub="accordion" data-kt-menu-trigger="click">
         <div class="menu-content pt-8 pb-2">
           <span class="menu-section text-muted text-uppercase fs-8 ls-1">Projects</span>
         </div>
@@ -101,6 +97,7 @@ import { defineComponent, onMounted } from "vue";
 import { setCurrentPageTitle } from "@/core/helpers/breadcrumb";
 import { reactive } from "vue";
 import ApiService from "@/core/services/ApiService";
+import Swal from "sweetalert2/dist/sweetalert2.min.js";
 
 export default defineComponent({
   name: "cases",
@@ -135,13 +132,14 @@ export default defineComponent({
       this.$router.push("/project/" + id + "/studio");
     },
     getProjects() {
-      console.log("get");
+      console.log(this.apiUrl + "get");
       ApiService.post(this.apiUrl + "/api/projects", {})
         .then(({ data }) => {
-          this.state.projects = data;
+          this.state.projects = data.filter(x => x.id != -1);
           console.log("get projects", data);
+        
         })
-        .catch(({ response }) => {});
+        .catch(({ response }) => { });
     },
     addProject() {
       console.log("add");
@@ -150,7 +148,7 @@ export default defineComponent({
           //this.state.projects = data;
           this.getProjects();
         })
-        .catch(({ response }) => {});
+        .catch(({ response }) => { });
     },
     saveProject(id) {
       console.log("save");
@@ -159,7 +157,7 @@ export default defineComponent({
           //this.state.projects = data;
           // this.getProjects();
         })
-        .catch(({ response }) => {});
+        .catch(({ response }) => { });
     },
     deleteProject(id) {
       console.log("delete");
@@ -167,8 +165,17 @@ export default defineComponent({
         .then(({ data }) => {
           //this.state.projects = data;
           // this.getProjects();
+            Swal.fire({
+            text: "Project deleted successfully.",
+            icon: "success",
+            buttonsStyling: false,
+            confirmButtonText: "Ok, got it!",
+            customClass: {
+              confirmButton: "btn btn-primary",
+            },
+          });
         })
-        .catch(({ response }) => {});
+        .catch(({ response }) => { });
     },
   },
 });

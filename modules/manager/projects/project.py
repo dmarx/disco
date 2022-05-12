@@ -23,19 +23,23 @@ class Project:
         self.generators = []
         self.title = ""
         if exists(self.project_dir()):
-            with open(self.project_dir() + "/data.json") as json_file:
-                # data = json.load(json_file)
-                data = json.load(json_file, object_hook=lambda d: SimpleNamespace(**d))
+            try:
+                with open(self.project_dir() + "/data.json") as json_file:
+                    # data = json.load(json_file)
+                    data = json.load(json_file, object_hook=lambda d: SimpleNamespace(**d))
 
-                # print(data)
-                self.title = data.title
-                self.created = data.created
-                self.generators = data.generators
-                for generator in self.generators:
-                    # Settings need to be dict, not SimpleNamespace
-                    # XXX: Better to do this in the object_hook of json.load above
-                    generator.settings = vars(generator.settings)
-
+                    # print(data)
+                    self.title = data.title
+                    self.created = data.created
+                    self.generators = data.generators
+                    for generator in self.generators:
+                        # Settings need to be dict, not SimpleNamespace
+                        # XXX: Better to do this in the object_hook of json.load above
+                        generator.settings = vars(generator.settings)
+            except:
+                print("Error loading json file for project " + str(self.id))
+                
+            
             # file_data = dill.load(open(self.project_dir() + "/data.obj", "rb"))
             # file_data = json.loads(open(self.project_dir() + "/data.obj", "rb"))
             # self.title = file_data.title

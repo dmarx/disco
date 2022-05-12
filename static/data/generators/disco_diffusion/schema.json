@@ -83,11 +83,6 @@
             "label": "Init image"
         },
         {
-            "field": "number",
-            "type": "init_scale",
-            "label": "Init Scale"
-        },
-        {
             "type": "text",
             "field": "set_seed",
             "label": "Random Seed"

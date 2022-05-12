@@ -8,8 +8,8 @@ from modules.generators.generator_disco.generator import GeneratorDisco
 from modules.generators.generator_go_big.generator import GeneratorGoBig
 from modules.generators.generator_ld.generator import GeneratorLatentDiffusion
 from modules.generators.generator_loader.generator import GeneratorLoader
-# from modules.generators.generator_arbitrary.generator import GeneratorArbitrary
-# from modules.generators.generator_vqgan.generator import GeneratorVQGAN
+from modules.generators.generator_arbitrary.generator import GeneratorArbitrary
+from modules.generators.generator_vqgan.generator import GeneratorVQGAN
 
 # import asyncio
 # from clip_client import Client
@@ -83,15 +83,15 @@ class Chain:
         #         self.generator_dalle_pytorch = GeneratorDALLE2Pytorch(self)
         #     return self.generator_dalle_pytorch
 
-        # if generator_type == 5:
-        #     if self.generator_arbitrary == None:
-        #         self.generator_arbitrary = GeneratorArbitrary(self)
-        #     return self.generator_arbitrary
+        if generator_type == 5:
+            if self.generator_arbitrary == None:
+                self.generator_arbitrary = GeneratorArbitrary(self)
+            return self.generator_arbitrary
 
-        # if generator_type == 6:
-        #     if self.generator_vqgan == None:
-        #         self.generator_vqgan = GeneratorVQGAN(self)
-        #     return self.generator_vqgan
+        if generator_type == 6:
+            if self.generator_vqgan == None:
+                self.generator_vqgan = GeneratorVQGAN(self)
+            return self.generator_vqgan
 
                         
     async def run_project(self, project):
@@ -120,7 +120,7 @@ class Chain:
 
                 instanced_generator = self.fetch_instanced_generator(generator.type)
                 instanced_generator.init_settings(generator.settings)
-                self.output_filename = await instanced_generator.do_run()
+                self.output_filename = instanced_generator.do_run()
                 self.output_project_image(project, generator)
 
         self.output_message(
