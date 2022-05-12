@@ -54,7 +54,7 @@ im.save(os.path.join("static/output", filename_out))
         SimpleNamespace(
             **{
                 "type": 1,
-                "enabled": True,
+                "enabled": False,
                 "settings": {
                     "prompt": prompt,
                     "steps": 30,
@@ -91,6 +91,15 @@ im.save(os.path.join("static/output", filename_out))
                 "settings": {
                     "code": arbitrary_code_to_run,
                     "prompt": "",
+                },
+            }
+        ),
+        SimpleNamespace(
+            **{
+                "type": 7,
+                "enabled": True,
+                "settings": {
+                    "command": "python -m pytti.warmup",
                 },
             }
         ),

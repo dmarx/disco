@@ -45,6 +45,24 @@ python install.py
 # fix glid-3
 mv ./modules/generators/generator_ld/glid_3_xl ./lib/
 
+# Install PyTTI-Tools
+pip install --upgrade git+https://github.com/pytti-tools/AdaBins.git
+pip install --upgrade git+https://github.com/pytti-tools/GMA.git
+#pip install --upgrade git+https://github.com/pytti-tools/taming-transformers.git
+#pip install --upgrade git+https://github.com/openai/CLIP.git
+pip install --upgrade git+https://github.com/pytti-tools/pytti-core.git
+python -m pytti.warmup
+
+# install MMC for additional perceptors
+git clone https://github.com/dmarx/Multi-Modal-Comparators
+pip install poetry
+cd Multi-Modal-Comparators
+poetry build
+pip install dist/mmc*.whl
+python src/mmc/napm_installs/__init__.py
+cd ..
+
+
 # for vm such as gradient
 apt-get update
 apt-get upgrade
