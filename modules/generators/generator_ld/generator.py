@@ -23,7 +23,7 @@ from lib.dalle_flow_glid3.guided_diffusion_ld2.script_util import (
 from einops import rearrange
 from math import log2, sqrt
 import os
-# import clip
+import clip
 from modules.generators.base.generator import GeneratorBase
 from functools import reduce  # py3
 
@@ -37,6 +37,8 @@ class GeneratorLatentDiffusion(GeneratorBase):
 
     ldm = None
 
+    useService = False
+    
     default_settings = '{"model_path": "lib/glid_3_xl/finetune.pt", "kl_path": "lib/glid_3_xl/kl-f8.pt", "bert_path": "lib/glid_3_xl/bert.pt", "text": "", "edit": null, "edit_x": 0, "edit_y": 0, "edit_width": 0, "edit_height": 0, "mask": null, "negative": "", "init_image": null, "skip_timesteps": 0, "prefix": "", "num_batches": 1, "batch_size": 1, "width": 256, "height": 256, "seed": -1, "guidance_scale": 5.0, "steps": 0, "cpu": false, "clip_score": false, "clip_guidance": false, "clip_guidance_scale": 150, "cutn": 16, "ddim": false, "ddpm": false}'
     settings = {
         "model_path": "lib/glid_3_xl/finetune.pt",
@@ -110,38 +112,6 @@ class GeneratorLatentDiffusion(GeneratorBase):
         x_diff = input[..., :-1, 1:] - input[..., :-1, :-1]
         y_diff = input[..., 1:, :-1] - input[..., :-1, :-1]
         return (x_diff ** 2 + y_diff ** 2).mean([1, 2, 3])
-
-    # async def get_embeds(self):
-    #     self.args.negative = " "
-    #     clip_c = AsyncGRPCClient(server='grpc://demo-cas.jina.ai:51000')
-    #     #text_emb_clip = clip_c.encode([self.args.prompt] * self.args.batch_size)
-        
-        
-    #     t2 = asyncio.create_task(clip_c.aencode([self.args.prompt] * self.args.batch_size))
-    #     t3 = asyncio.create_task(clip_c.aencode([self.args.negative] * self.args.batch_size))
-    #     tasks = t2, t3
-    #     self.text_emb_clip, self.text_emb_clip_blank = asyncio.gather(*tasks)
-
-    #     # self.text_emb_clip = await clip_c.encode([self.args.prompt] * self.args.batch_size)
-    #     # self.text_emb_clip_blank = await clip_c.encode([self.args.negative] * self.args.batch_size)
-
-    #     # responses = loop.run_until_complete(self.get_embeds())
-        
-        
-    #     # asyncio.gather(t2,t3)
-    #     # assert t2.result()
-    #     # self.text_emb_clip = t2.result()
-    #     # assert t3.result()
-    #     # self.text_emb_clip_blank = t3.result()
-    #     # assert t2.result().
-       
-    # async def get_embeds(self):
-    #     self.args.negative = " "
-    #     t1 = asyncio.create_task(self.chain.clip_c.encode([self.args.prompt] * self.args.batch_size))
-    #     t2 = asyncio.create_task(self.chain.clip_c.encode([self.args.negative] * self.args.batch_size))
-    #     # t2 = asyncio.create_task(c.aencode(['hello world'] * 100))
-    #     await asyncio.gather(t1, t2)
-    #     print(t1,t2)
      
     async def do_run(self, prefix="", input_seed=""):
         
@@ -161,16 +131,7 @@ class GeneratorLatentDiffusion(GeneratorBase):
         )
 
 
-        # text = clip.tokenize([self.args.prompt] * self.args.batch_size, truncate=True).to(
-        #     device
-        # )
-        # text_clip_blank = clip.tokenize(
-        #     [self.args.negative] * self.args.batch_size, truncate=True
-        # ).to(device)
-
-        # # clip context
-        # text_emb_clip = self.clip_model.encode_text(text)
-        # text_emb_clip_blank = self.clip_model.encode_text(text_clip_blank)
+       
 
         # clip context
        
@@ -194,12 +155,31 @@ class GeneratorLatentDiffusion(GeneratorBase):
         # # t2 = asyncio.create_task(c.aencode(['hello world'] * 100))
         # self.text_emb_clip, self.text_emb_clip_blank = asyncio.gather(t1, t2).result()
         
-        clip_c = Client(server='grpc://demo-cas.jina.ai:51000')
-        # clip_c._async_client.post
         self.args.negative = " "
-        self.text_emb_clip = await clip_c.aencode([self.args.prompt] * self.args.batch_size)
-        self.text_emb_clip_blank = await clip_c.aencode([self.args.negative] * self.args.batch_size)
-        
+        if self.useService:
+            clip_c = Client(server='grpc://demo-cas.jina.ai:51000')
+            # clip_c._async_client.post
+            self.text_emb_clip = await clip_c.aencode([self.args.prompt] * self.args.batch_size)
+            self.text_emb_clip_blank = await clip_c.aencode([self.args.negative] * self.args.batch_size)
+        else:
+            # text = clip.tokenize([self.args.prompt] * self.args.batch_size, truncate=True).to(self.device            )
+            # text_clip_blank = clip.tokenize(            [self.args.negative] * self.args.batch_size, truncate=True).to(self.device)
+
+            # # clip context
+            # self.text_emb_clip = self.clip_model.encode_text(text)
+            # self.text_emb_clip_blank = self.clip_model.encode_text(text_clip_blank)    
+            text = clip.tokenize([self.args.text] * self.args.batch_size, truncate=True).to(
+                self.device
+            )
+            text_clip_blank = clip.tokenize(
+                [self.args.negative] * self.args.batch_size, truncate=True
+            ).to(self.device)
+
+            # clip context
+            self.text_emb_clip = self.clip_model.encode_text(text)
+            self.text_emb_clip_blank = self.clip_model.encode_text(text_clip_blank)
+
+            
         # asyncio.run(self.get_embeds())
         # loop = asyncio.new_event_loop()
         # asyncio.set_event_loop(loop)
@@ -222,18 +202,28 @@ class GeneratorLatentDiffusion(GeneratorBase):
                 device=self.device,
             )
 
-        kwargs = {
-            "context": torch.cat([text_emb, text_blank], dim=0).float(),
-            "clip_embed": torch.cat(
-                [torch.from_numpy(self.text_emb_clip), torch.from_numpy(self.text_emb_clip_blank)],
-                dim=0,
-            )
-            .to(self.device)
-            .float()
-            if self.model_params['clip_embed_dim']
-            else None,
-            "image_embed": image_embed,
-        }
+        if self.useService:
+            kwargs = {
+                "context": torch.cat([text_emb, text_blank], dim=0).float(),
+                "clip_embed": torch.cat(
+                    [torch.from_numpy(self.text_emb_clip), torch.from_numpy(self.text_emb_clip_blank)],
+                    dim=0,
+                )
+                .to(self.device)
+                .float()
+                if self.model_params['clip_embed_dim']
+                else None,
+                "image_embed": image_embed,
+            }
+        else:
+            kwargs = {
+                "context": torch.cat([text_emb, text_blank], dim=0).float(),
+                "clip_embed": torch.cat([self.text_emb_clip, self.text_emb_clip_blank], dim=0).float()
+                if self.model_params["clip_embed_dim"]
+                else None,
+                "image_embed": image_embed,
+            }
+
 
         # Create a classifier-free guidance sampling function
         def model_fn(x_t, ts, **kwargs):
@@ -316,12 +306,20 @@ class GeneratorLatentDiffusion(GeneratorBase):
         # return filename_out
         self.output_filename = filename_out
     
-
-    # gc.collect()
-    # do_run()
-
     def load_models(self):
 
+        if not self.useService:
+                
+            self.clip_model, self.clip_preprocess = clip.load(
+                # "ViT-L/14", device=self.device, jit=False
+                "ViT-L/14@336px", device=self.device, jit=False
+            )
+            self.clip_model.eval().requires_grad_(False)
+            self.normalize = transforms.Normalize(
+                mean=[0.48145466, 0.4578275, 0.40821073],
+                std=[0.26862954, 0.26130258, 0.27577711],
+            )
+            
             
         self.model_state_dict = torch.load(self.args.model_path, map_location='cpu')
 
