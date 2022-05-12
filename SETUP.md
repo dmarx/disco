@@ -42,6 +42,9 @@ sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 2
 # install libs
 python install.py
 
+# fix glid-3
+mv ./modules/generators/generator_ld/glid_3_xl ./lib/
+
 # for vm such as gradient
 apt-get update
 apt-get upgrade
